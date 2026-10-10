@@ -12,7 +12,13 @@
   --color-moss-500:   #698E6C;
   --color-moss-200:   #DDE5DC;
   
-  --color-paper-light:#FDFBF7;
+  --color-teal-800:   #1E5850;
+  --color-teal-600:   #2F8175;
+  --color-teal-400:   #46A093;
+  --color-teal-100:   #E5F3F1;
+
+  --color-ivory:      #FCFBF7;
+  --color-paper-light:#FCFBF7;
   --color-paper-base: #F7F4EC;
   --color-paper-deep: #EFEADB;
   --color-paper-aged: #E2DBD0;

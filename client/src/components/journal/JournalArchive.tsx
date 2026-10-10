@@ -1,37 +1,126 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useFieldSession } from '../../context/field-session-context.js';
 import { TactileButton } from '../common/TactileButton.js';
 import { EditorialBadge } from '../common/EditorialBadge.js';
-import { Compass, Calendar, Pocket, ArrowLeft, ShieldCheck } from 'lucide-react';
+import {
+  BotanicalLeafSprig,
+  BotanicalWaxSeal,
+} from '../common/BotanicalIllustrations.js';
+import {
+  Compass,
+  Calendar,
+  Pocket,
+  ArrowLeft,
+  ShieldCheck,
+  Search,
+} from 'lucide-react';
 
 export const JournalArchive: React.FC = () => {
   const { state, navigate } = useFieldSession();
   const { journalEntries } = state;
+  const [activeFilter, setActiveFilter] = useState<'all' | 'science' | 'community' | 'everyday'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filterTabs = [
+    { id: 'all' as const, label: 'All Folios', count: journalEntries.length },
+    {
+      id: 'science' as const,
+      label: 'School & Science',
+      count: journalEntries.filter((e) =>
+        e.discovery?.fieldCategory?.toLowerCase().includes('science') ||
+        e.discovery?.fieldCategory?.toLowerCase().includes('botan') ||
+        e.investigation.title?.toLowerCase().includes('venation') ||
+        e.investigation.title?.toLowerCase().includes('botan')
+      ).length,
+    },
+    {
+      id: 'community' as const,
+      label: 'Community & Environment',
+      count: journalEntries.filter((e) =>
+        e.discovery?.fieldCategory?.toLowerCase().includes('community') ||
+        e.discovery?.fieldCategory?.toLowerCase().includes('environ') ||
+        e.investigation.title?.toLowerCase().includes('canopy') ||
+        e.investigation.title?.toLowerCase().includes('water')
+      ).length,
+    },
+    {
+      id: 'everyday' as const,
+      label: 'Everyday Discovery',
+      count: journalEntries.filter((e) =>
+        e.discovery?.fieldCategory?.toLowerCase().includes('everyday') ||
+        e.discovery?.fieldCategory?.toLowerCase().includes('micro') ||
+        e.investigation.title?.toLowerCase().includes('lichen') ||
+        e.investigation.title?.toLowerCase().includes('shadow')
+      ).length,
+    },
+  ];
+
+  const filteredEntries = journalEntries.filter((entry) => {
+    // Text search query
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchTitle = entry.investigation.title.toLowerCase().includes(q);
+      const matchNotes = entry.observation.rawNotes.toLowerCase().includes(q);
+      const matchPrompt = entry.investigation.prompt.toLowerCase().includes(q);
+      const matchCategory = entry.discovery?.fieldCategory.toLowerCase().includes(q);
+      if (!matchTitle && !matchNotes && !matchPrompt && !matchCategory) {
+        return false;
+      }
+    }
+
+    // Category tab filter
+    if (activeFilter === 'all') return true;
+    if (activeFilter === 'science') {
+      return (
+        entry.discovery?.fieldCategory?.toLowerCase().includes('science') ||
+        entry.discovery?.fieldCategory?.toLowerCase().includes('botan') ||
+        entry.investigation.title?.toLowerCase().includes('venation') ||
+        entry.investigation.title?.toLowerCase().includes('botan')
+      );
+    }
+    if (activeFilter === 'community') {
+      return (
+        entry.discovery?.fieldCategory?.toLowerCase().includes('community') ||
+        entry.discovery?.fieldCategory?.toLowerCase().includes('environ') ||
+        entry.investigation.title?.toLowerCase().includes('canopy') ||
+        entry.investigation.title?.toLowerCase().includes('water')
+      );
+    }
+    if (activeFilter === 'everyday') {
+      return (
+        entry.discovery?.fieldCategory?.toLowerCase().includes('everyday') ||
+        entry.discovery?.fieldCategory?.toLowerCase().includes('micro') ||
+        entry.investigation.title?.toLowerCase().includes('lichen') ||
+        entry.investigation.title?.toLowerCase().includes('shadow')
+      );
+    }
+    return true;
+  });
 
   return (
-    <div className="space-y-8 animate-journal-entry max-w-2xl mx-auto">
-      {/* Archive Header */}
-      <section className="journal-page p-5 sm:p-8 border border-stone-deep/40 rounded-sm bg-paper-bright flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-journal">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <span className="text-terracotta text-sm">🌿</span>
+    <div className="space-y-8 sm:space-y-10 animate-journal-entry">
+      {/* 1. ARCHIVE MASTHEAD */}
+      <section className="journal-page p-6 sm:p-10 border border-stone-deep/40 rounded-sm bg-paper-bright flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-journal">
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2.5">
+            <BotanicalLeafSprig className="w-5 h-5 text-forest" />
             <span className="font-mono text-xs tracking-widest text-ink-faint uppercase font-semibold">
-              Field Archive • {journalEntries.length} {journalEntries.length === 1 ? 'Entry' : 'Entries'}
+              Permanent Field Archive • {journalEntries.length} {journalEntries.length === 1 ? 'Folio' : 'Folios'}
             </span>
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl text-ink font-medium tracking-tight">
+          <h1 className="font-serif text-3xl sm:text-5xl text-ink font-medium tracking-tight">
             The Naturalist's Logbook
           </h1>
-          <p className="font-serif italic text-sm text-ink-muted">
-            Chronological impressions and synthesized physical dynamics.
+          <p className="font-serif italic text-sm sm:text-base text-ink-muted max-w-lg">
+            A permanent chronological record of physical observations and synthesized ecological dynamics.
           </p>
         </div>
 
-        <div className="flex items-center">
+        <div className="flex items-center shrink-0">
           <TactileButton
             onClick={() => navigate('setup')}
             variant="primary"
-            className="w-full sm:w-auto px-6 min-h-[44px] text-sm"
+            className="w-full sm:w-auto px-7 py-3.5 text-sm font-semibold shadow-journal min-h-[48px]"
           >
             <Compass className="w-4 h-4 mr-2" />
             New Investigation
@@ -39,38 +128,97 @@ export const JournalArchive: React.FC = () => {
         </div>
       </section>
 
-      {/* Empty State */}
+      {/* 2. SEARCH & DISCIPLINE FILTER TABS */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-deep/40 pb-4">
+        {/* Filter Tabs */}
+        <div className="flex flex-wrap items-center gap-1.5" role="tablist">
+          {filterTabs.map((tab) => {
+            const isTabActive = activeFilter === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveFilter(tab.id)}
+                className={`px-3.5 py-1.5 rounded-[2px] text-xs font-mono tracking-wide transition-all min-h-[38px] flex items-center ${
+                  isTabActive
+                    ? 'bg-forest text-paper font-semibold shadow-journal-subtle'
+                    : 'bg-paper text-ink-muted hover:text-ink hover:bg-stone-light/60 border border-stone-deep/30'
+                }`}
+              >
+                <span>{tab.label}</span>
+                {tab.count > 0 && (
+                  <span
+                    className={`ml-1.5 text-[10px] px-1.5 py-0.2 rounded-full ${
+                      isTabActive ? 'bg-terracotta text-paper' : 'bg-stone-deep/40 text-ink'
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Search input */}
+        <div className="relative w-full sm:w-64">
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search field records..."
+            className="w-full pl-9 pr-3 py-1.5 rounded-[2px] border border-stone-deep/40 bg-paper-bright text-ink text-xs font-sans placeholder:text-ink-faint focus:border-forest focus:outline-none min-h-[38px]"
+          />
+        </div>
+      </div>
+
+      {/* 3. EMPTY STATE OR RECORD LIST */}
       {journalEntries.length === 0 ? (
-        <div className="journal-page p-8 sm:p-14 text-center border border-stone-deep/40 rounded-sm bg-paper-bright shadow-journal space-y-5">
-          <div className="w-14 h-14 mx-auto rounded-full border border-stone-deep/60 flex items-center justify-center text-moss bg-paper-deep/40">
-            <span className="font-serif text-2xl italic select-none">🌿</span>
+        <div className="journal-page p-8 sm:p-14 text-center border border-stone-deep/40 rounded-sm bg-paper-bright shadow-journal space-y-6">
+          <div className="w-16 h-16 mx-auto rounded-full border border-stone-deep/60 flex items-center justify-center text-forest bg-paper">
+            <BotanicalWaxSeal className="w-10 h-10" label="OPEN" />
           </div>
-          <div className="space-y-2">
-            <span className="font-mono text-xs tracking-widest text-ink-faint uppercase font-medium block">
+          <div className="space-y-2 max-w-md mx-auto">
+            <span className="font-mono text-xs tracking-widest text-ink-faint uppercase font-semibold block">
               Folio Open • Uninscribed
             </span>
-            <h2 className="font-serif text-2xl sm:text-3xl text-ink font-medium">
+            <h2 className="font-serif text-2xl sm:text-4xl text-ink font-medium">
               The Logbook Lies Open
             </h2>
-            <p className="font-serif italic text-sm text-ink-muted leading-relaxed max-w-md mx-auto">
-              No field notes have been inscribed yet. Step outside, allow your phone to rest in your pocket, and gather your first physical observation.
+            <p className="font-serif italic text-sm text-ink-muted leading-relaxed">
+              No field notes have been sealed yet. Step outside, let your phone rest in your pocket, and record your first physical observation.
             </p>
           </div>
           <div className="pt-2">
             <TactileButton
               onClick={() => navigate('setup')}
               variant="primary"
-              className="min-h-[44px] px-6 text-sm"
+              className="min-h-[48px] px-8 text-sm font-semibold shadow-journal"
             >
               <Compass className="w-4 h-4 mr-2" />
               Begin First Investigation
             </TactileButton>
           </div>
         </div>
+      ) : filteredEntries.length === 0 ? (
+        <div className="journal-page p-8 text-center border border-stone-deep/40 rounded-sm bg-paper-bright shadow-journal space-y-3">
+          <p className="font-serif italic text-base text-ink-muted">
+            No field notes match the selected filter or search query.
+          </p>
+          <button
+            onClick={() => {
+              setActiveFilter('all');
+              setSearchQuery('');
+            }}
+            className="text-xs font-mono text-forest uppercase tracking-wider underline"
+          >
+            Clear filters
+          </button>
+        </div>
       ) : (
-        /* Vertical Journal Flow (Collectible Field Notes) */
+        /* Vertical Journal Flow (Editorial Collectible Field Notes) */
         <div className="space-y-8">
-          {journalEntries.map((entry) => {
+          {filteredEntries.map((entry) => {
             const dateStr = new Date(entry.createdAt).toLocaleDateString('en-US', {
               month: 'long',
               day: 'numeric',
@@ -80,14 +228,18 @@ export const JournalArchive: React.FC = () => {
             return (
               <article
                 key={entry.id}
-                className="journal-page p-5 sm:p-8 md:p-10 border border-stone-deep/40 rounded-sm bg-paper-bright shadow-journal space-y-6"
+                className="journal-page p-6 sm:p-10 border border-stone-deep/40 rounded-sm bg-paper-bright shadow-journal space-y-6 hover:border-forest/40 transition-colors"
               >
-                {/* 1. Header: FIELD NOTE NO. 00X & Date */}
-                <div className="border-b border-stone/80 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-terracotta text-xs">✦</span>
+                {/* 1. Header: Folio No & Meaningful Date */}
+                <div className="border-b border-stone/80 pb-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <div className="flex items-center space-x-2.5">
+                    <BotanicalLeafSprig className="w-4 h-4 text-forest" />
                     <span className="font-mono text-xs tracking-widest text-terracotta uppercase font-bold">
-                      FIELD NOTE NO. {String(entry.investigation.sequenceNumber).padStart(3, '0')}
+                      FOLIO NO. {String(entry.investigation.sequenceNumber).padStart(3, '0')}
+                    </span>
+                    <span className="text-stone-deep">•</span>
+                    <span className="font-mono text-xs text-forest uppercase font-semibold">
+                      {entry.discovery?.fieldCategory || 'Botanical Note'}
                     </span>
                   </div>
 
@@ -106,14 +258,14 @@ export const JournalArchive: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 2. Title & Directive */}
+                {/* 2. Investigation Title & Prompt */}
                 <div className="space-y-2">
-                  <h2 className="font-serif text-2xl sm:text-3xl text-ink font-medium tracking-tight">
+                  <h2 className="font-serif text-2xl sm:text-4xl text-ink font-medium tracking-tight">
                     {entry.investigation.title}
                   </h2>
-                  <div className="border-l-2 border-stone-deep/60 pl-3 py-1 bg-paper-deep/20 rounded-r-sm">
+                  <div className="border-l-2 border-stone-deep/60 pl-3.5 py-1 bg-paper-deep/20 rounded-r-sm">
                     <span className="font-mono text-[10px] tracking-widest uppercase text-ink-faint block">
-                      Directive
+                      Field Directive
                     </span>
                     <p className="font-serif italic text-sm text-ink-muted leading-relaxed">
                       “{entry.investigation.prompt}”
@@ -121,11 +273,14 @@ export const JournalArchive: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 3. Observation */}
-                <section className="space-y-2 border-l-2 border-forest pl-4 bg-paper-deep/25 py-2.5 rounded-r-sm">
-                  <span className="font-mono text-[11px] tracking-widest uppercase text-forest font-semibold block">
-                    Observation
-                  </span>
+                {/* 3. Observation Evidence (Observer's notes + photo/audio) */}
+                <section className="space-y-3 border-l-2 border-forest pl-4 sm:pl-6 bg-paper py-3 rounded-r-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] tracking-widest uppercase text-forest font-semibold block">
+                      Observed Evidence
+                    </span>
+                    <span className="font-mono text-[10px] text-ink-faint">Direct Record</span>
+                  </div>
                   <p className="font-serif text-base sm:text-lg text-ink leading-relaxed italic">
                     “{entry.observation.rawNotes}”
                   </p>
@@ -133,11 +288,11 @@ export const JournalArchive: React.FC = () => {
                   {/* Photo Thumbnail if attached */}
                   {entry.observation.photoUri && (
                     <div className="pt-2">
-                      <div className="inline-block border border-stone-deep/60 p-1 bg-paper rounded-[2px] shadow-sm">
+                      <div className="inline-block border border-stone-deep/60 p-1 bg-paper-bright rounded-[2px] shadow-sm">
                         <img
                           src={entry.observation.photoUri}
                           alt="Field record specimen"
-                          className="w-48 h-32 object-cover rounded-[2px]"
+                          className="w-56 h-36 object-cover rounded-[2px]"
                         />
                       </div>
                     </div>
@@ -151,11 +306,11 @@ export const JournalArchive: React.FC = () => {
                   )}
                 </section>
 
-                {/* 4. Reflection */}
-                <section className="space-y-1.5 border-l-2 border-moss pl-4 py-1.5">
+                {/* 4. Naturalist Reflection */}
+                <section className="space-y-2 border-l-2 border-botanical-teal pl-4 sm:pl-6 py-2">
                   <div className="flex items-center space-x-2">
-                    <span className="font-mono text-[11px] tracking-widest uppercase text-moss font-semibold block">
-                      Reflection
+                    <span className="font-mono text-[11px] tracking-widest uppercase text-botanical-teal font-semibold block">
+                      Naturalist Synthesis
                     </span>
                     <span className="text-[10px] font-mono text-ink-faint uppercase tracking-wider">
                       (Probabilistic)
@@ -166,26 +321,8 @@ export const JournalArchive: React.FC = () => {
                   </p>
                 </section>
 
-                {/* 5. Discovery */}
-                <section className="p-3.5 rounded-[2px] bg-stone-light/50 border border-stone-deep/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
-                  <div className="space-y-0.5">
-                    <span className="font-mono text-[10px] tracking-widest uppercase text-ink-faint block">
-                      Discovery
-                    </span>
-                    <span className="font-serif text-base font-semibold text-forest block">
-                      ✦ {entry.discovery.fieldCategory}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-wrap gap-1.5">
-                    {entry.reflection.curiosityTags.map((tag) => (
-                      <EditorialBadge key={tag} label={`#${tag}`} variant="stone" />
-                    ))}
-                  </div>
-                </section>
-
-                {/* 6. Question to Carry */}
-                <section className="space-y-1 border-l-2 border-terracotta pl-4 bg-terracotta/5 py-2.5 rounded-r-sm">
+                {/* 5. Question to Carry */}
+                <section className="space-y-1 border-l-2 border-terracotta pl-4 sm:pl-6 bg-terracotta/5 py-2.5 rounded-r-sm">
                   <span className="font-mono text-[10px] tracking-widest uppercase text-terracotta font-semibold block">
                     Question to Carry
                   </span>
@@ -194,7 +331,21 @@ export const JournalArchive: React.FC = () => {
                   </p>
                 </section>
 
-                {/* Bottom Provenance */}
+                {/* 6. Curiosity Tags & Discovery Category */}
+                <div className="p-3.5 rounded-sm bg-stone-light/50 border border-stone-deep/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <span className="font-serif text-sm font-semibold text-forest flex items-center">
+                    <BotanicalLeafSprig className="w-3.5 h-3.5 mr-1.5 text-forest" />
+                    {entry.discovery?.fieldCategory || 'Specimen Sealed'}
+                  </span>
+
+                  <div className="flex flex-wrap gap-1.5">
+                    {entry.reflection.curiosityTags.map((tag) => (
+                      <EditorialBadge key={tag} label={`#${tag}`} variant="stone" />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Bottom Provenance Strip */}
                 <div className="pt-2 border-t border-stone-deep/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 text-[11px] font-mono text-ink-faint">
                   <span className="flex items-center">
                     <ShieldCheck className="w-3.5 h-3.5 mr-1 text-moss" />
@@ -219,7 +370,7 @@ export const JournalArchive: React.FC = () => {
           className="min-h-[44px] px-4 inline-flex items-center text-xs font-mono uppercase tracking-wider text-ink-muted hover:text-ink transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
-          Return to Home
+          Return to Editorial Masthead
         </button>
       </div>
     </div>

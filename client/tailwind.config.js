@@ -20,9 +20,32 @@ export default {
         },
         paper: {
           DEFAULT: '#F7F4EC',
-          bright: '#FDFBF7',
+          bright: '#FCFBF7',
+          ivory: '#FCFBF7',
           deep: '#EFEADB',
           dark: '#E2DBD0',
+        },
+        ivory: {
+          DEFAULT: '#FCFBF7',
+          warm: '#F7F4EC',
+          dark: '#EFEADB',
+        },
+        teal: {
+          DEFAULT: '#2F8175',
+          deep: '#1E5850',
+          dark: '#16423C',
+          light: '#46A093',
+          faint: '#E5F3F1',
+        },
+        botanical: {
+          teal: '#2F8175',
+          forest: '#12372A',
+          moss: '#4F6F52',
+          paper: '#F7F4EC',
+          ivory: '#FCFBF7',
+          terracotta: '#C96B4B',
+          stone: '#E7E0D3',
+          ink: '#17201B',
         },
         stone: {
           DEFAULT: '#E7E0D3',

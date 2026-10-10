@@ -55,6 +55,7 @@ const initialState: FieldSessionState = {
   preferences: {
     durationMinutes: 10,
     intention: 'notice',
+    category: 'science',
   },
   activeInvestigation: null,
   activeObservation: null,

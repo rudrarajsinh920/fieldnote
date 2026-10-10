@@ -14,7 +14,7 @@ export const JournalLayout: React.FC<{ children: React.ReactNode }> = ({ childre
       data-theme={isField ? 'field-mode' : 'journal-mode'}
     >
       <Header />
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         {children}
       </main>
     </div>
