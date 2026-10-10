@@ -14,7 +14,7 @@ export interface AppConfig {
 
 export const config: AppConfig = {
   port: parseInt(process.env.PORT || '4000', 10),
-  host: process.env.HOST || '127.0.0.1',
+  host: process.env.HOST || '0.0.0.0',
   dbPath: process.env.DB_PATH || path.resolve(__dirname, '../../../fieldnote.sqlite'),
   ollama: {
     baseUrl: process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434',

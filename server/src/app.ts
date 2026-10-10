@@ -1,8 +1,14 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { getDatabase } from './db/database.js';
 import { aiService } from './services/ai/index.js';
 import { AIStructuredError, InvestigationGenerationInput, ReflectionGenerationInput } from '@fieldnote/shared';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export function createApp(): Express {
   const app = express();
@@ -12,6 +18,11 @@ export function createApp(): Express {
 
   // Initialize SQLite database
   const db = getDatabase();
+
+  // Health check for Render and monitoring
+  app.get('/healthz', (_req: Request, res: Response) => {
+    res.status(200).send('OK');
+  });
 
   // Root system & AI health check
   app.get('/api/system/health', async (_req: Request, res: Response) => {
@@ -277,6 +288,18 @@ export function createApp(): Express {
       res.status(500).json({ error: 'Failed to persist journal entry' });
     }
   });
+
+  // Serve static client production build if present (Unified Render/production deployment)
+  const clientDist = path.resolve(__dirname, '../../client/dist');
+  if (fs.existsSync(clientDist)) {
+    app.use(express.static(clientDist));
+    app.get('*', (req: Request, res: Response, next: NextFunction) => {
+      if (req.path.startsWith('/api') || req.path === '/healthz') {
+        return next();
+      }
+      res.sendFile(path.join(clientDist, 'index.html'));
+    });
+  }
 
   // Global Error Handler - Never crash the server
   app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
