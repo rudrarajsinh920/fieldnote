@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="36" fill="#12372A" />
+  <!-- Tactile Journal Page Silhouette -->
+  <rect x="36" y="32" width="120" height="128" rx="8" fill="#F7F4EC" />
+  <!-- Terracotta Bookmark / Focus Pip -->
+  <path d="M52 32 V 76 L 64 68 L 76 76 V 32 Z" fill="#C96B4B" />
+  <!-- Concentric Observation Lines -->
+  <circle cx="106" cy="100" r="28" stroke="#4F6F52" stroke-width="2.5" fill="none" stroke-dasharray="3 3" />
+  <circle cx="106" cy="100" r="14" stroke="#12372A" stroke-width="2.5" fill="none" />
+  <circle cx="106" cy="100" r="4" fill="#C96B4B" />
+</svg>

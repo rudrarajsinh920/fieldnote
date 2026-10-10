@@ -1,0 +1,94 @@
+:root {
+  /* ==========================================================================
+     FIELDNOTE DESIGN TOKENS
+     "A premium field journal from the future"
+     ========================================================================== */
+
+  /* Palette Primitive Tokens */
+  --color-forest-900: #0B221A;
+  --color-forest-800: #12372A;
+  --color-forest-700: #1B4D3C;
+  --color-moss-600:   #4F6F52;
+  --color-moss-500:   #698E6C;
+  --color-moss-200:   #DDE5DC;
+  
+  --color-paper-light:#FDFBF7;
+  --color-paper-base: #F7F4EC;
+  --color-paper-deep: #EFEADB;
+  --color-paper-aged: #E2DBD0;
+
+  --color-stone-light:#F0ECE4;
+  --color-stone-base: #E7E0D3;
+  --color-stone-deep: #CEC5B5;
+
+  --color-terracotta: #C96B4B;
+  --color-terracotta-soft: #DE8466;
+  --color-terracotta-deep: #A35034;
+
+  --color-ink-base:   #17201B;
+  --color-ink-muted:  #4B5850;
+  --color-ink-faint:  #859189;
+
+  /* Semantic Theme Tokens: Journal Mode (Default) */
+  --bg-app:             var(--color-paper-base);
+  --bg-surface:         var(--color-paper-light);
+  --bg-surface-sunken:  var(--color-paper-deep);
+  --bg-surface-accent:  var(--color-stone-light);
+
+  --text-primary:       var(--color-ink-base);
+  --text-secondary:     var(--color-ink-muted);
+  --text-tertiary:      var(--color-ink-faint);
+  --text-accent:        var(--color-forest-800);
+  --text-highlight:     var(--color-terracotta);
+
+  --border-subtle:      rgba(23, 32, 27, 0.08);
+  --border-medium:      rgba(23, 32, 27, 0.16);
+  --border-strong:      var(--color-forest-800);
+  --border-paper-edge:  var(--color-stone-deep);
+
+  --focus-ring:         var(--color-forest-800);
+  --focus-ring-offset:  var(--color-paper-base);
+
+  /* Elevation & Tactile Shadow Tokens */
+  --shadow-flat:        0 1px 2px rgba(23, 32, 27, 0.04);
+  --shadow-journal:     0 4px 16px rgba(23, 32, 27, 0.05), 0 1px 3px rgba(23, 32, 27, 0.03);
+  --shadow-raised:      0 12px 32px rgba(23, 32, 27, 0.08), 0 2px 6px rgba(23, 32, 27, 0.03);
+
+  /* Radius Tokens (Tactile, restrained roundness) */
+  --radius-xs:          2px;
+  --radius-sm:          4px;
+  --radius-md:          8px;
+  --radius-lg:          12px;
+  --radius-full:        9999px;
+
+  /* Field Mode Tokens (Minimalist / Night / Phone-Away Phase) */
+  --field-bg:           #0C1611;
+  --field-surface:      #122019;
+  --field-text-primary: #C5D3C7;
+  --field-text-muted:   #687D70;
+  --field-accent:       #E28766;
+  --field-border:       rgba(197, 211, 199, 0.12);
+}
+
+/* Field Mode Theme: Activated during "GO OUTSIDE / OBSERVE" phase */
+[data-theme="field-mode"] {
+  --bg-app:             var(--field-bg);
+  --bg-surface:         var(--field-surface);
+  --bg-surface-sunken:  #080E0B;
+  --bg-surface-accent:  #172A21;
+
+  --text-primary:       var(--field-text-primary);
+  --text-secondary:     var(--field-text-muted);
+  --text-tertiary:      #4D5E53;
+  --text-accent:        var(--color-moss-500);
+  --text-highlight:     var(--field-accent);
+
+  --border-subtle:      var(--field-border);
+  --border-medium:      rgba(197, 211, 199, 0.22);
+  --border-strong:      var(--field-accent);
+
+  --focus-ring:         var(--field-accent);
+  --focus-ring-offset:  var(--field-bg);
+
+  --shadow-journal:     0 4px 24px rgba(0, 0, 0, 0.4);
+}

@@ -1,0 +1,67 @@
+@import './styles/tokens.css';
+@import './styles/typography.css';
+@import './styles/motion.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    transition: background-color var(--motion-dur-slow) var(--motion-ease-organic),
+                color var(--motion-dur-slow) var(--motion-ease-organic);
+  }
+
+  /* Tactile editorial focus states */
+  *:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Natural selection style */
+  ::selection {
+    background-color: var(--color-moss-200);
+    color: var(--color-forest-900);
+  }
+}
+
+@layer components {
+  /* Tactile journal page texture simulation */
+  .journal-page {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-journal);
+    border-radius: var(--radius-sm);
+  }
+
+  .journal-sunken {
+    background-color: var(--bg-surface-sunken);
+    border: 1px solid var(--border-subtle);
+  }
+
+  /* Interactive tactile button */
+  .btn-tactile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    transition: all var(--motion-dur-fast) var(--motion-ease-organic);
+  }
+  
+  .btn-tactile:active {
+    transform: translateY(1px);
+  }
+}
