@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useFieldSession } from '../../context/field-session-context.js';
-import { TactileButton } from '../common/TactileButton.js';
-import { BotanicalLeafSprig } from '../common/BotanicalIllustrations.js';
 import { FieldSketchpad } from './FieldSketchpad.js';
 import { TactileAudioPlayer } from '../common/TactileAudioPlayer.js';
+import { BotanicalCornerFoliage } from '../common/BotanicalIllustrations.js';
 import {
   Camera,
   Image as GalleryIcon,
@@ -13,11 +12,11 @@ import {
   Square,
   Trash2,
   ArrowRight,
-  Sparkles,
+  ArrowLeft,
   RefreshCw,
   AlertCircle,
   Check,
-  Bookmark,
+  Plus,
 } from 'lucide-react';
 
 export const ReturnView: React.FC = () => {
@@ -39,13 +38,20 @@ export const ReturnView: React.FC = () => {
   const [showPhotoPicker, setShowPhotoPicker] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
 
+  // Quick Tags
+  const [tags, setTags] = useState<string[]>(['Plant']);
+  const [customTagInput, setCustomTagInput] = useState('');
+  const [showCustomTagInput, setShowCustomTagInput] = useState(false);
+
+  const availableTags = ['Plant', 'Moss', 'Insect', 'Rock'];
+
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<number | null>(null);
 
-  // Load draft from localStorage if present
+  // Load draft from localStorage
   useEffect(() => {
     if (activeInvestigation) {
       const saved = localStorage.getItem(`fieldnote_draft_${activeInvestigation.id}`);
@@ -55,6 +61,7 @@ export const ReturnView: React.FC = () => {
           if (parsed.rawNotes) setRawNotes(parsed.rawNotes);
           if (parsed.photoUri) setPhotoUri(parsed.photoUri);
           if (parsed.locationTag) setLocationTag(parsed.locationTag);
+          if (parsed.tags) setTags(parsed.tags);
         } catch {}
       }
     }
@@ -64,7 +71,24 @@ export const ReturnView: React.FC = () => {
     return null;
   }
 
-  // Handle Photo Selection
+  const handleToggleTag = (tag: string) => {
+    if (tags.includes(tag)) {
+      setTags(tags.filter((t) => t !== tag));
+    } else {
+      setTags([...tags, tag]);
+    }
+  };
+
+  const handleAddCustomTag = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (customTagInput.trim() && !tags.includes(customTagInput.trim())) {
+      setTags([...tags, customTagInput.trim()]);
+      setCustomTagInput('');
+      setShowCustomTagInput(false);
+    }
+  };
+
+  // Photo
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -77,7 +101,7 @@ export const ReturnView: React.FC = () => {
     }
   };
 
-  // Handle Geolocation Pin
+  // Location
   const handleGetLocation = () => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -95,94 +119,44 @@ export const ReturnView: React.FC = () => {
     }
   };
 
-  // Voice Note Recording
+  // Audio Recording
   const startRecordingAudio = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true },
-      });
-
-      const candidates = [
-        'audio/mp4',
-        'audio/webm;codecs=opus',
-        'audio/webm',
-        'audio/aac',
-        '',
-      ];
-      let recorder: MediaRecorder | null = null;
-      let chosenMime = '';
-
-      for (const candidate of candidates) {
-        if (!candidate) {
-          try {
-            recorder = new MediaRecorder(stream);
-            chosenMime = recorder.mimeType || 'audio/mp4';
-            break;
-          } catch {
-            continue;
-          }
-        }
-        if (
-          typeof MediaRecorder !== 'undefined' &&
-          typeof MediaRecorder.isTypeSupported === 'function' &&
-          MediaRecorder.isTypeSupported(candidate)
-        ) {
-          try {
-            recorder = new MediaRecorder(stream, { mimeType: candidate });
-            chosenMime = candidate;
-            break;
-          } catch {
-            continue;
-          }
-        }
-      }
-
-      if (!recorder) {
-        recorder = new MediaRecorder(stream);
-        chosenMime = recorder.mimeType || 'audio/mp4';
-      }
-
-      mediaRecorderRef.current = recorder;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioChunksRef.current = [];
-
-      recorder.ondataavailable = (event) => {
-        if (event.data && event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
+      const recorder = new MediaRecorder(stream);
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
       };
-
       recorder.onstop = () => {
-        const finalType = recorder?.mimeType || chosenMime || 'audio/mp4';
-        const audioBlob = new Blob(audioChunksRef.current, { type: finalType });
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         const reader = new FileReader();
-        reader.onload = (event) => {
-          setAudioUri(event.target?.result as string);
+        reader.onloadend = () => {
+          setAudioUri(reader.result as string);
         };
         reader.readAsDataURL(audioBlob);
         stream.getTracks().forEach((track) => track.stop());
       };
-
-      recorder.start(250);
+      recorder.start();
+      mediaRecorderRef.current = recorder;
       setIsRecordingAudio(true);
       setRecordingSeconds(0);
-
-      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
       recordingTimerRef.current = window.setInterval(() => {
         setRecordingSeconds((prev) => prev + 1);
       }, 1000);
     } catch {
-      alert('Microphone access is unavailable or was declined.');
+      alert('Microphone access was denied or is unavailable on this device.');
     }
   };
 
   const stopRecordingAudio = () => {
-    if (recordingTimerRef.current) {
-      clearInterval(recordingTimerRef.current);
-      recordingTimerRef.current = null;
-    }
     if (mediaRecorderRef.current && isRecordingAudio) {
       mediaRecorderRef.current.stop();
       setIsRecordingAudio(false);
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = null;
+      }
     }
   };
 
@@ -190,7 +164,7 @@ export const ReturnView: React.FC = () => {
     if (activeInvestigation) {
       localStorage.setItem(
         `fieldnote_draft_${activeInvestigation.id}`,
-        JSON.stringify({ rawNotes, photoUri, locationTag, timestamp: Date.now() })
+        JSON.stringify({ rawNotes, photoUri, locationTag, tags })
       );
       setDraftSaved(true);
       setTimeout(() => setDraftSaved(false), 2500);
@@ -205,8 +179,11 @@ export const ReturnView: React.FC = () => {
       localStorage.removeItem(`fieldnote_draft_${activeInvestigation.id}`);
     }
 
+    const tagContext = tags.length > 0 ? ` [Tags: ${tags.join(', ')}]` : '';
+    const fullNotes = rawNotes.trim() + tagContext;
+
     await submitObservationAndReflect(
-      rawNotes.trim(),
+      fullNotes,
       {
         visual: undefined,
         tactile: undefined,
@@ -217,80 +194,77 @@ export const ReturnView: React.FC = () => {
   };
 
   return (
-    <article className="journal-page p-6 sm:p-10 lg:p-12 border border-stone-deep/40 rounded-sm bg-paper-bright shadow-journal animate-journal-entry space-y-7 max-w-2xl mx-auto">
-      {/* 1. Header with Folio and Directive */}
-      <div className="border-b border-stone/80 pb-4 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <BotanicalLeafSprig className="w-5 h-5 text-forest" />
-          <span className="font-mono text-xs tracking-widest text-terracotta uppercase font-bold">
-            Folio No. {String(activeInvestigation.sequenceNumber).padStart(3, '0')}
-          </span>
-        </div>
+    <div className="max-w-xl mx-auto space-y-6 sm:space-y-8 animate-journal-entry pb-16 relative">
+      {/* Decorative Corner Foliage */}
+      <div className="absolute -top-4 -right-4 pointer-events-none z-10 hidden sm:block">
+        <BotanicalCornerFoliage position="top-right" className="w-28 h-28 opacity-80" />
+      </div>
+      <div className="absolute -bottom-8 -right-8 pointer-events-none z-10 hidden sm:block">
+        <BotanicalCornerFoliage position="bottom-right" className="w-36 h-36 opacity-80" />
+      </div>
+
+      {/* Top Header */}
+      <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={enterField}
-          className="text-xs font-mono tracking-wider text-ink-muted hover:text-ink transition-colors"
+          className="inline-flex items-center text-xs font-mono uppercase tracking-wider text-ink-muted hover:text-ink min-h-[44px]"
         >
-          ← Back to Field Mode
+          <ArrowLeft className="w-4 h-4 mr-1.5" />
+          Field Mode
         </button>
+        <span className="font-mono text-xs text-forest font-semibold">
+          Folio {String(activeInvestigation.sequenceNumber || 1).padStart(2, '0')}
+        </span>
       </div>
 
-      {/* 2. Main Title */}
-      <div className="space-y-1.5">
+      {/* Screen Title */}
+      <div className="space-y-1">
         <h1 className="font-serif text-3xl sm:text-4xl text-ink font-medium tracking-tight">
           Record Your Observation
         </h1>
-        <p className="font-serif italic text-sm text-ink-muted">
-          Document what you saw, heard, and felt.
+        <p className="font-sans text-xs sm:text-sm text-ink-muted">
+          What did you notice?
         </p>
       </div>
 
-      {/* Directive Reminder Card */}
-      <div className="p-3.5 rounded-sm bg-paper-deep/30 border border-stone-deep/40 text-xs font-serif italic text-ink-muted">
+      {/* Directive Summary */}
+      <div className="p-3.5 rounded-2xl bg-paper-bright border border-stone text-xs font-serif italic text-ink-muted">
         <strong className="font-mono text-[10px] uppercase text-forest font-bold not-italic mr-1.5">
           Directive:
         </strong>
         “{activeInvestigation.prompt}”
       </div>
 
-      {/* AI Error State */}
+      {/* Error state */}
       {state.aiError && (
-        <div className="p-4 rounded-[2px] bg-paper-deep/60 border border-terracotta/40 space-y-2 animate-journal-entry">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-xs font-semibold uppercase tracking-wider text-terracotta flex items-center">
-              <AlertCircle className="w-3.5 h-3.5 mr-1.5 inline" />
-              AI Status: {state.aiError.aiStatus}
-            </span>
+        <div className="p-4 rounded-xl border border-terracotta/40 bg-[#FBF4EE] space-y-2">
+          <div className="flex items-center space-x-2 text-terracotta text-sm font-semibold">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{state.aiError.message}</span>
+          </div>
+          <div className="flex items-center space-x-3 pt-1">
             <button
-              type="button"
+              onClick={(e) => handleSubmit(e)}
+              className="text-xs font-mono uppercase font-bold text-terracotta hover:underline flex items-center"
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1" /> Retry
+            </button>
+            <button
               onClick={dismissAiError}
               className="text-xs font-mono text-ink-muted hover:text-ink"
             >
-              ✕
+              Dismiss
             </button>
           </div>
-          <p className="font-serif text-xs text-ink leading-relaxed">
-            {state.aiError.message}
-          </p>
-          <TactileButton
-            type="button"
-            onClick={(e) => handleSubmit(e)}
-            variant="terracotta"
-            className="text-xs py-1.5 px-3 min-h-[32px]"
-          >
-            <RefreshCw className="w-3 h-3 mr-1" />
-            Retry
-          </TactileButton>
         </div>
       )}
 
-      {/* Generating State */}
+      {/* Loading state */}
       {isGenerating && (
-        <div className="p-6 rounded-[2px] bg-paper-deep/40 border border-botanical-teal/30 text-center space-y-2 animate-journal-entry">
-          <div className="w-10 h-10 mx-auto rounded-full border border-forest/30 flex items-center justify-center animate-observation-breath">
-            <span className="w-2 h-2 rounded-full bg-forest" />
-          </div>
-          <p className="font-mono text-xs tracking-widest uppercase text-forest font-semibold">
+        <div className="p-6 rounded-2xl bg-paper-bright border border-forest/30 text-center space-y-2">
+          <RefreshCw className="w-6 h-6 mx-auto text-forest animate-spin" />
+          <p className="font-mono text-xs uppercase tracking-wider text-forest font-semibold">
             Synthesizing AI Field Report...
           </p>
         </div>
@@ -313,35 +287,34 @@ export const ReturnView: React.FC = () => {
         className="hidden"
       />
 
-      {/* 3. FOUR ACTION TOOL BUTTONS (Photo, Audio, Location, Sketch) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        {/* Tool 1: Photo */}
+      {/* 4 ACTION CAPTURE BUTTONS (Photo, Audio, Location, Sketch) */}
+      <div className="grid grid-cols-4 gap-2.5 sm:gap-3">
+        {/* Photo Button */}
         <div className="relative">
           <button
             type="button"
             onClick={() => setShowPhotoPicker(!showPhotoPicker)}
-            className={`w-full p-3.5 rounded-sm border text-center transition-all flex flex-col items-center justify-center min-h-[78px] space-y-1.5 ${
+            className={`w-full py-4 px-2 rounded-2xl border text-center transition-all flex flex-col items-center justify-center space-y-1.5 min-h-[82px] ${
               photoUri
                 ? 'bg-forest/10 border-forest text-forest'
-                : 'bg-paper-bright border-stone-deep/60 hover:bg-stone-light/50 text-ink'
+                : 'bg-paper-bright border-stone hover:border-forest/50 text-ink'
             }`}
           >
             <Camera className="w-5 h-5 text-forest" />
-            <span className="text-[11px] font-mono uppercase tracking-wider font-semibold">
-              {photoUri ? 'Photo Attached' : 'Add Photo'}
+            <span className="text-[11px] font-sans font-medium">
+              Photo
             </span>
           </button>
 
-          {/* Photo Dropdown (Camera vs Gallery) */}
           {showPhotoPicker && (
-            <div className="absolute top-full left-0 right-0 mt-1 z-20 bg-paper-bright border border-stone-deep/80 rounded-sm shadow-journal py-1 text-xs font-mono">
+            <div className="absolute top-full left-0 right-0 mt-1.5 z-20 bg-paper-bright border border-stone rounded-xl shadow-lg py-1 text-xs">
               <button
                 type="button"
                 onClick={() => {
                   setShowPhotoPicker(false);
                   cameraInputRef.current?.click();
                 }}
-                className="w-full px-3 py-2 text-left hover:bg-stone-light/60 flex items-center space-x-2 text-ink"
+                className="w-full px-3 py-2 text-left hover:bg-stone-light/50 flex items-center space-x-2"
               >
                 <Camera className="w-3.5 h-3.5 text-forest" />
                 <span>Camera</span>
@@ -352,16 +325,16 @@ export const ReturnView: React.FC = () => {
                   setShowPhotoPicker(false);
                   galleryInputRef.current?.click();
                 }}
-                className="w-full px-3 py-2 text-left hover:bg-stone-light/60 flex items-center space-x-2 text-ink"
+                className="w-full px-3 py-2 text-left hover:bg-stone-light/50 flex items-center space-x-2"
               >
-                <GalleryIcon className="w-3.5 h-3.5 text-botanical-teal" />
+                <GalleryIcon className="w-3.5 h-3.5 text-forest" />
                 <span>Gallery</span>
               </button>
             </div>
           )}
         </div>
 
-        {/* Tool 2: Audio */}
+        {/* Audio Button */}
         <button
           type="button"
           onClick={
@@ -371,79 +344,66 @@ export const ReturnView: React.FC = () => {
               ? stopRecordingAudio
               : startRecordingAudio
           }
-          className={`p-3.5 rounded-sm border text-center transition-all flex flex-col items-center justify-center min-h-[78px] space-y-1.5 ${
+          className={`py-4 px-2 rounded-2xl border text-center transition-all flex flex-col items-center justify-center space-y-1.5 min-h-[82px] ${
             isRecordingAudio
               ? 'bg-terracotta/10 border-terracotta text-terracotta animate-pulse'
               : audioUri
               ? 'bg-forest/10 border-forest text-forest'
-              : 'bg-paper-bright border-stone-deep/60 hover:bg-stone-light/50 text-ink'
+              : 'bg-paper-bright border-stone hover:border-forest/50 text-ink'
           }`}
         >
           {isRecordingAudio ? (
             <Square className="w-5 h-5 text-terracotta fill-terracotta" />
           ) : (
-            <Mic className="w-5 h-5 text-moss" />
+            <Mic className="w-5 h-5 text-forest" />
           )}
-          <span className="text-[11px] font-mono uppercase tracking-wider font-semibold">
-            {isRecordingAudio
-              ? `Stop (${recordingSeconds}s)`
-              : audioUri
-              ? 'Audio Attached'
-              : 'Add Audio'}
+          <span className="text-[11px] font-sans font-medium">
+            {isRecordingAudio ? `${recordingSeconds}s` : 'Audio'}
           </span>
         </button>
 
-        {/* Tool 3: Location */}
+        {/* Location Button */}
         <button
           type="button"
           onClick={handleGetLocation}
-          className={`p-3.5 rounded-sm border text-center transition-all flex flex-col items-center justify-center min-h-[78px] space-y-1.5 ${
+          className={`py-4 px-2 rounded-2xl border text-center transition-all flex flex-col items-center justify-center space-y-1.5 min-h-[82px] ${
             locationTag
               ? 'bg-forest/10 border-forest text-forest'
-              : 'bg-paper-bright border-stone-deep/60 hover:bg-stone-light/50 text-ink'
+              : 'bg-paper-bright border-stone hover:border-forest/50 text-ink'
           }`}
         >
-          <MapPin className="w-5 h-5 text-botanical-teal" />
-          <span className="text-[11px] font-mono uppercase tracking-wider font-semibold">
-            {locationTag ? 'Located' : 'Add Location'}
+          <MapPin className="w-5 h-5 text-forest" />
+          <span className="text-[11px] font-sans font-medium">
+            Location
           </span>
         </button>
 
-        {/* Tool 4: Sketch */}
+        {/* Sketch Button */}
         <button
           type="button"
           onClick={() => setShowSketchpad(!showSketchpad)}
-          className={`p-3.5 rounded-sm border text-center transition-all flex flex-col items-center justify-center min-h-[78px] space-y-1.5 ${
+          className={`py-4 px-2 rounded-2xl border text-center transition-all flex flex-col items-center justify-center space-y-1.5 min-h-[82px] ${
             showSketchpad
               ? 'bg-forest text-paper border-forest'
-              : 'bg-paper-bright border-stone-deep/60 hover:bg-stone-light/50 text-ink'
+              : 'bg-paper-bright border-stone hover:border-forest/50 text-ink'
           }`}
         >
-          <PenTool className="w-5 h-5 text-terracotta" />
-          <span className="text-[11px] font-mono uppercase tracking-wider font-semibold">
-            Add Sketch
+          <PenTool className="w-5 h-5 text-forest" />
+          <span className="text-[11px] font-sans font-medium">
+            Sketch
           </span>
         </button>
       </div>
 
-      {/* Previews of attached tools */}
+      {/* Previews */}
       {photoUri && (
-        <div className="flex items-center space-x-3 p-2 rounded-sm border border-stone-deep/50 bg-paper-bright">
-          <img
-            src={photoUri}
-            alt="Specimen"
-            className="w-12 h-12 object-cover rounded-[2px]"
-          />
-          <div className="flex-1 min-w-0">
-            <span className="text-xs font-mono text-ink block truncate font-medium">
-              Specimen Photo / Sketch Attached
-            </span>
-          </div>
+        <div className="flex items-center space-x-3 p-3 rounded-2xl border border-stone bg-paper-bright">
+          <img src={photoUri} alt="Specimen" className="w-12 h-12 object-cover rounded-lg" />
+          <span className="text-xs font-mono text-ink flex-1 truncate">Photo Attached</span>
           <button
             type="button"
             onClick={() => setPhotoUri(undefined)}
-            className="p-2 text-terracotta hover:text-terracotta-deep"
-            aria-label="Remove photo"
+            className="p-1.5 text-terracotta hover:text-terracotta-deep"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -452,12 +412,11 @@ export const ReturnView: React.FC = () => {
 
       {audioUri && (
         <div className="flex items-center space-x-2">
-          <TactileAudioPlayer src={audioUri} className="flex-1" label="Bioacoustic Memo" />
+          <TactileAudioPlayer src={audioUri} className="flex-1" label="Field Audio Memo" />
           <button
             type="button"
             onClick={() => setAudioUri(undefined)}
-            className="p-2 text-terracotta hover:text-terracotta-deep"
-            aria-label="Remove audio"
+            className="p-2 text-terracotta"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -465,18 +424,12 @@ export const ReturnView: React.FC = () => {
       )}
 
       {locationTag && (
-        <div className="flex items-center justify-between p-2.5 rounded-sm bg-botanical-teal-faint/60 border border-botanical-teal/20 text-xs font-mono text-botanical-teal">
+        <div className="flex items-center justify-between p-2.5 rounded-xl bg-forest/10 border border-forest/20 text-xs font-mono text-forest">
           <div className="flex items-center space-x-2">
             <MapPin className="w-3.5 h-3.5" />
             <span>{locationTag}</span>
           </div>
-          <button
-            type="button"
-            onClick={() => setLocationTag(undefined)}
-            className="text-xs text-ink-muted hover:text-ink"
-          >
-            ✕
-          </button>
+          <button type="button" onClick={() => setLocationTag(undefined)}>✕</button>
         </div>
       )}
 
@@ -493,65 +446,123 @@ export const ReturnView: React.FC = () => {
         </div>
       )}
 
-      {/* 4. MAIN NOTES FORM WITH 0/1000 CHAR COUNTER */}
+      {/* Observation Notes Textarea */}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <label
-            htmlFor="notes"
-            className="block font-mono text-xs uppercase tracking-wider text-ink font-semibold"
-          >
-            Observation Notes
-          </label>
           <div className="relative">
             <textarea
-              id="notes"
               rows={6}
               required
               maxLength={1000}
               value={rawNotes}
               onChange={(e) => setRawNotes(e.target.value)}
-              placeholder="Describe what you noticed in as much detail as possible..."
-              className="w-full p-4 pb-8 rounded-sm border border-stone-deep/80 bg-paper text-ink font-serif text-base sm:text-lg leading-relaxed placeholder:text-ink-faint/60 focus:border-forest focus:outline-none min-h-[160px]"
+              placeholder="Describe what you actually observed... (e.g., shape, texture, color, behavior, environment)"
+              className="w-full p-4 pb-8 rounded-2xl border border-stone bg-paper-bright text-ink font-sans text-sm leading-relaxed placeholder:text-ink-muted/60 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest min-h-[160px]"
             />
-            {/* 0/1000 Counter */}
-            <span className="absolute bottom-2.5 right-3 font-mono text-[11px] text-ink-muted">
+            <span className="absolute bottom-3 right-4 font-mono text-[11px] text-ink-muted">
               {rawNotes.length}/1000
             </span>
           </div>
         </div>
 
-        {/* Draft feedback notice */}
+        {/* Quick Tags Section */}
+        <div className="space-y-2">
+          <div className="font-sans text-xs uppercase tracking-wider text-ink font-semibold">
+            Quick Tags
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {availableTags.map((tag) => {
+              const isSelected = tags.includes(tag);
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => handleToggleTag(tag)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all ${
+                    isSelected
+                      ? 'bg-forest text-paper shadow-sm'
+                      : 'bg-paper-bright border border-stone text-ink hover:border-forest/50'
+                  }`}
+                >
+                  {tag}
+                </button>
+              );
+            })}
+
+            {/* Custom tags added */}
+            {tags
+              .filter((t) => !availableTags.includes(t))
+              .map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => handleToggleTag(tag)}
+                  className="px-3 py-1.5 rounded-xl text-xs font-sans font-medium bg-forest text-paper flex items-center space-x-1"
+                >
+                  <span>{tag}</span>
+                  <span>×</span>
+                </button>
+              ))}
+
+            {showCustomTagInput ? (
+              <div className="flex items-center space-x-1">
+                <input
+                  type="text"
+                  value={customTagInput}
+                  onChange={(e) => setCustomTagInput(e.target.value)}
+                  placeholder="Tag name"
+                  className="px-2 py-1 text-xs rounded-lg border border-stone bg-paper-bright"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={handleAddCustomTag}
+                  className="px-2 py-1 text-xs rounded-lg bg-forest text-paper"
+                >
+                  Add
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowCustomTagInput(true)}
+                className="px-3 py-1.5 rounded-xl text-xs font-sans font-medium bg-paper-bright border border-dashed border-stone text-ink-muted hover:text-ink flex items-center space-x-1"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Tag</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Draft notice */}
         {draftSaved && (
-          <div className="p-2.5 rounded-[2px] bg-forest/10 border border-forest/30 font-mono text-xs text-forest flex items-center space-x-2">
-            <Check className="w-3.5 h-3.5" />
-            <span>Draft saved to your device.</span>
+          <div className="p-3 rounded-xl bg-forest/10 border border-forest/20 text-xs font-mono text-forest flex items-center space-x-2">
+            <Check className="w-4 h-4" />
+            <span>Draft saved to device.</span>
           </div>
         )}
 
-        {/* 5. BOTTOM ACTIONS: Save Draft & Submit Observation */}
-        <div className="pt-4 border-t border-stone/80 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <TactileButton
+        {/* Bottom Actions: Save Draft & Submit */}
+        <div className="pt-3 flex items-center space-x-3">
+          <button
             type="button"
             onClick={handleSaveDraft}
-            variant="secondary"
-            className="w-full sm:w-auto px-6 py-3.5 text-xs font-semibold uppercase tracking-wider min-h-[48px]"
+            className="flex-1 py-3.5 px-4 rounded-2xl border border-stone bg-paper-bright hover:bg-stone-light/40 text-ink font-sans font-semibold text-sm transition-all"
           >
-            <Bookmark className="w-3.5 h-3.5 mr-1.5 text-moss" />
             Save Draft
-          </TactileButton>
+          </button>
 
-          <TactileButton
+          <button
             type="submit"
             disabled={isGenerating || !rawNotes.trim()}
-            variant="primary"
-            className="w-full sm:w-auto px-8 py-3.5 text-sm font-semibold tracking-wider uppercase shadow-journal min-h-[48px]"
+            className="flex-1 py-3.5 px-4 rounded-2xl bg-forest hover:bg-forest-deep disabled:bg-stone text-paper font-sans font-semibold text-sm flex items-center justify-center space-x-2 shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99]"
           >
-            <Sparkles className="w-4 h-4 mr-2 text-terracotta" />
-            Submit Observation
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </TactileButton>
+            <span>Submit</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
       </form>
-    </article>
+    </div>
   );
 };

@@ -1,19 +1,22 @@
 import React from 'react';
 import { useFieldSession } from '../../context/field-session-context.js';
-import { TactileButton } from '../common/TactileButton.js';
-import { BotanicalCategoryIllustration, BotanicalLeafSprig } from '../common/BotanicalIllustrations.js';
+import {
+  BotanicalLeafSprig,
+  BotanicalCornerFoliage,
+} from '../common/BotanicalIllustrations.js';
 import { FieldCategory } from '../../types/index.js';
 import {
   Clock,
-  Compass,
-  Sparkles,
+  Eye,
+  BarChart2,
+  BookOpen,
+  PenTool,
   ArrowLeft,
+  ArrowRight,
+  Sparkles,
   AlertCircle,
   RefreshCw,
   Check,
-  ArrowRight,
-  ShieldCheck,
-  Layers,
 } from 'lucide-react';
 import { InvestigationDurationMinutes, InvestigationIntention } from '@fieldnote/shared';
 
@@ -27,349 +30,264 @@ export const InvestigationSetup: React.FC = () => {
   } = useFieldSession();
   const { preferences, isGenerating } = state;
 
-  const categoryMap: Record<FieldCategory, { title: string; discipline: string; desc: string }> = {
+  const categoryMap: Record<FieldCategory, { title: string; subtitle: string }> = {
     science: {
       title: 'Botanical Science',
-      discipline: 'PLANT BIOLOGY & VENATION',
-      desc: 'Plant anatomy, leaf venation, lichen symbiosis, and micro-physics.',
+      subtitle: 'Plant anatomy, leaf venation, lichen symbiosis...',
     },
     community: {
       title: 'Community & Environment',
-      discipline: 'URBAN CANOPY & CORRIDORS',
-      desc: 'Neighborhood tree health, runoff channels, shade lines, and corridors.',
+      subtitle: 'Trees, waterways, neighborhood ecosystems...',
     },
     everyday: {
       title: 'Everyday Discovery',
-      discipline: 'MICRO-HABITATS & TEXTURES',
-      desc: 'Pavement seams, moss colonies, loose pebbles, and diurnal shifts.',
+      subtitle: 'Micro-habitats, textures, patterns...',
     },
     edge: {
       title: 'Built vs. Wild',
-      discipline: 'URBAN EDGES & TENSION',
-      desc: 'Masonry borders, asphalt fissures, moss colonization & micro-climates.',
+      subtitle: 'Masonry borders, asphalt fissures, micro-climates...',
     },
   };
 
   const currentCat = categoryMap[preferences.category || 'science'];
-  const categoryOptions: Array<{ id: FieldCategory; title: string; code: string }> = [
-    { id: 'science', title: 'School & Science', code: '01' },
-    { id: 'community', title: 'Community', code: '02' },
-    { id: 'everyday', title: 'Everyday', code: '03' },
-  ];
 
   const durationOptions: Array<{
     value: InvestigationDurationMinutes;
     label: string;
-    badge: string;
+    sublabel: string;
   }> = [
-    { value: 10, label: '10 MIN', badge: 'Perimeter' },
-    { value: 20, label: '20 MIN', badge: 'Standard' },
-    { value: 30, label: '30 MIN', badge: 'Deep study' },
+    { value: 10, label: '10 min', sublabel: 'Brief' },
+    { value: 20, label: '20 min', sublabel: 'Recommended' },
+    { value: 30, label: '30 min', sublabel: 'Extended' },
   ];
 
   const intentionOptions: Array<{
     value: InvestigationIntention;
     label: string;
-    subtitle: string;
     description: string;
+    icon: React.ReactNode;
   }> = [
     {
       value: 'notice',
       label: 'Observe',
-      subtitle: 'Acuity & Organisms',
-      description: 'Micro-phenomena, quiet textures, small organisms & subtle movement.',
+      description: 'Notice patterns',
+      icon: <Eye className="w-5 h-5 text-forest" />,
     },
     {
       value: 'explore',
       label: 'Compare',
-      subtitle: 'Boundaries & Edges',
-      description: 'Compare light vs shade, wet vs dry, or masonry vs living soil.',
+      description: 'Find differences',
+      icon: <BarChart2 className="w-5 h-5 text-forest" />,
     },
     {
       value: 'understand',
       label: 'Understand',
-      subtitle: 'Ecological Mechanics',
-      description: 'Atmospheric weathering, decay, drainage paths & resilience.',
+      description: 'Learn mechanisms',
+      icon: <BookOpen className="w-5 h-5 text-forest" />,
     },
     {
       value: 'create',
       label: 'Create',
-      subtitle: 'Tactile Cartography',
-      description: 'Mental maps, physical rubs, and creative sensory framing.',
+      description: 'Sketch / map',
+      icon: <PenTool className="w-5 h-5 text-forest" />,
     },
   ];
 
-  const handleGenerate = () => {
-    if (isGenerating) return;
-    createInvestigation();
+  const handleGenerate = async () => {
+    try {
+      await createInvestigation();
+    } catch {
+      // Handled via context
+    }
   };
 
   return (
-    <article className="journal-page p-6 sm:p-10 lg:p-12 border border-stone-deep/40 rounded-sm bg-paper-bright shadow-journal animate-investigation-unfold space-y-8 max-w-2xl mx-auto">
-      {/* 1. Header with back link and Folio Number */}
-      <div className="border-b border-stone/80 pb-4 flex items-center justify-between">
-        <button
-          onClick={() => navigate('categories')}
-          className="inline-flex items-center text-xs font-mono tracking-wider text-ink-muted hover:text-ink transition-colors min-h-[44px]"
-        >
-          <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
-          Change Discipline
-        </button>
-        <div className="flex items-center space-x-2">
-          <BotanicalLeafSprig className="w-4 h-4 text-forest" />
-          <span className="font-mono text-xs tracking-widest text-terracotta uppercase font-semibold">
-            Setup • Folio No. {String(state.nextSequenceNumber).padStart(3, '0')}
-          </span>
-        </div>
+    <div className="max-w-xl mx-auto space-y-6 sm:space-y-8 animate-journal-entry pb-16 relative">
+      {/* Corner Botanical Foliage */}
+      <div className="absolute -bottom-8 -right-8 pointer-events-none z-10 hidden sm:block">
+        <BotanicalCornerFoliage position="bottom-right" className="w-36 h-36 opacity-80" />
       </div>
 
-      {/* 2. Title & Selected Category Pill */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <h1 className="font-serif text-3xl sm:text-4xl text-ink font-medium tracking-tight">
-            Set Your Investigation
-          </h1>
-          <button
-            type="button"
-            onClick={() => navigate('categories')}
-            className="inline-flex items-center text-xs font-mono text-forest bg-forest/10 border border-forest/30 px-3 py-1 rounded-[2px] hover:bg-forest/20 transition-colors"
-          >
-            <Layers className="w-3 h-3 mr-1.5" />
+      {/* Top Header */}
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => navigate('categories')}
+          className="inline-flex items-center text-xs font-mono uppercase tracking-wider text-ink-muted hover:text-ink min-h-[44px]"
+          aria-label="Back to categories"
+        >
+          <ArrowLeft className="w-4 h-4 mr-1.5" />
+          Disciplines
+        </button>
+        <BotanicalLeafSprig className="w-5 h-5 text-forest opacity-80" />
+      </div>
+
+      {/* Title & Selected Category */}
+      <div className="space-y-1">
+        <h1 className="font-serif text-3xl sm:text-4xl text-ink font-medium tracking-tight">
+          Set Your Investigation
+        </h1>
+        <div className="flex items-center space-x-2 pt-0.5">
+          <span className="font-serif text-base text-forest font-medium">
             {currentCat.title}
-            <span className="ml-1 text-[10px] text-ink-muted underline">Change</span>
+          </span>
+          <button
+            onClick={() => navigate('categories')}
+            className="text-[11px] font-mono uppercase text-ink-muted hover:text-forest underline"
+          >
+            (Change)
           </button>
         </div>
-        <p className="font-sans text-sm text-ink-muted leading-relaxed">
-          Fine-tune your observation window, sensory intention, and optional focus before heading into the field.
-        </p>
       </div>
 
-      <section className="space-y-3" aria-labelledby="discipline-heading">
-        <div className="flex items-center justify-between border-b border-stone-deep/20 pb-2">
-          <h2 id="discipline-heading" className="font-mono text-xs tracking-wider uppercase text-ink font-semibold">
-            1. Botanical Discipline
-          </h2>
-          <span className="font-mono text-[11px] text-ink-faint">Tactile Focus</span>
-        </div>
-        <div className="grid grid-cols-3 gap-2.5">
-          {categoryOptions.map((option) => {
-            const isSelected = preferences.category === option.id;
-            return (
-              <button
-                key={option.id}
-                type="button"
-                aria-pressed={isSelected}
-                onClick={() => updatePreferences({ category: option.id })}
-                className={`overflow-hidden rounded-sm border text-left transition-all duration-150 focus-visible:outline-offset-2 ${
-                  isSelected
-                    ? 'border-forest ring-1 ring-forest/40 bg-forest/5 shadow-journal-subtle'
-                    : 'border-stone-deep/50 bg-paper-bright hover:border-botanical-teal/60'
-                }`}
-              >
-                <BotanicalCategoryIllustration category={option.id} className="h-16 sm:h-20 w-full" />
-                <span className="block px-2.5 py-2 text-[10px] sm:text-[11px] font-mono leading-snug text-ink">
-                  <span className="block text-terracotta font-bold mb-0.5">{option.code}</span>
-                  {option.title}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* AI Error State */}
+      {/* Structured Error State Banner */}
       {state.aiError && (
-        <div className="p-4 sm:p-5 rounded-[2px] bg-paper-deep/60 border border-terracotta/40 space-y-3 animate-journal-entry">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-xs font-semibold uppercase tracking-wider text-terracotta flex items-center">
-              <AlertCircle className="w-3.5 h-3.5 mr-1.5 inline" />
-              {state.aiError.aiStatus === 'LOCAL_MODEL_UNAVAILABLE'
-                ? 'Local Model Offline'
-                : state.aiError.aiStatus === 'MODEL_NOT_FOUND'
-                ? 'Model Not Found in Ollama'
-                : state.aiError.aiStatus === 'AI_TIMEOUT'
-                ? 'Inference Window Elapsed'
-                : `AI Status: ${state.aiError.aiStatus}`}
-            </span>
+        <div className="p-4 rounded-2xl border border-terracotta/40 bg-[#FBF4EE] space-y-2">
+          <div className="flex items-center space-x-2 text-terracotta text-sm font-semibold">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{state.aiError.message}</span>
+          </div>
+          <div className="flex items-center space-x-3 pt-1">
+            <button
+              onClick={handleGenerate}
+              className="text-xs font-mono uppercase font-bold text-terracotta hover:underline flex items-center"
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1" /> Retry AI
+            </button>
             <button
               onClick={dismissAiError}
-              className="text-xs font-mono text-ink-muted hover:text-ink px-2 py-1 min-h-[32px]"
+              className="text-xs font-mono text-ink-muted hover:text-ink"
             >
-              ✕ Dismiss
+              Dismiss
             </button>
           </div>
-          <p className="font-serif text-sm text-ink leading-relaxed">
-            {state.aiError.message}
-          </p>
-          <div className="pt-1 flex flex-wrap items-center gap-2">
-            <TactileButton
-              type="button"
-              onClick={createInvestigation}
-              variant="terracotta"
-              className="text-xs py-2 px-4 min-h-[36px]"
-            >
-              <RefreshCw className="w-3 h-3 mr-1.5" />
-              Retry Generation
-            </TactileButton>
-          </div>
         </div>
       )}
 
-      {/* Generating State */}
-      {isGenerating && (
-        <div className="p-7 rounded-[2px] bg-paper-deep/40 border border-botanical-teal/30 text-center space-y-3 animate-journal-entry">
-          <div className="w-12 h-12 mx-auto rounded-full border border-forest/30 flex items-center justify-center animate-observation-breath">
-            <span className="w-2.5 h-2.5 rounded-full bg-forest" />
-          </div>
-          <div className="space-y-1">
-            <p className="font-mono text-xs tracking-widest uppercase text-forest font-semibold">
-              Formulating Field Directive...
-            </p>
-            <p className="font-serif italic text-xs text-ink-muted">
-              Synthesizing an observation prompt tailored to your parameters.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* 3. SECTION: OBSERVATION WINDOW (DURATION) */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between border-b border-stone-deep/20 pb-2">
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-moss" />
-            <h2 className="font-mono text-xs tracking-wider uppercase text-ink font-semibold">
-              Observation Window
-            </h2>
-          </div>
-          <span className="font-mono text-[11px] text-ink-faint">Minutes</span>
+      {/* SECTION: OBSERVATION WINDOW */}
+      <section className="space-y-3 relative z-10">
+        <div className="flex items-center space-x-2">
+          <Clock className="w-4 h-4 text-forest" />
+          <h2 className="font-sans text-xs tracking-wider uppercase text-ink font-semibold">
+            Observation Window
+          </h2>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
           {durationOptions.map((opt) => {
             const isSelected = preferences.durationMinutes === opt.value;
-
             return (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => updatePreferences({ durationMinutes: opt.value })}
-                className={`p-3.5 sm:p-4 text-center rounded-sm border transition-all duration-150 min-h-[68px] flex flex-col justify-between ${
+                className={`py-3.5 px-3 rounded-2xl border text-center transition-all ${
                   isSelected
-                    ? 'bg-forest text-paper border-forest shadow-journal'
-                    : 'bg-paper-bright text-ink border-stone-deep/60 hover:bg-stone-light/50'
+                    ? 'bg-forest text-paper border-forest shadow-sm'
+                    : 'bg-paper-bright text-ink border-stone hover:border-forest/50'
                 }`}
               >
-                <div className="flex items-center justify-between w-full">
-                  <span className="font-mono text-[10px] tracking-wider uppercase opacity-75">
-                    {opt.badge}
-                  </span>
-                  {isSelected && <span className="text-terracotta text-xs font-mono">✦</span>}
-                </div>
-                <span className="block font-mono text-base sm:text-lg font-bold tracking-wider">
+                <div className={`font-sans font-bold text-base sm:text-lg ${isSelected ? 'text-paper' : 'text-ink'}`}>
                   {opt.label}
-                </span>
+                </div>
+                <div className={`text-[10px] font-mono tracking-wider mt-0.5 ${isSelected ? 'text-paper/85' : 'text-ink-muted'}`}>
+                  {opt.sublabel}
+                </div>
               </button>
             );
           })}
         </div>
       </section>
 
-      {/* 4. SECTION: INTENTION SELECTION (2x2 Grid) */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between border-b border-stone-deep/20 pb-2">
-          <div className="flex items-center space-x-2">
-            <Compass className="w-4 h-4 text-moss" />
-            <h2 className="font-mono text-xs tracking-wider uppercase text-ink font-semibold">
-              Your Intention
-            </h2>
-          </div>
-          <span className="font-mono text-[11px] text-ink-faint">Perceptual Goal</span>
+      {/* SECTION: YOUR INTENTION (2x2 Grid) */}
+      <section className="space-y-3 relative z-10">
+        <div className="flex items-center space-x-2">
+          <Eye className="w-4 h-4 text-forest" />
+          <h2 className="font-sans text-xs tracking-wider uppercase text-ink font-semibold">
+            Your Intention
+          </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {intentionOptions.map((opt) => {
             const isSelected = preferences.intention === opt.value;
-
             return (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => updatePreferences({ intention: opt.value })}
-                className={`text-left p-4 rounded-sm border transition-all duration-150 flex flex-col justify-between min-h-[96px] ${
+                className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between min-h-[96px] ${
                   isSelected
-                    ? 'bg-forest/5 border-forest text-ink shadow-journal-subtle ring-1 ring-forest/30'
-                    : 'bg-paper/70 border-stone-deep/50 text-ink hover:bg-paper-bright'
+                    ? 'bg-paper-bright border-forest ring-2 ring-forest shadow-sm'
+                    : 'bg-paper-bright border-stone hover:border-forest/50'
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
-                  <span className="font-serif text-base font-semibold text-ink">
-                    {opt.label}
-                  </span>
+                  <div className="w-8 h-8 rounded-xl bg-paper border border-stone/60 flex items-center justify-center">
+                    {opt.icon}
+                  </div>
                   {isSelected && (
-                    <span className="w-5 h-5 rounded-full bg-forest text-paper flex items-center justify-center">
+                    <div className="w-5 h-5 rounded-full bg-forest text-paper flex items-center justify-center">
                       <Check className="w-3 h-3" />
-                    </span>
+                    </div>
                   )}
                 </div>
-                <p className="font-sans text-xs text-ink-muted leading-relaxed mt-1">
-                  {opt.description}
-                </p>
+                <div className="mt-2">
+                  <div className="font-serif text-base font-medium text-ink">
+                    {opt.label}
+                  </div>
+                  <div className="font-sans text-xs text-ink-muted">
+                    {opt.description}
+                  </div>
+                </div>
               </button>
             );
           })}
         </div>
       </section>
 
-      {/* 5. SECTION: OPTIONAL OBSERVATION FOCUS */}
-      <section className="space-y-2">
-        <div className="flex items-center justify-between border-b border-stone-deep/20 pb-2">
+      {/* SECTION: OPTIONAL FOCUS */}
+      <section className="space-y-2 relative z-10">
+        <div className="flex items-center space-x-2">
+          <Sparkles className="w-4 h-4 text-forest" />
           <label
             htmlFor="optionalFocus"
-            className="font-mono text-xs tracking-wider uppercase text-ink font-semibold"
+            className="font-sans text-xs tracking-wider uppercase text-ink font-semibold"
           >
-            Observation Focus (Optional)
+            Optional Focus
           </label>
-          <span className="font-mono text-[11px] text-ink-faint">Custom Anchor</span>
         </div>
         <input
           id="optionalFocus"
           type="text"
           value={preferences.optionalFocus || ''}
           onChange={(e) => updatePreferences({ optionalFocus: e.target.value })}
-          placeholder="e.g. fallen leaves, moss on brick, shadow patterns, sidewalk cracks"
-          className="w-full px-4 py-3 rounded-sm border border-stone-deep/70 bg-paper-bright text-ink font-serif text-sm focus:border-forest focus:outline-none min-h-[46px]"
+          placeholder="e.g. trees, rocks, water, insects..."
+          className="w-full px-4 py-3.5 rounded-2xl border border-stone bg-paper-bright text-ink font-sans text-sm placeholder:text-ink-muted/60 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest transition-all shadow-journal-subtle"
         />
-        <p className="font-serif italic text-xs text-ink-muted">
-          Leave blank to let the Naturalist formulate an unconstrained directive.
-        </p>
       </section>
 
-      {/* Grounding Status Strip */}
-      <div className="pt-2 border-t border-stone-deep/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono text-ink-muted">
-        <div className="flex items-center space-x-2 text-moss">
-          <ShieldCheck className="w-3.5 h-3.5 text-forest" />
-          <span className="font-semibold text-forest uppercase tracking-wider">
-            Naturalist AI Active
-          </span>
-        </div>
-        <span className="text-[11px] text-ink-faint">
-          Private • Zero Hallucination Protocol
-        </span>
-      </div>
-
-      {/* 6. PRIMARY ACTION */}
-      <div className="pt-4 border-t border-stone/80">
-        <TactileButton
+      {/* PRIMARY ACTION: GENERATE FIELD DIRECTIVE */}
+      <div className="pt-2 relative z-10">
+        <button
+          type="button"
           onClick={handleGenerate}
           disabled={isGenerating}
-          variant="primary"
-          className="w-full py-4 text-base font-semibold shadow-journal min-h-[52px]"
+          className="w-full py-4 px-6 rounded-2xl bg-forest hover:bg-forest-deep disabled:bg-stone text-paper font-sans font-semibold text-base flex items-center justify-center space-x-2 shadow-journal transition-all hover:scale-[1.01] active:scale-[0.99]"
         >
-          <Sparkles className="w-4 h-4 mr-2 text-terracotta" />
-          Generate Field Directive
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </TactileButton>
+          {isGenerating ? (
+            <>
+              <RefreshCw className="w-5 h-5 animate-spin" />
+              <span>Formulating Directive...</span>
+            </>
+          ) : (
+            <>
+              <span>Generate Field Directive</span>
+              <ArrowRight className="w-5 h-5" />
+            </>
+          )}
+        </button>
       </div>
-    </article>
+    </div>
   );
 };

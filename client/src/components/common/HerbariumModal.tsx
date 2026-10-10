@@ -22,6 +22,21 @@ export const HerbariumModal: React.FC<HerbariumModalProps> = ({ entry, onClose }
 
   const formattedSeq = String(entry.investigation.sequenceNumber).padStart(3, '0');
 
+  const getHerbariumPhotoUrl = (e: JournalEntry): string | null => {
+    const uri = e.observation.photoUri;
+    if (uri && !uri.startsWith('specimen:')) return uri;
+    const key = uri ? uri.replace('specimen:', '') : '';
+    const t = e.investigation.title.toLowerCase();
+    if (key === 'moss_on_stone' || t.includes('moss')) return '/images/moss-on-stone.jpg';
+    if (key === 'weathering' || key === 'weathering_shale' || t.includes('weather') || t.includes('shale') || (t.includes('stone') && !t.includes('moss')) || t.includes('rock')) return '/images/weathering-shale.jpg';
+    if (key === 'rainwater_flow' || t.includes('rain') || t.includes('water')) return '/images/rainwater-flow.jpg';
+    if (key === 'lichen_crusts' || t.includes('lichen')) return '/images/lichen-crusts.jpg';
+    if (key === 'ant_trails' || t.includes('ant')) return '/images/ant-trails.jpg';
+    if (key === 'diurnal_leaves' || t.includes('diurnal') || t.includes('movement')) return '/images/diurnal-leaves.jpg';
+    if (key === 'leaf_venation' || t.includes('leaf') || t.includes('vein')) return '/images/leaf-veins.jpg';
+    return '/images/leaf-veins.jpg';
+  };
+
   // Text wrapping helper
   const wrapText = (
     ctx: CanvasRenderingContext2D,
@@ -138,7 +153,8 @@ export const HerbariumModal: React.FC<HerbariumModalProps> = ({ entry, onClose }
         resolve(canvas);
       };
 
-      if (entry.observation.photoUri) {
+      const photoSrc = getHerbariumPhotoUrl(entry);
+      if (photoSrc) {
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.onload = () => {
@@ -148,7 +164,7 @@ export const HerbariumModal: React.FC<HerbariumModalProps> = ({ entry, onClose }
         img.onerror = () => {
           finalizeDraw();
         };
-        img.src = entry.observation.photoUri;
+        img.src = photoSrc;
       } else {
         ctx.fillStyle = isCyan ? 'rgba(255, 255, 255, 0.1)' : '#F2EDE2';
         ctx.fillRect(frameX + 10, frameY + 10, frameW - 20, frameH - 20);
@@ -315,10 +331,10 @@ export const HerbariumModal: React.FC<HerbariumModalProps> = ({ entry, onClose }
           </div>
 
           {/* Photo / Specimen Centerpiece */}
-          {entry.observation.photoUri ? (
+          {getHerbariumPhotoUrl(entry) ? (
             <div className="rounded overflow-hidden border border-stone-deep/40 max-h-72">
               <img
-                src={entry.observation.photoUri}
+                src={getHerbariumPhotoUrl(entry)!}
                 alt={entry.investigation.title}
                 className="w-full h-full object-cover"
               />

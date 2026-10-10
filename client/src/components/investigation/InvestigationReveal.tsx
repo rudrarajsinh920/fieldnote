@@ -1,17 +1,14 @@
 import React from 'react';
 import { useFieldSession } from '../../context/field-session-context.js';
-import { TactileButton } from '../common/TactileButton.js';
-import { EditorialBadge } from '../common/EditorialBadge.js';
-import { BotanicalLeafSprig } from '../common/BotanicalIllustrations.js';
+import {
+  BotanicalLeafSprig,
+  BotanicalRevealBorder,
+} from '../common/BotanicalIllustrations.js';
 import {
   ArrowLeft,
-  Clock,
-  EyeOff,
-  HelpCircle,
-  Pocket,
   ArrowRight,
-  ShieldCheck,
-  Compass,
+  Eye,
+  HelpCircle,
 } from 'lucide-react';
 
 export const InvestigationReveal: React.FC = () => {
@@ -20,145 +17,118 @@ export const InvestigationReveal: React.FC = () => {
 
   if (!investigation) {
     return (
-      <div className="journal-page p-8 sm:p-12 text-center space-y-4 border border-stone-deep/40 rounded-sm bg-paper-bright shadow-journal max-w-xl mx-auto">
+      <div className="p-8 sm:p-12 text-center space-y-4 border border-stone rounded-3xl bg-paper-bright shadow-sm max-w-xl mx-auto">
         <p className="font-serif text-lg text-ink-muted">No active field directive found in the logbook.</p>
-        <TactileButton onClick={() => navigate('setup')} variant="primary">
+        <button
+          onClick={() => navigate('setup')}
+          className="px-6 py-3.5 rounded-xl bg-forest text-paper font-semibold text-sm"
+        >
           Configure Field Directive
-        </TactileButton>
+        </button>
       </div>
     );
   }
 
-  const formattedSeq = String(investigation.sequenceNumber).padStart(3, '0');
-  const durationMinutes = Math.round(investigation.targetDurationSeconds / 60) || 10;
+  const formattedSeq = String(investigation.sequenceNumber || 1).padStart(2, '0');
 
   return (
-    <article className="max-w-xl mx-auto space-y-6 sm:space-y-8 animate-investigation-unfold">
-      {/* Top Back / Status Bar */}
+    <div className="max-w-xl mx-auto space-y-6 sm:space-y-8 animate-investigation-unfold pb-16 relative">
+      {/* Top Header Bar */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate('setup')}
           className="inline-flex items-center text-xs font-mono tracking-wider text-ink-muted hover:text-ink transition-colors min-h-[44px]"
         >
-          <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
-          Adjust Setup
+          <ArrowLeft className="w-4 h-4 mr-1.5" />
+          Setup
         </button>
         <div className="flex items-center space-x-2">
           <BotanicalLeafSprig className="w-4 h-4 text-forest" />
           <span className="font-mono text-xs tracking-widest text-terracotta uppercase font-bold">
-            Folio No. {formattedSeq}
+            {formattedSeq} · Field Directive
           </span>
         </div>
       </div>
 
-      {/* PAPER FIELD NOTEBOOK CARD (Spiral Top Perforations Treatment) */}
-      <div className="relative rounded-sm border border-stone-deep/70 bg-paper-bright shadow-journal overflow-hidden">
-        {/* Spiral Notebook Perforations Header */}
-        <div className="bg-[#EFE9DC] border-b border-stone-deep/60 px-4 py-2.5 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            {[...Array(6)].map((_, i) => (
-              <span
-                key={i}
-                className="w-2.5 h-2.5 rounded-full bg-paper border border-stone-deep inline-block"
-              />
-            ))}
-          </div>
-          <span className="font-mono text-[10px] tracking-widest uppercase text-ink-muted font-semibold">
-            Field Directive Sheet
-          </span>
-          <div className="flex items-center space-x-1.5 text-xs font-mono text-moss">
-            <Clock className="w-3.5 h-3.5" />
-            <span>{durationMinutes} min</span>
-          </div>
-        </div>
+      {/* Lush Foliage Garland Framing: Top */}
+      <div className="-mb-3">
+        <BotanicalRevealBorder position="top" className="w-full h-12 text-forest" />
+      </div>
 
-        {/* Card Body */}
-        <div className="p-6 sm:p-8 space-y-6">
-          {/* YOUR MISSION BADGE */}
-          <div className="flex items-center justify-between">
-            <span className="inline-flex items-center text-[11px] font-mono tracking-widest uppercase font-bold text-forest bg-forest/10 border border-forest/30 px-2.5 py-1 rounded-[2px]">
-              <Compass className="w-3 h-3 mr-1.5" />
-              Your Mission
-            </span>
-            <span className="font-mono text-[10px] text-ink-faint uppercase">
-              Physical Earth
-            </span>
-          </div>
+      {/* Screen Headline */}
+      <div className="text-center space-y-1.5 px-4">
+        <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-forest font-semibold block">
+          01 · Field Directive
+        </span>
+        <h1 className="font-serif text-3xl sm:text-4xl text-ink font-medium tracking-tight leading-tight">
+          {investigation.title || 'Notice the Micro-World Around You'}
+        </h1>
+        <p className="font-sans text-xs sm:text-sm text-ink-muted">
+          Small details often tell the biggest stories.
+        </p>
+      </div>
 
-          {/* Title */}
+      {/* Notebook-Style Mission Card with Left Stitched Spine */}
+      <div className="relative rounded-3xl border border-stone bg-paper-bright shadow-journal overflow-hidden">
+        {/* Left red stitched margin line */}
+        <div className="absolute left-6 top-0 bottom-0 w-[1.5px] bg-[#E59882] opacity-60 hidden sm:block pointer-events-none" />
+
+        <div className="p-6 sm:p-8 sm:pl-12 space-y-6">
+          {/* YOUR MISSION */}
           <div className="space-y-2">
-            <h1 className="font-serif text-2xl sm:text-4xl font-medium tracking-tight text-ink leading-tight">
-              {investigation.title}
-            </h1>
-            <div className="flex flex-wrap gap-1.5">
-              {investigation.sensoryFocus.map((focus) => (
-                <EditorialBadge key={focus} label={focus} variant="moss" />
-              ))}
+            <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-terracotta flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-terracotta" />
+              <span>YOUR MISSION</span>
             </div>
-          </div>
-
-          {/* Primary Directive Quote */}
-          <div className="p-4 sm:p-5 rounded-sm bg-paper-deep/30 border-l-3 border-forest space-y-1">
-            <span className="font-mono text-[10px] uppercase tracking-wider text-forest font-bold block">
-              Core Inquiry
-            </span>
-            <p className="font-serif italic text-lg sm:text-xl text-ink leading-relaxed">
-              “{investigation.prompt}”
+            <p className="font-serif text-lg sm:text-xl text-ink leading-relaxed font-normal">
+              {investigation.prompt}
             </p>
           </div>
 
-          {/* Grounding Rule Box */}
-          <div className="p-4 rounded-sm border border-moss/40 bg-moss/5 space-y-1.5">
-            <div className="flex items-center space-x-2 text-moss">
-              <EyeOff className="w-4 h-4 text-forest shrink-0" />
-              <span className="font-mono text-xs uppercase tracking-wider font-bold text-forest">
+          {/* Grounding Rule Section */}
+          <div className="pt-4 border-t border-stone-light/60 space-y-1.5">
+            <div className="flex items-center space-x-2 text-forest">
+              <Eye className="w-4 h-4 text-forest shrink-0" />
+              <span className="font-sans text-xs font-semibold tracking-wide uppercase">
                 Grounding Rule
               </span>
             </div>
-            <p className="font-sans text-xs sm:text-sm text-ink leading-relaxed pl-6">
-              {investigation.groundingConstraint}
+            <p className="font-sans text-xs sm:text-sm text-ink-muted leading-relaxed pl-6">
+              {investigation.groundingConstraint || 'Observe only what you can actually see. No guessing.'}
             </p>
           </div>
 
-          {/* Inquiry Question to Carry */}
-          <div className="p-4 rounded-sm border border-terracotta/40 bg-terracotta/5 space-y-1.5">
+          {/* Inquiry Question Section */}
+          <div className="pt-4 border-t border-stone-light/60 space-y-1.5">
             <div className="flex items-center space-x-2 text-terracotta">
-              <HelpCircle className="w-4 h-4 shrink-0" />
-              <span className="font-mono text-xs uppercase tracking-wider font-bold">
+              <HelpCircle className="w-4 h-4 text-terracotta shrink-0" />
+              <span className="font-sans text-xs font-semibold tracking-wide uppercase">
                 Inquiry Question
               </span>
             </div>
             <p className="font-serif italic text-sm sm:text-base text-ink leading-relaxed pl-6">
-              “{investigation.inquiryQuestion}”
+              “{investigation.inquiryQuestion || 'How does this organism adapt to its surface and surrounding conditions?'}”
             </p>
           </div>
-
-          {/* Put Phone Away Protocol Callout */}
-          <div className="p-3.5 rounded-[2px] bg-stone-light/50 border border-stone-deep/40 text-xs font-sans text-ink-muted flex items-start space-x-2.5">
-            <Pocket className="w-4 h-4 text-forest shrink-0 mt-0.5" />
-            <p className="leading-relaxed">
-              When you begin, your screen will dim and guide you into silent observation. Put your phone away and look closely at the earth.
-            </p>
-          </div>
-        </div>
-
-        {/* Card Footer / Primary Action */}
-        <div className="p-5 sm:p-6 bg-paper border-t border-stone-deep/40 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="text-[11px] font-mono text-ink-muted flex items-center">
-            <ShieldCheck className="w-3.5 h-3.5 mr-1.5 text-forest" />
-            Zero-Distraction Protocol
-          </span>
-
-          <TactileButton
-            onClick={enterField}
-            variant="primary"
-            className="w-full sm:w-auto px-8 py-4 text-sm sm:text-base font-semibold shadow-journal min-h-[50px]"
-          >
-            I'm Ready. Start Field Mode
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </TactileButton>
         </div>
       </div>
-    </article>
+
+      {/* Lush Foliage Garland Framing: Bottom */}
+      <div className="-mt-3">
+        <BotanicalRevealBorder position="bottom" className="w-full h-12 text-forest" />
+      </div>
+
+      {/* Primary Action: Start Field Mode */}
+      <div className="pt-1">
+        <button
+          type="button"
+          onClick={enterField}
+          className="w-full py-4 px-6 rounded-2xl bg-forest hover:bg-forest-deep text-paper font-sans font-semibold text-base flex items-center justify-center space-x-2 shadow-journal transition-all hover:scale-[1.01] active:scale-[0.99]"
+        >
+          <span>I'm Ready. Start Field Mode</span>
+          <ArrowRight className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
   );
 };

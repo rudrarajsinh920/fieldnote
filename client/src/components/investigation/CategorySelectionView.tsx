@@ -1,15 +1,22 @@
 import React from 'react';
 import { useFieldSession } from '../../context/field-session-context.js';
 import { FieldCategory } from '../../types/index.js';
-import { BotanicalCategoryIllustration, BotanicalLeafSprig } from '../common/BotanicalIllustrations.js';
-import { ArrowLeft, Dices, ArrowRight } from 'lucide-react';
+import {
+  BotanicalLeafSprig,
+  BotanicalCornerFoliage,
+  BotanicalCategoryIllustration,
+  BotanicalElementsDecor,
+} from '../common/BotanicalIllustrations.js';
+import { ArrowLeft, ArrowRight, Dices } from 'lucide-react';
 
 interface CategoryOption {
   id: FieldCategory;
-  num: string;
+  numberBadge: string;
   title: string;
+  subtitle: string;
   description: string;
-  svgType: 'science' | 'community' | 'everyday';
+  imageSrc?: string;
+  categoryType: 'science' | 'community' | 'everyday';
 }
 
 export const CategorySelectionView: React.FC = () => {
@@ -18,24 +25,30 @@ export const CategorySelectionView: React.FC = () => {
   const categories: CategoryOption[] = [
     {
       id: 'science',
-      num: '01',
+      numberBadge: '01',
       title: 'Botanical Science',
-      description: 'Plant anatomy, leaf venation, lichen symbiosis, and micro-physics.',
-      svgType: 'science',
+      subtitle: 'Plant anatomy & venation',
+      description: 'Plant anatomy, leaf venation, lichen symbiosis, and structural biomechanics.',
+      imageSrc: '/images/moss-on-stone.jpg',
+      categoryType: 'science',
     },
     {
       id: 'community',
-      num: '02',
+      numberBadge: '02',
       title: 'Community & Environment',
-      description: 'Map tree canopy, runoff channels, shade lines and local ecosystems.',
-      svgType: 'community',
+      subtitle: 'Trees & urban canopy',
+      description: 'Trees, waterways, neighborhood micro-climates, and local ecosystems.',
+      imageSrc: '/images/community-environment.jpg',
+      categoryType: 'community',
     },
     {
       id: 'everyday',
-      num: '03',
+      numberBadge: '03',
       title: 'Everyday Discovery',
-      description: 'Notice organisms, textures, patterns and micro-habitats.',
-      svgType: 'everyday',
+      subtitle: 'Pavement & micro-habitats',
+      description: 'Notice organisms, textures, patterns, and micro-habitats in pavement and stone.',
+      imageSrc: '/images/ant-trails.jpg',
+      categoryType: 'everyday',
     },
   ];
 
@@ -57,33 +70,48 @@ export const CategorySelectionView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 sm:space-y-8 animate-journal-entry pb-12">
+    <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8 animate-journal-entry pb-16 relative">
+      {/* Subtle Botanical Elements Background Watermark */}
+      <div className="absolute -top-12 -right-8 pointer-events-none z-0 hidden sm:block opacity-15">
+        <BotanicalElementsDecor className="w-56 h-auto" />
+      </div>
+
+      {/* Botanical Corner Foliage in bottom-right */}
+      <div className="absolute -bottom-8 -right-8 pointer-events-none z-10 hidden sm:block">
+        <BotanicalCornerFoliage position="bottom-right" className="w-36 h-36 opacity-85" />
+      </div>
+
       {/* Top Header Bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between relative z-10">
         <button
           type="button"
           onClick={() => navigate('home')}
-          className="inline-flex items-center text-xs font-mono uppercase tracking-wider text-ink-muted hover:text-ink min-h-[44px] min-w-[44px]"
+          className="inline-flex items-center text-xs font-mono uppercase tracking-wider text-ink-muted hover:text-ink min-h-[44px]"
           aria-label="Back to home"
         >
           <ArrowLeft className="w-4 h-4 mr-1.5" />
-          Back
+          Home
         </button>
-        <BotanicalLeafSprig className="w-6 h-6 text-forest opacity-80" />
+        <div className="flex items-center space-x-2">
+          <BotanicalLeafSprig className="w-5 h-5 text-forest opacity-80" />
+          <span className="text-[11px] font-mono uppercase tracking-wider text-forest font-semibold">
+            Sensory Lenses
+          </span>
+        </div>
       </div>
 
       {/* Screen Title */}
-      <div className="text-center space-y-2 pt-2">
+      <div className="space-y-1.5 text-center sm:text-left relative z-10">
         <h1 className="font-serif text-3xl sm:text-4xl text-ink font-medium tracking-tight">
           Choose a Discipline
         </h1>
-        <p className="font-serif italic text-sm sm:text-base text-ink-muted max-w-md mx-auto">
-          Select a sensory lens to formulate your field directive.
+        <p className="font-sans text-xs sm:text-sm text-ink-muted">
+          Select a sensory lens to frame your fieldwork.
         </p>
       </div>
 
-      {/* Category Cards List */}
-      <div className="space-y-4 pt-2">
+      {/* Illustrated Discipline Cards List (Reference Screen 2) */}
+      <div className="space-y-4 pt-1 relative z-10">
         {categories.map((cat) => (
           <div
             key={cat.id}
@@ -96,17 +124,35 @@ export const CategorySelectionView: React.FC = () => {
                 handleSelectCategory(cat.id);
               }
             }}
-            className="group overflow-hidden rounded-sm border border-stone-deep/60 bg-paper-bright hover:border-forest/70 hover:shadow-journal transition-all cursor-pointer grid grid-cols-[6.5rem_minmax(0,1fr)_auto] sm:grid-cols-[10rem_minmax(0,1fr)_auto] items-stretch gap-0"
+            className="group p-4 sm:p-5 rounded-3xl border border-stone bg-paper-bright hover:border-forest/70 hover:shadow-journal transition-all cursor-pointer flex items-center gap-4 sm:gap-5"
           >
-            <div className="min-h-[7.5rem] sm:min-h-[9.5rem] border-r border-stone-deep/30 bg-paper overflow-hidden">
-              <BotanicalCategoryIllustration
-                category={cat.svgType}
-                className="h-full w-full transition-transform duration-300 group-hover:scale-[1.035]"
-              />
+            {/* Left Illustrated Artwork Thumbnail */}
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-stone-light/40 border border-stone/70 shadow-sm shrink-0 flex items-center justify-center relative">
+              {cat.imageSrc ? (
+                <img
+                  src={cat.imageSrc}
+                  alt={cat.title}
+                  className="w-full h-full object-cover select-none scale-[1.08] group-hover:scale-110 transition-transform duration-500"
+                  loading="lazy"
+                />
+              ) : (
+                <BotanicalCategoryIllustration
+                  category={cat.categoryType}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              )}
             </div>
 
             {/* Middle Content */}
-            <div className="min-w-0 space-y-1 self-center px-4 py-4 sm:px-5 sm:py-5">
+            <div className="flex-1 min-w-0 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-forest font-semibold">
+                  Discipline {cat.numberBadge}
+                </span>
+                <span className="hidden sm:inline-block text-[10px] font-mono text-ink-muted uppercase">
+                  {cat.subtitle}
+                </span>
+              </div>
               <h2 className="font-serif text-xl sm:text-2xl font-medium text-ink group-hover:text-forest transition-colors leading-tight">
                 {cat.title}
               </h2>
@@ -115,27 +161,14 @@ export const CategorySelectionView: React.FC = () => {
               </p>
             </div>
 
-            {/* Right Badge / Arrow */}
-            <div className="flex flex-col items-end justify-between self-stretch shrink-0 p-3 sm:p-4">
-              <span className="font-mono text-[10px] font-semibold px-2 py-0.5 rounded-[2px] bg-stone-light/70 text-ink-muted border border-stone-deep/40">
-                {cat.num}
-              </span>
-              <span className="text-forest opacity-0 group-hover:opacity-100 transition-opacity">
-                <ArrowRight className="w-4 h-4" />
-              </span>
+            {/* Right Arrow */}
+            <div className="shrink-0 p-2 text-ink-muted group-hover:text-forest group-hover:translate-x-1 transition-all">
+              <ArrowRight className="w-5 h-5" />
             </div>
           </div>
         ))}
-      </div>
 
-      {/* Surprise Me Card */}
-      <div className="pt-2">
-        <div className="text-center pb-2">
-          <span className="font-mono text-[11px] uppercase tracking-wider text-ink-muted">
-            Not sure? Try a surprise mission
-          </span>
-        </div>
-
+        {/* Surprise Me Card (Reference Screen 2) */}
         <div
           onClick={handleSurpriseMe}
           role="button"
@@ -146,22 +179,28 @@ export const CategorySelectionView: React.FC = () => {
               handleSurpriseMe();
             }
           }}
-          className="group p-5 rounded-sm border border-terracotta/40 bg-[#FAF4ED] hover:border-terracotta hover:shadow-journal-subtle transition-all cursor-pointer flex items-center justify-between gap-4"
+          className="group p-4 sm:p-5 rounded-3xl border border-dashed border-stone-dark/40 bg-[#FAF7F0] hover:border-terracotta/70 hover:shadow-journal-subtle transition-all cursor-pointer flex items-center gap-4 sm:gap-5"
         >
-          <div className="w-12 h-12 rounded-[2px] bg-terracotta/10 border border-terracotta/30 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform">
-            <Dices className="w-6 h-6 text-terracotta" />
+          {/* Terracotta Dice Box */}
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#FDF6F0] border border-terracotta/30 flex items-center justify-center shrink-0 text-terracotta group-hover:scale-105 transition-transform">
+            <Dices className="w-8 h-8 text-terracotta" />
           </div>
 
-          <div className="flex-1 min-w-0 space-y-0.5">
-            <h3 className="font-serif text-lg font-medium text-ink group-hover:text-terracotta transition-colors">
+          <div className="flex-1 min-w-0 space-y-1">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-terracotta font-semibold">
+              Surprise Directive
+            </div>
+            <h2 className="font-serif text-xl sm:text-2xl font-medium text-ink group-hover:text-terracotta transition-colors leading-tight">
               Surprise Me
-            </h3>
-            <p className="font-sans text-xs text-ink-muted">
+            </h2>
+            <p className="font-sans text-xs sm:text-sm text-ink-muted leading-relaxed">
               A random directive tailored to your surroundings.
             </p>
           </div>
 
-          <ArrowRight className="w-5 h-5 text-terracotta shrink-0 group-hover:translate-x-1 transition-transform" />
+          <div className="shrink-0 p-2 text-ink-muted group-hover:text-terracotta group-hover:translate-x-1 transition-all">
+            <ArrowRight className="w-5 h-5" />
+          </div>
         </div>
       </div>
     </div>

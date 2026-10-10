@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Investigation } from '@fieldnote/shared';
-import { TactileButton } from '../common/TactileButton.js';
-import { BotanicalLeafSprig } from '../common/BotanicalIllustrations.js';
-import { Pocket, ArrowRight, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Bell, ArrowUp } from 'lucide-react';
+import { DarkForestBackdrop } from '../common/BotanicalIllustrations.js';
 
 interface FieldModeViewProps {
   investigation: Investigation;
@@ -17,9 +16,9 @@ export const FieldModeView: React.FC<FieldModeViewProps> = ({
 }) => {
   const targetSeconds = investigation.targetDurationSeconds || 600;
   const [secondsLeft, setSecondsLeft] = useState<number>(targetSeconds);
-  const [isDimmed, setIsDimmed] = useState<boolean>(false);
+  const [reminderSet, setReminderSet] = useState<boolean>(false);
 
-  // Live countdown timer
+  // Countdown timer
   useEffect(() => {
     const timer = setInterval(() => {
       setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
@@ -28,7 +27,7 @@ export const FieldModeView: React.FC<FieldModeViewProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  // Screen wake lock support (if supported by device)
+  // Screen wake lock
   useEffect(() => {
     let wakeLock: any = null;
     if ('wakeLock' in navigator) {
@@ -47,23 +46,16 @@ export const FieldModeView: React.FC<FieldModeViewProps> = ({
     };
   }, []);
 
-  // Gentle progressive dimming after 10s of quiet observation
-  useEffect(() => {
-    if (isDimmed) return;
-    const timeout = setTimeout(() => setIsDimmed(true), 12000);
-    return () => clearTimeout(timeout);
-  }, [isDimmed]);
-
-  const handleWake = useCallback(() => {
-    setIsDimmed(false);
-  }, []);
+  const handleReminderToggle = () => {
+    setReminderSet(!reminderSet);
+  };
 
   // Format MM:SS
   const mins = Math.floor(secondsLeft / 60);
   const secs = secondsLeft % 60;
   const formattedTime = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
-  // Calculate circular stroke progress
+  // Progress
   const progressPercent = (targetSeconds - secondsLeft) / targetSeconds;
   const strokeDashoffset = 283 - 283 * progressPercent;
 
@@ -71,107 +63,120 @@ export const FieldModeView: React.FC<FieldModeViewProps> = ({
     <div
       role="region"
       aria-label="Field Mode Immersion"
-      onClick={handleWake}
-      className="fixed inset-0 bg-[#0B1510] text-[#E7E0D3] z-50 flex flex-col justify-between p-6 sm:p-10 select-none overflow-hidden transition-colors duration-1000"
+      className="fixed inset-0 bg-[#06120C] text-[#E7E0D3] z-50 flex flex-col justify-between p-6 sm:p-8 select-none overflow-hidden"
     >
-      {/* 1. TOP STATUS BAR */}
-      <header
-        className={`flex items-center justify-between transition-opacity duration-700 ${
-          isDimmed ? 'opacity-30' : 'opacity-100'
-        }`}
-      >
-        <div className="flex items-center space-x-2">
-          <span className="w-2 h-2 rounded-full bg-[#2F8175] animate-pulse" />
-          <span className="font-mono text-xs tracking-[0.25em] text-[#859189] uppercase font-semibold">
-            Field Mode
-          </span>
-        </div>
+      {/* Full-bleed Dark Forest Canopy Background */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <DarkForestBackdrop className="w-full h-full object-cover" />
+      </div>
 
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-[2px] bg-[#16251E] border border-[#22392E] text-xs font-mono text-[#859189]">
-          <Pocket className="w-3.5 h-3.5 text-[#2F8175]" />
-          <span>{screenAwaySeconds > 0 ? `Screen Away (${screenAwaySeconds}s)` : 'Screen Away'}</span>
-        </div>
+      {/* 1. TOP HEADER BAR */}
+      <header className="relative z-10 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={onReturn}
+          className="inline-flex items-center space-x-1.5 text-xs font-mono uppercase tracking-wider text-[#A3B8AC] hover:text-[#FCFBF7] transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Field Mode</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={handleReminderToggle}
+          className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full border text-xs font-mono transition-colors ${
+            reminderSet
+              ? 'bg-[#183628] border-[#2F8175] text-[#86D6B8]'
+              : 'border-[#1C3627] text-[#859E8F] hover:text-[#FCFBF7]'
+          }`}
+        >
+          <Bell className="w-3.5 h-3.5" />
+          <span>{reminderSet ? 'Reminder On' : 'Set Reminder'}</span>
+        </button>
       </header>
 
-      {/* 2. CENTER CONTENT: CIRCULAR TIMER & BOTANICAL PLANT ON STONE */}
-      <main className="my-auto max-w-sm mx-auto text-center space-y-8">
-        {/* CIRCULAR TIMER DIAL */}
+      {/* 2. CENTER SECTION: CIRCULAR TIMER & GLOWING SEEDLING */}
+      <main className="relative z-10 my-auto max-w-sm mx-auto text-center space-y-6">
+        {/* Prominent Circular Glowing Timer */}
         <div className="relative w-56 h-56 sm:w-64 sm:h-64 mx-auto flex items-center justify-center">
-          {/* SVG Circular Progress Track & Indicator */}
-          <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+          <svg className="w-full h-full -rotate-90 transform drop-shadow-[0_0_15px_rgba(47,129,117,0.3)]" viewBox="0 0 100 100">
             {/* Background Ring */}
             <circle
               cx="50"
               cy="50"
               r="45"
-              className="text-[#182921]"
-              strokeWidth="3"
-              stroke="currentColor"
+              stroke="#132B1F"
+              strokeWidth="2.5"
               fill="transparent"
             />
-            {/* Progress Active Ring */}
+            {/* Active Glow Ring */}
             <circle
               cx="50"
               cy="50"
               r="45"
-              className="text-[#2F8175] transition-all duration-1000"
-              strokeWidth="3.5"
+              stroke="#2F8175"
+              strokeWidth="3"
               strokeDasharray="283"
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
-              stroke="currentColor"
               fill="transparent"
+              className="transition-all duration-1000"
             />
           </svg>
 
-          {/* Center Timer Time & Plant Graphic */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2">
-            {/* Seedling on mossy stone vector art */}
-            <div className="w-12 h-12 flex items-center justify-center">
-              <BotanicalLeafSprig className="w-10 h-10 text-[#46A093] opacity-90" />
-            </div>
-
-            <div className="font-mono text-4xl sm:text-5xl font-medium tracking-tight text-[#FCFBF7]">
+          {/* Time Readout */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="font-mono text-5xl sm:text-6xl font-light tracking-tight text-[#FCFBF7] drop-shadow-md">
               {formattedTime}
             </div>
-
-            <span className="font-mono text-[11px] tracking-widest uppercase text-[#859189]">
-              {secondsLeft === 0 ? 'Observation Concluded' : 'Silent Notice'}
-            </span>
+            {screenAwaySeconds > 0 && (
+              <span className="font-mono text-[10px] tracking-widest uppercase text-[#739483] mt-1">
+                Away {screenAwaySeconds}s
+              </span>
+            )}
           </div>
         </div>
 
-        {/* GUIDANCE MESSAGE */}
-        <div className="space-y-3 px-4">
-          <h2 className="font-serif text-2xl sm:text-3xl font-medium text-[#FCFBF7] leading-tight">
-            Go outside. Put your phone away.
-          </h2>
-          <p className="font-serif italic text-sm text-[#859189] leading-relaxed">
-            “The world reveals itself only to those who stay long enough to see.”
-          </p>
+        {/* Notice Instruction */}
+        <p className="font-sans text-sm text-[#A3B8AC] tracking-wide">
+          Go outside. Put your phone away.
+        </p>
+
+        {/* Glowing Botanical Seedling in Center */}
+        <div className="py-1 flex items-center justify-center">
+          <svg viewBox="0 0 80 80" fill="none" className="w-20 h-20 drop-shadow-[0_0_16px_rgba(61,168,131,0.55)]">
+            {/* Central glowing stem */}
+            <path d="M40 70 C40 52 38 34 40 20" stroke="#4F8562" strokeWidth="2.5" strokeLinecap="round" />
+            
+            {/* Left Leaf (Lush green) */}
+            <path d="M39 44 C22 38 16 24 26 18 C37 14 39 30 39 44 Z" fill="#2F8175" stroke="#4F8562" strokeWidth="1.4" />
+            <path d="M39 44 Q28 28 26 18" stroke="#8DE3C4" strokeWidth="0.8" opacity="0.6" />
+
+            {/* Right Leaf (Sage green) */}
+            <path d="M41 34 C58 28 64 14 54 8 C43 4 41 20 41 34 Z" fill="#4F6F52" stroke="#2F8175" strokeWidth="1.4" />
+            <path d="M41 34 Q52 18 54 8" stroke="#A8DFC7" strokeWidth="0.8" opacity="0.6" />
+
+            {/* Tiny emerging top leaf bud */}
+            <circle cx="40" cy="18" r="3" fill="#8CE0BD" />
+          </svg>
         </div>
 
-        {/* DIRECTIVE SNIPPET */}
-        <div className="p-3.5 rounded-sm bg-[#13221B]/80 border border-[#233B2F] text-xs font-serif italic text-[#C8D3CA]">
-          “{investigation.prompt}”
-        </div>
+        {/* Naturalist Philosophical Quote */}
+        <p className="font-serif italic text-base sm:text-lg text-[#C8DCD1] max-w-xs mx-auto leading-relaxed">
+          “The world reveals itself to those who take time to notice.”
+        </p>
       </main>
 
-      {/* 3. RETURN ACTION FOOTER */}
-      <footer className="max-w-sm mx-auto w-full space-y-3" onClick={(e) => e.stopPropagation()}>
-        <TactileButton
+      {/* 3. BOTTOM RETURN BUTTON */}
+      <footer className="relative z-10 max-w-sm mx-auto w-full pt-4 text-center">
+        <button
+          type="button"
           onClick={onReturn}
-          variant="primary"
-          className="w-full py-4 text-base font-semibold shadow-journal min-h-[52px] bg-[#2F8175] hover:bg-[#256a60] border-transparent text-[#FCFBF7]"
+          className="w-full py-4 px-5 rounded-2xl bg-[#0F2B1D]/80 backdrop-blur-md hover:bg-[#183E2A] border border-[#27533B] text-[#FCFBF7] font-sans text-sm font-medium flex items-center justify-center space-x-2 transition-all active:scale-[0.98] shadow-lg"
         >
-          I'm Back / Record Observation
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </TactileButton>
-
-        <div className="flex items-center justify-center text-[11px] font-mono text-[#859189] space-x-1">
-          <ChevronUp className="w-3.5 h-3.5 animate-bounce" />
-          <span>Tap button when your observation is complete</span>
-        </div>
+          <ArrowUp className="w-4 h-4 text-[#86D6B8] animate-bounce" />
+          <span>Swipe up when you're back</span>
+        </button>
       </footer>
     </div>
   );

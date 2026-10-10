@@ -1,5 +1,5 @@
 import React from 'react';
-import { Compass, BookOpen, Menu, User } from 'lucide-react';
+import { Search, User, Menu } from 'lucide-react';
 import { useFieldSession } from '../../context/field-session-context.js';
 import { BotanicalLeafSprig } from '../common/BotanicalIllustrations.js';
 
@@ -8,51 +8,104 @@ export const Header: React.FC = () => {
   const isField = state.currentView === 'field';
 
   if (isField) {
-    // In field mode, header disappears completely to avoid distraction
     return null;
   }
 
-  const isInvestigateActive =
-    state.currentView === 'setup' ||
-    state.currentView === 'reveal' ||
-    state.currentView === 'return' ||
-    state.currentView === 'reflect' ||
-    state.currentView === 'categories';
-  const isJournalActive = state.currentView === 'archive' || state.currentView === 'detail';
+  const isHome = state.currentView === 'home';
+  const isExplore = state.currentView === 'categories' || state.currentView === 'setup' || state.currentView === 'reveal';
+  const isJournal = state.currentView === 'archive' || state.currentView === 'detail';
 
   return (
-    <header className="border-b border-stone-deep/60 bg-paper-bright sticky top-0 z-30 transition-all duration-300">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-15 py-2.5 flex items-center justify-between">
-        {/* Left: Mobile Menu & Brand Link */}
+    <header className="border-b border-stone/80 bg-paper-bright/95 backdrop-blur-sm sticky top-0 z-30 transition-all">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        {/* Left: Brand Logo & Title */}
         <div className="flex items-center space-x-3">
           <button
             type="button"
             onClick={() => navigate('categories')}
-            className="md:hidden p-1.5 text-ink-muted hover:text-ink rounded min-h-[40px] min-w-[40px] flex items-center justify-center"
+            className="md:hidden p-2 text-ink-muted hover:text-ink rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-label="Disciplines Menu"
-            title="Choose a Discipline"
           >
             <Menu className="w-5 h-5 text-ink" />
           </button>
 
           <button
             onClick={() => navigate('home')}
-            className="group flex items-center space-x-2 text-left focus-visible:outline-offset-4 rounded-sm"
+            className="group flex items-center space-x-2 text-left focus:outline-none"
             aria-label="FIELDNOTE Home"
           >
-            <BotanicalLeafSprig className="w-5 h-5 text-forest group-hover:scale-105 transition-transform" />
-            <span className="font-serif tracking-tight font-medium text-xl sm:text-2xl text-ink">
-              FIELDNOTE
-            </span>
+            <BotanicalLeafSprig className="w-6 h-6 text-forest group-hover:scale-105 transition-transform" />
+            <div className="flex flex-col">
+              <span className="font-serif tracking-tight font-medium text-2xl sm:text-3xl text-ink leading-none">
+                FIELDNOTE
+              </span>
+              <span className="md:hidden text-[10px] font-serif italic text-forest -mt-0.5">
+                AI that teaches you to notice.
+              </span>
+            </div>
           </button>
-          <span className="hidden sm:inline-flex items-center text-[10px] font-mono text-botanical-teal bg-botanical-teal-faint/60 px-2 py-0.5 rounded-[2px] border border-botanical-teal/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-botanical-teal mr-1.5 animate-pulse" />
-            Botanical Journal & AI
-          </span>
         </div>
 
-        {/* Right: Primary View Navigation */}
-        <nav className="hidden md:flex items-center space-x-1.5 sm:space-x-2" aria-label="Main Navigation">
+        {/* Center: Desktop Navigation Links */}
+        <nav className="hidden md:flex items-center space-x-8" aria-label="Main Navigation">
+          <button
+            onClick={() => navigate('home')}
+            className={`text-sm font-sans font-medium transition-colors ${
+              isHome ? 'text-forest font-semibold' : 'text-ink-muted hover:text-ink'
+            }`}
+          >
+            Home
+          </button>
+          <button
+            onClick={() => navigate('categories')}
+            className={`text-sm font-sans font-medium transition-colors ${
+              isExplore ? 'text-forest font-semibold' : 'text-ink-muted hover:text-ink'
+            }`}
+          >
+            Explore
+          </button>
+          <button
+            onClick={() => navigate('archive')}
+            className={`text-sm font-sans font-medium transition-colors flex items-center ${
+              isJournal ? 'text-forest font-semibold' : 'text-ink-muted hover:text-ink'
+            }`}
+          >
+            Journal
+            {state.journalEntries.length > 0 && (
+              <span className="ml-1.5 text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-stone-light text-forest font-semibold">
+                {state.journalEntries.length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => navigate('archive')}
+            className="text-sm font-sans font-medium text-ink-muted hover:text-ink transition-colors"
+          >
+            Profile
+          </button>
+        </nav>
+
+        {/* Right Action: Desktop Primary Button / Mobile Icons */}
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          {/* Mobile Right: Search & Profile Icons */}
+          <div className="flex md:hidden items-center space-x-1">
+            <button
+              onClick={() => navigate('archive')}
+              className="p-2 text-ink-muted hover:text-ink rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Search Journal"
+            >
+              <Search className="w-5 h-5 text-ink" />
+            </button>
+            <button
+              onClick={() => navigate('archive')}
+              className="p-2 text-ink-muted hover:text-ink rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Naturalist Profile"
+            >
+              <User className="w-5 h-5 text-ink" />
+            </button>
+          </div>
+
+          {/* Desktop Right: Begin Investigation Button */}
           <button
             onClick={() => {
               if (state.activeInvestigation) {
@@ -61,47 +114,13 @@ export const Header: React.FC = () => {
                 navigate('categories');
               }
             }}
-            className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded transition-all min-h-[38px] flex items-center ${
-              isInvestigateActive
-                ? 'bg-forest text-paper font-semibold shadow-journal-subtle'
-                : 'text-ink-muted hover:text-ink hover:bg-stone-light/40'
-            }`}
-            aria-current={isInvestigateActive ? 'page' : undefined}
+            className="hidden md:inline-flex items-center px-4 py-2 rounded-xl text-xs font-mono uppercase tracking-wider bg-forest hover:bg-forest-deep text-paper font-semibold shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
-            <Compass className="w-3.5 h-3.5 mr-1.5" />
-            <span className="hidden sm:inline">Investigate</span>
-            <span className="sm:hidden">Explore</span>
+            Begin Investigation
           </button>
-
-          <button
-            onClick={() => navigate('archive')}
-            className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded transition-all min-h-[38px] flex items-center ${
-              isJournalActive
-                ? 'bg-forest text-paper font-semibold shadow-journal-subtle'
-                : 'text-ink-muted hover:text-ink hover:bg-stone-light/40'
-            }`}
-            aria-current={isJournalActive ? 'page' : undefined}
-          >
-            <BookOpen className="w-3.5 h-3.5 mr-1.5" />
-            Journal
-            {state.journalEntries.length > 0 && (
-              <span className="ml-1.5 text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-terracotta text-paper">
-                {state.journalEntries.length}
-              </span>
-            )}
-          </button>
-
-          {/* Profile / Naturalist Avatar */}
-          <button
-            onClick={() => navigate('archive')}
-            className="p-2 text-ink-muted hover:text-ink hover:bg-stone-light/40 rounded transition-all min-h-[38px] min-w-[38px] flex items-center justify-center"
-            title="My Field Logbook"
-            aria-label="My Field Logbook"
-          >
-            <User className="w-4 h-4 text-ink-muted" />
-          </button>
-        </nav>
+        </div>
       </div>
     </header>
   );
 };
+

@@ -1,507 +1,434 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useFieldSession } from '../../context/field-session-context.js';
-import { TactileButton } from '../common/TactileButton.js';
 import {
-  BotanicalHeroForest,
+  SpecimenArtwork,
+  BotanicalCornerFoliage,
   BotanicalLeafSprig,
-  BotanicalCategoryIllustration,
+  BotanicalElementsDecor,
 } from '../common/BotanicalIllustrations.js';
 import { FieldCategory } from '../../types/index.js';
-import { getCurrentMicroSeason } from '../../services/phenology-calendar.js';
 import {
-  Compass,
   ArrowRight,
-  BookOpen,
-  ShieldCheck,
-  ChevronDown,
-  ChevronUp,
   Calendar,
-  History,
 } from 'lucide-react';
 
 interface CategoryCardItem {
   id: FieldCategory;
   title: string;
-  discipline: string;
-  summary: string;
-  directiveExample: string;
-  specimenCount: string;
+  subtitle: string;
+  description: string;
+  categoryType: 'science' | 'community' | 'everyday';
 }
 
 const CATEGORIES: CategoryCardItem[] = [
   {
     id: 'science',
     title: 'School & Science',
-    discipline: 'BOTANICAL VENATION & BIOLOGY',
-    summary: 'Study cellular venation, photosynthetic angles, lichen symbiotic crusts, and structural biomechanics.',
-    directiveExample: '“Trace how water channels divide through primary and secondary leaf veins.”',
-    specimenCount: 'Discipline 01',
+    subtitle: 'Plant anatomy & venation',
+    description: 'Plant anatomy, leaf venation, lichen symbiosis, and structural biomechanics.',
+    categoryType: 'science',
   },
   {
     id: 'community',
     title: 'Community & Environment',
-    discipline: 'URBAN CANOPY & CORRIDORS',
-    summary: 'Map shared neighborhood tree canopies, runoff watersheds, heat islands, and public pollinator paths.',
-    directiveExample: '“Identify where the tree canopy breaks to let sunlight reach the lower soil strata.”',
-    specimenCount: 'Discipline 02',
+    subtitle: 'Trees & urban canopy',
+    description: 'Trees, waterways, neighborhood micro-climates, and local ecosystems.',
+    categoryType: 'community',
   },
   {
     id: 'everyday',
     title: 'Everyday Discovery',
-    discipline: 'MICRO-LANDSCAPES & HABITATS',
-    summary: 'Notice organisms colonizing sidewalk cracks, moisture beneath loose stones, and diurnal shadow drift.',
-    directiveExample: '“Find three distinct textures of moss flourishing in the shaded pavement seam.”',
-    specimenCount: 'Discipline 03',
+    subtitle: 'Pavement & micro-habitats',
+    description: 'Notice organisms, textures, patterns, and micro-habitats in pavement and stone.',
+    categoryType: 'everyday',
   },
 ];
 
 export const HomeView: React.FC = () => {
   const { state, updatePreferences, navigate, viewEntryDetail } = useFieldSession();
-  const [showRitual, setShowRitual] = useState<boolean>(false);
-  const [showPhenology, setShowPhenology] = useState<boolean>(false);
-  const microSeason = getCurrentMicroSeason();
 
   const handleCategorySelect = (categoryId: FieldCategory) => {
     updatePreferences({ category: categoryId });
     navigate('setup');
   };
 
-  const recentEntries = state.journalEntries.slice(0, 3);
+  const handleBeginInvestigation = () => {
+    if (state.activeInvestigation) {
+      navigate('reveal');
+    } else {
+      navigate('categories');
+    }
+  };
+
+  // Up to 4 recent discoveries
+  const recentEntries = state.journalEntries.slice(0, 4);
 
   return (
-    <div className="space-y-12 sm:space-y-16 animate-journal-entry">
-      {/* 1. EDITORIAL MASTHEAD */}
-      <header className="text-center pt-2 sm:pt-4 space-y-4">
-        {/* Top Folio Strip */}
-        <div className="inline-flex items-center space-x-2.5 border-b border-stone-deep/40 pb-2 px-3">
-          <BotanicalLeafSprig className="w-4 h-4 text-forest" />
-          <span className="font-mono text-[11px] sm:text-xs tracking-[0.25em] text-ink-muted uppercase font-semibold">
-            Field Journal & Sensory Instrument • Folio MMXXVI
-          </span>
-          <span className="text-terracotta text-xs">✦</span>
-        </div>
+    <div className="space-y-10 sm:space-y-14 animate-journal-entry relative">
+      {/* Decorative botanical branch hanging in top-left */}
+      <div className="absolute -top-6 -left-6 hidden sm:block z-20 pointer-events-none">
+        <BotanicalCornerFoliage position="top-left" className="w-36 h-36" />
+      </div>
 
-        {/* Brand Headline */}
-        <div className="space-y-2">
-          <h1 className="font-serif text-5xl sm:text-7xl lg:text-8xl font-medium tracking-tight text-ink leading-none">
-            FIELDNOTE
-          </h1>
-          <p className="font-serif italic text-xl sm:text-2xl text-forest tracking-tight">
-            “AI that teaches you to notice.”
-          </p>
-        </div>
-
-        <p className="font-sans text-sm sm:text-base text-ink-muted leading-relaxed max-w-xl mx-auto px-2">
-          A physical-first field journal designed to make itself unnecessary. Formulate a sensory directive, put your phone in your pocket, and examine the physical earth.
-        </p>
-
-        {/* The 72 Micro-Seasons Dial (Phenology Clock) */}
-        <div className="pt-2 max-w-xl mx-auto px-2">
-          <div className="rounded-sm border border-stone-deep/60 bg-paper-bright/95 shadow-journal-subtle overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setShowPhenology(!showPhenology)}
-              className="w-full flex items-center justify-between p-3.5 text-left hover:bg-stone-light/40 transition-colors min-h-[48px]"
-            >
-              <div className="flex items-center space-x-3">
-                <span className="text-terracotta text-sm">✦</span>
-                <div>
-                  <span className="font-mono text-[10px] tracking-widest uppercase text-terracotta font-semibold block">
-                    Solar Phenology • 72 Micro-Seasons
-                  </span>
-                  <span className="font-serif text-sm sm:text-base font-medium text-ink">
-                    {microSeason.name}{' '}
-                    <span className="font-serif italic text-xs text-ink-muted">
-                      — {microSeason.subSeason} ({microSeason.poeticName})
-                    </span>
-                  </span>
-                </div>
+      {/* ============================================================ */}
+      {/* 1. DESKTOP HERO CONTAINER (>= 1024px)                        */}
+      {/* ============================================================ */}
+      <section className="hidden lg:block">
+        <div className="relative rounded-3xl border border-stone bg-paper-bright overflow-hidden shadow-journal-subtle">
+          {/* Top Half: 12-col split with Headline & Actions (Left) and Mountain Landscape (Right) */}
+          <div className="grid grid-cols-12 min-h-[460px]">
+            {/* Left Column: Editorial Headline & Actions */}
+            <div className="col-span-6 p-10 xl:p-14 flex flex-col justify-between z-10 relative overflow-hidden">
+              {/* Subtle Botanical Elements Background Watermark */}
+              <div className="absolute -bottom-10 -left-10 pointer-events-none z-0 opacity-15">
+                <BotanicalElementsDecor className="w-60 h-auto" />
               </div>
-              <span className="font-mono text-[11px] text-ink-muted">
-                {showPhenology ? 'Hide' : 'Phenology Directive'} {showPhenology ? '▴' : '▾'}
-              </span>
-            </button>
 
-            {showPhenology && (
-              <div className="p-4 border-t border-stone-deep/30 bg-paper-deep/20 space-y-2 text-left animate-investigation-unfold">
-                <p className="font-serif italic text-xs sm:text-sm text-ink leading-relaxed">
-                  <strong>Atmospheric Shift:</strong> {microSeason.botanicalFocus}
+              <div className="space-y-4 relative z-10">
+                <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-forest font-semibold">
+                  <BotanicalLeafSprig className="w-4 h-4 text-forest" />
+                  <span>Field Journal & Sensory Instrument</span>
+                </div>
+
+                <h1 className="font-serif text-5xl xl:text-6xl text-ink font-medium tracking-tight leading-[1.08]">
+                  Step outside.
+                  <br />
+                  Notice more.
+                  <br />
+                  Understand deeper.
+                </h1>
+
+                <p className="font-sans text-base text-ink-muted leading-relaxed max-w-md pt-1">
+                  A physical-first field journal that makes itself unnecessary. Put your phone away and explore the world around you.
                 </p>
-                <div className="p-2.5 rounded-[2px] bg-forest/5 border border-forest/20 text-xs font-sans text-forest">
-                  <strong>Micro-Season Inquiry:</strong> “{microSeason.phenologyDirective}”
-                </div>
               </div>
-            )}
-          </div>
-        </div>
-      </header>
 
-      {/* 2. NATURE-INSPIRED HERO CARD (Reference 1 & 3: Teal-green forest artwork & clean ivory card) */}
-      <section className="relative rounded-sm border border-stone-deep/60 bg-paper-bright overflow-hidden shadow-journal">
-        {/* Layered Botanical Artwork */}
-        <div className="relative border-b border-stone-deep/30">
-          <BotanicalHeroForest className="w-full h-44 sm:h-64 lg:h-72" />
-          {/* Subtle Overlay Badge */}
-          <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-paper-bright border border-stone-deep/60 px-3 py-1 rounded-[2px] flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-botanical-teal animate-pulse" />
-            <span className="font-mono text-[10px] sm:text-xs text-ink uppercase tracking-wider font-semibold">
-              Live Observation Canopy
-            </span>
-          </div>
+              <div className="pt-6 space-y-6">
+                {/* Primary Action Button */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={handleBeginInvestigation}
+                    className="inline-flex items-center space-x-3 px-7 py-3.5 rounded-xl bg-forest hover:bg-forest-deep text-paper font-sans font-semibold text-sm tracking-wide shadow-journal transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <span>Begin an Investigation</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
 
-          <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 bg-forest text-paper px-3 py-1 rounded-[2px] font-mono text-[10px] sm:text-xs tracking-widest uppercase">
-            On-Device Engine
-          </div>
-        </div>
-
-        {/* Hero Content & Primary Call to Action */}
-        <div className="p-6 sm:p-8 lg:p-10 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-paper-bright">
-          <div className="space-y-2 max-w-xl">
-            <div className="flex items-center space-x-2">
-              <span className="font-mono text-xs text-terracotta tracking-widest uppercase font-semibold">
-                Field Directive
-              </span>
-              <span className="text-stone-deep">•</span>
-              <span className="font-mono text-xs text-ink-muted">Silent Immersion</span>
-            </div>
-            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-ink font-medium leading-snug">
-              Step outside. Notice more. Understand deeper.
-            </h2>
-            <p className="font-sans text-sm sm:text-base text-ink-muted leading-relaxed">
-              FIELDNOTE is an AI that teaches you to notice. Put your phone away, step into the physical earth, make authentic sensory observations, and return to reflect.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0">
-            <TactileButton
-              onClick={() => navigate('categories')}
-              variant="primary"
-              className="px-8 py-4 text-base font-semibold shadow-journal min-h-[52px]"
-            >
-              <Compass className="w-4 h-4 mr-2" />
-              Begin an Investigation
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </TactileButton>
-
-            <TactileButton
-              onClick={() => navigate('archive')}
-              variant="secondary"
-              className="px-6 py-3.5 text-sm min-h-[46px]"
-            >
-              <BookOpen className="w-4 h-4 mr-2 text-moss" />
-              Open Field Journal ({state.journalEntries.length})
-            </TactileButton>
-          </div>
-        </div>
-
-        {/* Grounding Trust Strip */}
-        <div className="border-t border-stone-deep/20 px-6 py-3 bg-stone-light/40 flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-ink-muted">
-          <div className="flex items-center space-x-2">
-            <ShieldCheck className="w-3.5 h-3.5 text-forest" />
-            <span className="font-semibold text-forest">Private Naturalist Engine</span>
-            <span>• 100% On-Device Persistence</span>
-          </div>
-          <div className="flex items-center space-x-3 text-[11px] text-ink-faint">
-            <span>Offline Ready</span>
-            <span>• Zero Cloud Dependency</span>
-            <span>• No GPS Tracking</span>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. FOUR BOTANICAL DISCIPLINE CATEGORIES (Including Built vs. Wild) */}
-      <section className="space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-stone/80 pb-3">
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2">
-              <span className="text-terracotta text-sm">✦</span>
-              <span className="font-mono text-xs uppercase tracking-widest text-ink-muted font-semibold">
-                Core Disciplines
-              </span>
-            </div>
-            <h2 className="font-serif text-2xl sm:text-3xl text-ink font-medium tracking-tight">
-              Select an Observation Discipline
-            </h2>
-          </div>
-          <p className="font-serif italic text-xs sm:text-sm text-ink-muted">
-            Choose a sensory lens to formulate your field directive.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {CATEGORIES.map((cat) => {
-            const isSelected = state.preferences.category === cat.id;
-
-            return (
-              <div
-                key={cat.id}
-                onClick={() => handleCategorySelect(cat.id)}
-                className={`group cursor-pointer rounded-sm border transition-all duration-200 flex flex-col justify-between bg-paper-bright overflow-hidden shadow-journal-subtle hover:shadow-journal hover:-translate-y-0.5 active:translate-y-0 ${
-                  isSelected
-                    ? 'border-forest ring-1 ring-forest/40'
-                    : 'border-stone-deep/50 hover:border-botanical-teal/60'
-                }`}
-              >
-                {/* Visual Category Illustration */}
-                <div className="relative border-b border-stone-deep/30 bg-paper overflow-hidden">
-                  <BotanicalCategoryIllustration
-                    category={cat.id}
-                    className="w-full h-36 transition-transform duration-300 group-hover:scale-[1.02]"
-                  />
-                  <div className="absolute top-2.5 right-2.5">
-                    <span className="px-2 py-0.5 rounded-[2px] bg-paper-bright/90 border border-stone-deep/50 font-mono text-[9px] uppercase tracking-wider text-ink-muted font-semibold">
-                      {cat.specimenCount}
-                    </span>
+                {/* Three Naturalist Stat Counters */}
+                <div className="grid grid-cols-3 gap-6 pt-4 border-t border-stone-light/60">
+                  <div>
+                    <div className="font-serif text-3xl font-medium text-ink">3</div>
+                    <div className="font-mono text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
+                      Disciplines
+                    </div>
+                  </div>
+                  <div>
+                    <div className="font-serif text-3xl font-medium text-ink">10+</div>
+                    <div className="font-mono text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
+                      Minutes Outdoors
+                    </div>
+                  </div>
+                  <div>
+                    <div className="font-serif text-3xl font-medium text-ink">∞</div>
+                    <div className="font-mono text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
+                      Real Discoveries
+                    </div>
                   </div>
                 </div>
+              </div>
+            </div>
 
-                {/* Card Editorial Body */}
-                <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
-                  <div className="space-y-1.5">
-                    <span className="font-mono text-[10px] tracking-widest uppercase text-terracotta font-semibold block">
-                      {cat.discipline}
-                    </span>
-                    <h3 className="font-serif text-xl text-ink font-medium group-hover:text-forest transition-colors">
+            {/* Right Column: Panoramic Mountain Landscape from Reference */}
+            <div className="col-span-6 relative overflow-hidden bg-[#E2EBE5] flex items-center justify-center border-l border-stone/50 min-h-[460px]">
+              <img
+                src="/images/hero-landscape.jpg"
+                alt="Mountain landscape with naturalist observing wilderness at dawn"
+                className="w-full h-full object-cover select-none scale-[1.08]"
+              />
+              {/* Naturalist "Same Sky. New Eyes." Stamp */}
+              <div className="absolute bottom-6 right-6 select-none pointer-events-none z-10">
+                <div className="w-24 h-24 rounded-full bg-[#FCFBF7]/95 backdrop-blur-sm border border-[#E7E0D3] shadow-md flex items-center justify-center p-1.5">
+                  <div className="w-full h-full rounded-full border border-dashed border-[#2F5C4A]/60 flex flex-col items-center justify-center text-center px-1">
+                    <BotanicalLeafSprig className="w-3.5 h-3.5 text-forest" />
+                    <span className="font-serif italic text-[11px] text-[#12372A] font-semibold leading-tight mt-0.5">Same Sky.</span>
+                    <span className="font-serif italic text-[11px] text-[#12372A] font-semibold leading-tight">New Eyes.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Row: 3 Wide Integrated Category Cards matching Reference */}
+          <div className="border-t border-stone/70 bg-[#FAF7F0] p-6 xl:p-8">
+            <div className="grid grid-cols-3 gap-6">
+              {CATEGORIES.map((cat) => (
+                <div
+                  key={cat.id}
+                  onClick={() => handleCategorySelect(cat.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleCategorySelect(cat.id);
+                    }
+                  }}
+                  className="group rounded-2xl border border-stone bg-paper-bright p-5 hover:border-forest/60 hover:shadow-journal-subtle transition-all cursor-pointer flex items-center space-x-4"
+                >
+                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-stone-light/40 shrink-0 border border-stone/60">
+                    {cat.id === 'science' ? (
+                      <img src="/images/moss-on-stone.jpg" alt="Botanical Science" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    ) : cat.id === 'community' ? (
+                      <img src="/images/community-environment.jpg" alt="Community & Environment" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    ) : (
+                      <img src="/images/ant-trails.jpg" alt="Everyday Discovery" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-serif text-base font-semibold text-ink group-hover:text-forest transition-colors truncate">
                       {cat.title}
                     </h3>
-                    <p className="font-sans text-xs text-ink-muted leading-relaxed">
-                      {cat.summary}
+                    <p className="font-sans text-xs text-ink-muted line-clamp-2 mt-0.5 leading-snug">
+                      {cat.description}
                     </p>
                   </div>
-
-                  {/* Specimen Directive Example */}
-                  <div className="pt-2 border-t border-stone-deep/20 space-y-2">
-                    <p className="font-serif italic text-[11px] text-ink-muted/80 leading-snug">
-                      {cat.directiveExample}
-                    </p>
-                    <div className="flex items-center justify-between text-xs font-mono pt-1 text-forest group-hover:text-botanical-teal transition-colors">
-                      <span className="font-semibold uppercase tracking-wider">
-                        Explore Directive
-                      </span>
-                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 4. SAVED DISCOVERIES / RECENT SPECIMEN FOLIOS (Reference 3: Nature-learning cards without SaaS clutter) */}
-      <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-stone/80 pb-3">
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2">
-              <span className="text-terracotta text-sm">🌿</span>
-              <span className="font-mono text-xs uppercase tracking-widest text-ink-muted font-semibold">
-                Archival Folios
-              </span>
-            </div>
-            <h2 className="font-serif text-2xl sm:text-3xl text-ink font-medium tracking-tight">
-              Saved Field Discoveries
-            </h2>
-          </div>
-          <button
-            onClick={() => navigate('archive')}
-            className="text-xs font-mono text-forest hover:text-botanical-teal transition-colors uppercase tracking-wider inline-flex items-center"
-          >
-            View Complete Logbook ({state.journalEntries.length}) →
-          </button>
-        </div>
-
-        {recentEntries.length > 0 && (
-          <div className="p-4 sm:p-5 rounded-sm border border-moss/40 bg-moss/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-            <div className="flex items-start sm:items-center space-x-3">
-              <span className="p-2 rounded bg-paper-bright text-forest border border-moss/30 shrink-0">
-                <History className="w-4 h-4" />
-              </span>
-              <div className="space-y-0.5">
-                <span className="font-mono text-[10px] tracking-widest uppercase text-forest font-semibold block">
-                  Slow Ecological Time • Comparative Revisit
-                </span>
-                <p className="font-serif italic text-ink text-sm">
-                  “Folio No. {String(recentEntries[0].investigation.sequenceNumber).padStart(3, '0')} ({recentEntries[0].investigation.title}): Return to this exact spot to notice what has weathered or sprouted.”
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                updatePreferences({ category: 'edge' });
-                navigate('setup');
-              }}
-              className="px-4 py-2 rounded-[2px] bg-forest text-paper font-mono uppercase tracking-wider text-[11px] shrink-0 font-semibold hover:bg-forest-deep transition-colors min-h-[36px]"
-            >
-              Revisit Spot →
-            </button>
-          </div>
-        )}
-
-        {recentEntries.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {recentEntries.map((entry) => {
-              const entryDate = new Date(entry.createdAt).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-              });
-
-              return (
-                <article
-                  key={entry.id}
-                  onClick={() => viewEntryDetail(entry)}
-                  className="p-5 rounded-sm border border-stone-deep/50 bg-paper-bright shadow-journal-subtle hover:shadow-journal hover:border-forest/60 transition-all cursor-pointer space-y-3 flex flex-col justify-between"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between border-b border-stone-deep/20 pb-2">
-                      <span className="font-mono text-[10px] tracking-widest uppercase text-terracotta font-semibold">
-                        NOTE NO. {String(entry.investigation.sequenceNumber).padStart(3, '0')}
-                      </span>
-                      <span className="font-mono text-[10px] text-ink-faint flex items-center">
-                        <Calendar className="w-3 h-3 mr-1 text-moss" />
-                        {entryDate}
-                      </span>
-                    </div>
-
-                    <h3 className="font-serif text-lg text-ink font-medium leading-snug line-clamp-1">
-                      {entry.investigation.title}
-                    </h3>
-
-                    <p className="font-serif italic text-xs text-ink-muted line-clamp-2 leading-relaxed">
-                      “{entry.observation.rawNotes}”
-                    </p>
-                  </div>
-
-                  {entry.observation.photoUri && (
-                    <div className="rounded-[2px] overflow-hidden border border-stone-deep/30 h-24">
-                      <img
-                        src={entry.observation.photoUri}
-                        alt="Specimen record"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-
-                  <div className="pt-2 border-t border-stone-deep/20 flex items-center justify-between text-[11px] font-mono text-ink-muted">
-                    <span className="text-forest font-semibold">
-                      ✦ {entry.discovery?.fieldCategory || 'Specimen Sealed'}
-                    </span>
-                    <span className="text-ink-faint">Inspect →</span>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        ) : (
-          /* Preview Discoveries for new users (educational field discovery specimens) */
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              {
-                specimen: 'Hydromorphology of Limestone',
-                category: 'SCHOOL & SCIENCE',
-                notes: '“Rainwater pooling on the limestone ridge carved microscopic fissures that shelter micro-crusts.”',
-                status: 'Awaiting Your First Fieldwork',
-              },
-              {
-                specimen: 'Cryptogamic Lichen Crusts',
-                category: 'COMMUNITY & ENVIRONMENT',
-                notes: '“Gray-green foliose lichen anchoring to sidewalk aggregate, resilient to urban automotive exhaust.”',
-                status: 'Awaiting Your First Fieldwork',
-              },
-              {
-                specimen: 'Diurnal Shadow & Cotyledons',
-                category: 'EVERYDAY DISCOVERY',
-                notes: '“Sprouting dandelion roots wedging open pavement joints following morning condensation.”',
-                status: 'Awaiting Your First Fieldwork',
-              },
-            ].map((item, idx) => (
-              <div
-                key={idx}
-                className="p-5 rounded-sm border border-stone-deep/40 bg-paper-bright/70 space-y-3 flex flex-col justify-between"
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between border-b border-stone-deep/20 pb-2">
-                    <span className="font-mono text-[10px] tracking-widest uppercase text-terracotta font-semibold">
-                      SPECIMEN PREVIEW 0{idx + 1}
-                    </span>
-                    <span className="font-mono text-[10px] text-ink-faint">Exemplar</span>
-                  </div>
-                  <h3 className="font-serif text-lg text-ink font-medium leading-snug">
-                    {item.specimen}
-                  </h3>
-                  <p className="font-serif italic text-xs text-ink-muted leading-relaxed">
-                    {item.notes}
-                  </p>
-                </div>
-                <div className="pt-2 border-t border-stone-deep/20 flex items-center justify-between text-[10px] font-mono text-ink-faint">
-                  <span className="text-forest font-semibold">{item.category}</span>
-                  <span>{item.status}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* 5. PROGRESSIVE DISCLOSURE: THE OBSERVATION RITUAL */}
-      <section className="journal-page p-6 sm:p-8 border border-stone-deep/40 rounded-sm bg-paper-bright shadow-journal-subtle">
-        <button
-          onClick={() => setShowRitual(!showRitual)}
-          className="w-full flex items-center justify-between text-left focus-visible:outline-offset-2 min-h-[44px]"
-          aria-expanded={showRitual}
-        >
-          <div className="flex items-center space-x-2.5">
-            <BotanicalLeafSprig className="w-4 h-4 text-forest" />
-            <span className="font-mono text-xs tracking-widest uppercase text-terracotta font-semibold">
-              The Naturalist Ritual
-            </span>
-            <span className="text-[11px] font-serif italic text-ink-muted hidden sm:inline">
-              — The 6 steps of noticing
-            </span>
-          </div>
-          <span className="text-xs font-mono text-ink-muted flex items-center">
-            {showRitual ? 'Fold ritual' : 'Unfold loop'}
-            {showRitual ? (
-              <ChevronUp className="w-3.5 h-3.5 ml-1 text-ink-muted" />
-            ) : (
-              <ChevronDown className="w-3.5 h-3.5 ml-1 text-ink-muted" />
-            )}
-          </span>
-        </button>
-
-        {showRitual && (
-          <div className="pt-6 mt-4 border-t border-stone-deep/30 space-y-5 animate-investigation-unfold">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-left">
-              {[
-                { step: '01', label: 'PREPARE', desc: 'Choose a sensory discipline and observation window.' },
-                { step: '02', label: 'DIRECTIVE', desc: 'Read your botanical inquiry prompt and step outside.' },
-                { step: '03', label: 'OBSERVE', desc: 'Put the phone in your pocket. Feel texture, light, and soil.' },
-                { step: '04', label: 'RETURN', desc: 'Inscribe raw notes and optional deferred media.' },
-                { step: '05', label: 'REFLECT', desc: 'Local AI synthesizes ecological dynamics without hallucination.' },
-                { step: '06', label: 'SEAL', desc: 'Stamp the field note permanently into your private logbook.' },
-              ].map((item) => (
-                <div
-                  key={item.step}
-                  className="p-3.5 rounded-[2px] bg-paper border border-stone-deep/30 flex flex-col justify-between"
-                >
-                  <span className="font-mono text-[10px] text-terracotta font-bold">
-                    {item.step}
-                  </span>
-                  <strong className="font-sans text-xs tracking-wider text-ink block mt-1">
-                    {item.label}
-                  </strong>
-                  <span className="font-serif italic text-xs text-ink-muted mt-1 leading-snug">
-                    {item.desc}
-                  </span>
+                  <ArrowRight className="w-4 h-4 text-ink-muted group-hover:text-forest group-hover:translate-x-1 transition-all shrink-0" />
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
 
-            <p className="text-center font-serif italic text-xs text-ink-muted pt-3 border-t border-stone/50">
-              “The deeper you notice with your senses, the less you need a screen.”
+      {/* ============================================================ */}
+      {/* 2. MOBILE & TABLET HERO ( < 1024px )                         */}
+      {/* ============================================================ */}
+      <section className="block lg:hidden space-y-5">
+        {/* Mobile Illustrated Landscape Hero Card */}
+        <div className="rounded-3xl border border-stone bg-paper-bright overflow-hidden shadow-journal-subtle relative">
+          <div className="relative aspect-[16/10] sm:aspect-[16/8] overflow-hidden bg-[#E2EBE5]">
+            <img
+              src="/images/hero-landscape.jpg"
+              alt="Mountain landscape with naturalist at dawn"
+              className="w-full h-full object-cover object-[center_35%] select-none scale-[1.08]"
+            />
+            {/* "Same Sky. New Eyes." Stamp on Mobile Hero */}
+            <div className="absolute bottom-3 right-3 select-none pointer-events-none z-10">
+              <div className="w-16 h-16 rounded-full bg-[#FCFBF7]/95 backdrop-blur-sm border border-[#E7E0D3] shadow-sm flex items-center justify-center p-1">
+                <div className="w-full h-full rounded-full border border-dashed border-[#2F5C4A]/50 flex flex-col items-center justify-center text-center">
+                  <span className="font-serif italic font-medium text-[8px] text-[#12372A] leading-none">Same Sky.</span>
+                  <span className="font-serif italic font-medium text-[8px] text-[#12372A] leading-none mt-0.5">New Eyes.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-5 sm:p-7 space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2 text-[11px] font-mono uppercase tracking-wider text-forest font-semibold">
+                <BotanicalLeafSprig className="w-3.5 h-3.5 text-forest" />
+                <span>Field Journal & Sensory Instrument</span>
+              </div>
+              <h2 className="font-serif text-2xl sm:text-3xl text-ink font-medium tracking-tight leading-tight">
+                Step outside.
+                <br />
+                Notice more.
+                <br />
+                Understand deeper.
+              </h2>
+              <p className="font-sans text-xs sm:text-sm text-ink-muted leading-relaxed">
+                A physical-first field journal that inspires curiosity, connects you with nature, and helps you learn from the world around you.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleBeginInvestigation}
+              className="w-full py-3.5 px-5 rounded-xl bg-forest hover:bg-forest-deep text-paper font-sans font-semibold text-sm flex items-center justify-center space-x-2 shadow-journal transition-transform active:scale-[0.98]"
+            >
+              <span>Begin an Investigation</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================ */}
+      {/* 3. DISCIPLINE CARDS ("Choose a path" - Mobile & Tablet)       */}
+      {/* Reference Screen 1: 3-column compact horizontal grid          */}
+      {/* ============================================================ */}
+      <section className="block lg:hidden space-y-3.5 sm:space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-serif text-xl sm:text-2xl text-ink font-medium tracking-tight">
+              Choose a path
+            </h2>
+            <p className="font-sans text-xs text-ink-muted">
+              Select a sensory lens to formulate your fieldwork.
             </p>
           </div>
-        )}
+          <button
+            onClick={() => navigate('categories')}
+            className="text-xs font-mono uppercase tracking-wider text-forest hover:underline inline-flex items-center"
+          >
+            <span>View All</span>
+            <ArrowRight className="w-3.5 h-3.5 ml-1" />
+          </button>
+        </div>
+
+        {/* 3 Compact Columns Matching Reference Screen 1 */}
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+          {CATEGORIES.map((cat) => (
+            <div
+              key={cat.id}
+              onClick={() => handleCategorySelect(cat.id)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleCategorySelect(cat.id);
+                }
+              }}
+              className="group rounded-2xl border border-stone bg-paper-bright p-3 sm:p-4 hover:border-forest/60 hover:shadow-journal-subtle transition-all cursor-pointer flex flex-col items-center text-center justify-between min-h-[140px]"
+            >
+              {/* Circular Specimen / Icon Artwork */}
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-stone-light/40 border border-stone/70 shadow-sm shrink-0 flex items-center justify-center">
+                {cat.id === 'science' ? (
+                  <img src="/images/moss-on-stone.jpg" alt="Botanical Science" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                ) : cat.id === 'community' ? (
+                  <img src="/images/community-environment.jpg" alt="Community & Environment" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                ) : (
+                  <img src="/images/ant-trails.jpg" alt="Everyday Discovery" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                )}
+              </div>
+
+              {/* Title & Micro-Kicker */}
+              <div className="mt-2 space-y-0.5">
+                <h3 className="font-serif text-xs sm:text-sm font-semibold text-ink group-hover:text-forest transition-colors leading-tight line-clamp-2">
+                  {cat.title}
+                </h3>
+              </div>
+
+              <div className="mt-1 text-[10px] font-mono text-ink-muted group-hover:text-forest transition-colors flex items-center">
+                <span>Start</span>
+                <ArrowRight className="w-2.5 h-2.5 ml-0.5" />
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
+
+      {/* ============================================================ */}
+      {/* 4. RECENT DISCOVERIES SECTION                                */}
+      {/* ============================================================ */}
+      {recentEntries.length > 0 && (
+        <section className="space-y-4 sm:space-y-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <h2 className="font-serif text-2xl sm:text-3xl text-ink font-medium tracking-tight">
+                Recent Discoveries
+              </h2>
+              <span className="font-mono text-xs text-ink-muted">
+                (2 of {state.journalEntries.length})
+              </span>
+            </div>
+            <button
+              onClick={() => navigate('archive')}
+              className="text-xs font-mono uppercase tracking-wider text-forest hover:underline inline-flex items-center"
+            >
+              <span>View Journal</span>
+              <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            </button>
+          </div>
+
+          {/* Responsive Grid of Saved Discoveries (2 cols on mobile, 4 on desktop) */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+            {recentEntries.map((entry) => {
+              let specType = 'moss_on_stone';
+              if (entry.observation.photoUri?.startsWith('specimen:')) {
+                specType = entry.observation.photoUri.replace('specimen:', '');
+              } else {
+                const t = entry.investigation.title.toLowerCase();
+                if (t.includes('moss')) specType = 'moss_on_stone';
+                else if (t.includes('weather') || t.includes('shale') || (t.includes('stone') && !t.includes('moss')) || t.includes('rock')) specType = 'weathering';
+                else if (t.includes('rain') || t.includes('water')) specType = 'rainwater_flow';
+                else if (t.includes('lichen')) specType = 'lichen_crusts';
+                else if (t.includes('ant')) specType = 'ant_trails';
+                else if (t.includes('diurnal') || t.includes('movement')) specType = 'diurnal_leaves';
+                else if (t.includes('leaf') || t.includes('vein')) specType = 'leaf_venation';
+              }
+              const isCustom = entry.observation.photoUri && !entry.observation.photoUri.startsWith('specimen:');
+              const dateStr = new Date(entry.createdAt).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              });
+              const durationMin = Math.round((entry.observation.actualDurationSeconds || 600) / 60) || 10;
+              const seq = String(entry.investigation.sequenceNumber || 1).padStart(2, '0');
+
+              return (
+                <div
+                  key={entry.id}
+                  onClick={() => viewEntryDetail(entry)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      viewEntryDetail(entry);
+                    }
+                  }}
+                  className="group rounded-3xl border border-stone bg-paper-bright overflow-hidden hover:border-forest/60 hover:shadow-journal transition-all cursor-pointer flex flex-col justify-between"
+                >
+                  {/* Thumbnail Image */}
+                  <div className="aspect-[16/10] w-full overflow-hidden bg-stone-light/40 relative">
+                    {isCustom ? (
+                      <img
+                        src={entry.observation.photoUri}
+                        alt={entry.investigation.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <SpecimenArtwork type={specType} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    )}
+                    <div className="absolute top-2.5 right-2.5 bg-paper-bright/95 backdrop-blur-sm border border-stone/60 rounded-md px-1.5 py-0.5 text-[10px] font-mono text-forest font-semibold shadow-sm">
+                      {durationMin} min
+                    </div>
+                    <div className="absolute top-2.5 left-2.5 bg-paper-bright/95 backdrop-blur-sm border border-stone/60 rounded-md px-1.5 py-0.5 text-[10px] font-mono text-terracotta font-semibold shadow-sm">
+                      Folio {seq}
+                    </div>
+                  </div>
+
+                  {/* Card Content */}
+                  <div className="p-4 sm:p-5 flex flex-col justify-between flex-1 space-y-2">
+                    <div>
+                      <h3 className="font-serif text-base sm:text-lg font-medium text-ink group-hover:text-forest transition-colors line-clamp-1">
+                        {entry.investigation.title}
+                      </h3>
+                      <p className="font-serif italic text-xs text-ink-muted line-clamp-2 mt-1 leading-relaxed">
+                        “{entry.observation.rawNotes}”
+                      </p>
+                    </div>
+
+                    <div className="pt-3 border-t border-stone-light/50 flex items-center justify-between text-[11px] font-mono text-ink-muted">
+                      <span className="flex items-center">
+                        <Calendar className="w-3 h-3 mr-1 text-moss" />
+                        {dateStr}
+                      </span>
+                      <span className="text-forest font-semibold">
+                        {entry.discovery?.fieldCategory || 'Botany'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
     </div>
   );
 };
