@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Investigation } from '@fieldnote/shared';
 import { TactileButton } from '../common/TactileButton.js';
 import { BotanicalLeafSprig } from '../common/BotanicalIllustrations.js';
-import { EyeOff, Pocket, ArrowRight } from 'lucide-react';
+import { Pocket, ArrowRight, ChevronUp } from 'lucide-react';
 
 interface FieldModeViewProps {
   investigation: Investigation;
@@ -15,40 +15,18 @@ export const FieldModeView: React.FC<FieldModeViewProps> = ({
   screenAwaySeconds,
   onReturn,
 }) => {
+  const targetSeconds = investigation.targetDurationSeconds || 600;
+  const [secondsLeft, setSecondsLeft] = useState<number>(targetSeconds);
   const [isDimmed, setIsDimmed] = useState<boolean>(false);
 
-  // Progressive disappearance reset handler
-  const resetDimTimer = useCallback(() => {
-    setIsDimmed(false);
+  // Live countdown timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
   }, []);
-
-  // Inactivity disappearance timer (~7 seconds into pure dark observation)
-  useEffect(() => {
-    if (isDimmed) return;
-
-    const timeoutId = setTimeout(() => {
-      setIsDimmed(true);
-    }, 7000);
-
-    return () => clearTimeout(timeoutId);
-  }, [isDimmed]);
-
-  // Awaken controls gently on touch or pointer interaction
-  useEffect(() => {
-    const handleInteraction = () => {
-      resetDimTimer();
-    };
-
-    window.addEventListener('touchstart', handleInteraction, { passive: true });
-    window.addEventListener('pointerdown', handleInteraction, { passive: true });
-    window.addEventListener('mousemove', handleInteraction, { passive: true });
-
-    return () => {
-      window.removeEventListener('touchstart', handleInteraction);
-      window.removeEventListener('pointerdown', handleInteraction);
-      window.removeEventListener('mousemove', handleInteraction);
-    };
-  }, [resetDimTimer]);
 
   // Screen wake lock support (if supported by device)
   useEffect(() => {
@@ -69,95 +47,131 @@ export const FieldModeView: React.FC<FieldModeViewProps> = ({
     };
   }, []);
 
+  // Gentle progressive dimming after 10s of quiet observation
+  useEffect(() => {
+    if (isDimmed) return;
+    const timeout = setTimeout(() => setIsDimmed(true), 12000);
+    return () => clearTimeout(timeout);
+  }, [isDimmed]);
+
+  const handleWake = useCallback(() => {
+    setIsDimmed(false);
+  }, []);
+
+  // Format MM:SS
+  const mins = Math.floor(secondsLeft / 60);
+  const secs = secondsLeft % 60;
+  const formattedTime = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+  // Calculate circular stroke progress
+  const progressPercent = (targetSeconds - secondsLeft) / targetSeconds;
+  const strokeDashoffset = 283 - 283 * progressPercent;
+
   return (
     <div
       role="region"
-      aria-label="Field Observation Mode"
-      className="fixed inset-0 bg-[#0B0F0D] text-[#E7E0D3] z-50 flex flex-col justify-between p-6 sm:p-12 lg:p-16 select-none transition-colors duration-1000 overflow-hidden cursor-pointer"
-      onClick={resetDimTimer}
+      aria-label="Field Mode Immersion"
+      onClick={handleWake}
+      className="fixed inset-0 bg-[#0B1510] text-[#E7E0D3] z-50 flex flex-col justify-between p-6 sm:p-10 select-none overflow-hidden transition-colors duration-1000"
     >
-      {/* 1. TOP MINIMAL STATUS BAR: Fades out completely after 7s */}
+      {/* 1. TOP STATUS BAR */}
       <header
-        className={`flex items-center justify-between transition-opacity duration-1000 ${
-          isDimmed ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        className={`flex items-center justify-between transition-opacity duration-700 ${
+          isDimmed ? 'opacity-30' : 'opacity-100'
         }`}
       >
-        <div className="flex items-center space-x-2.5">
-          <span className="w-2 h-2 rounded-full bg-[#46A093] animate-pulse" />
-          <span className="font-mono text-xs tracking-[0.25em] text-[#859189] uppercase">
-            Field Immersion • Folio {String(investigation.sequenceNumber).padStart(3, '0')}
+        <div className="flex items-center space-x-2">
+          <span className="w-2 h-2 rounded-full bg-[#2F8175] animate-pulse" />
+          <span className="font-mono text-xs tracking-[0.25em] text-[#859189] uppercase font-semibold">
+            Field Mode
           </span>
         </div>
 
-        {/* Quiet Presence indicator */}
-        <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-[2px] bg-[#17201B]/80 border border-[#22332A] text-xs font-mono text-[#859189]">
-          <Pocket className="w-3.5 h-3.5 text-[#46A093]" />
-          <span>
-            {screenAwaySeconds > 0 ? `Phone Away (${screenAwaySeconds}s)` : 'Quiet Notice Active'}
-          </span>
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-[2px] bg-[#16251E] border border-[#22392E] text-xs font-mono text-[#859189]">
+          <Pocket className="w-3.5 h-3.5 text-[#2F8175]" />
+          <span>{screenAwaySeconds > 0 ? `Screen Away (${screenAwaySeconds}s)` : 'Screen Away'}</span>
         </div>
       </header>
 
-      {/* 2. CENTER CORE: Calm, generous whitespace, botanical breath */}
-      <main
-        className={`max-w-lg mx-auto my-auto text-center space-y-10 transition-all duration-1000 ${
-          isDimmed ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
-        }`}
-      >
-        {/* Core Nature Directives */}
-        <div className="space-y-4 tracking-[0.3em] uppercase font-light text-3xl sm:text-4xl lg:text-5xl text-[#FCFBF7] leading-tight">
-          <p className="opacity-60">LOOK.</p>
-          <p className="text-[#46A093] font-normal">NOTICE.</p>
-          <p className="opacity-60">REMEMBER.</p>
-        </div>
+      {/* 2. CENTER CONTENT: CIRCULAR TIMER & BOTANICAL PLANT ON STONE */}
+      <main className="my-auto max-w-sm mx-auto text-center space-y-8">
+        {/* CIRCULAR TIMER DIAL */}
+        <div className="relative w-56 h-56 sm:w-64 sm:h-64 mx-auto flex items-center justify-center">
+          {/* SVG Circular Progress Track & Indicator */}
+          <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+            {/* Background Ring */}
+            <circle
+              cx="50"
+              cy="50"
+              r="45"
+              className="text-[#182921]"
+              strokeWidth="3"
+              stroke="currentColor"
+              fill="transparent"
+            />
+            {/* Progress Active Ring */}
+            <circle
+              cx="50"
+              cy="50"
+              r="45"
+              className="text-[#2F8175] transition-all duration-1000"
+              strokeWidth="3.5"
+              strokeDasharray="283"
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              stroke="currentColor"
+              fill="transparent"
+            />
+          </svg>
 
-        {/* Essential directive reminder */}
-        <div className="py-6 px-4 border-y border-[#22332A] max-w-md mx-auto space-y-3">
-          <p className="font-serif italic text-lg sm:text-xl text-[#F7F4EC] leading-relaxed">
-            “{investigation.prompt}”
-          </p>
-
-          <p className="text-xs font-mono text-[#859189] flex items-center justify-center space-x-2 pt-1">
-            <EyeOff className="w-3.5 h-3.5 text-[#46A093]" />
-            <span>Put your phone in your pocket. Feel the physical world.</span>
-          </p>
-        </div>
-
-        {/* Quiet breathing naturalist ring */}
-        <div className="flex justify-center pt-2">
-          <div className="relative w-16 h-16 rounded-full border border-[#22332A] flex items-center justify-center animate-observation-breath">
-            <div className="w-8 h-8 rounded-full border border-[#46A093]/40 flex items-center justify-center">
-              <span className="w-2 h-2 rounded-full bg-[#46A093]" />
+          {/* Center Timer Time & Plant Graphic */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2">
+            {/* Seedling on mossy stone vector art */}
+            <div className="w-12 h-12 flex items-center justify-center">
+              <BotanicalLeafSprig className="w-10 h-10 text-[#46A093] opacity-90" />
             </div>
+
+            <div className="font-mono text-4xl sm:text-5xl font-medium tracking-tight text-[#FCFBF7]">
+              {formattedTime}
+            </div>
+
+            <span className="font-mono text-[11px] tracking-widest uppercase text-[#859189]">
+              {secondsLeft === 0 ? 'Observation Concluded' : 'Silent Notice'}
+            </span>
           </div>
+        </div>
+
+        {/* GUIDANCE MESSAGE */}
+        <div className="space-y-3 px-4">
+          <h2 className="font-serif text-2xl sm:text-3xl font-medium text-[#FCFBF7] leading-tight">
+            Go outside. Put your phone away.
+          </h2>
+          <p className="font-serif italic text-sm text-[#859189] leading-relaxed">
+            “The world reveals itself only to those who stay long enough to see.”
+          </p>
+        </div>
+
+        {/* DIRECTIVE SNIPPET */}
+        <div className="p-3.5 rounded-sm bg-[#13221B]/80 border border-[#233B2F] text-xs font-serif italic text-[#C8D3CA]">
+          “{investigation.prompt}”
         </div>
       </main>
 
-      {/* Screen Empty Whisper (Gentle hint when screen is completely dimmed) */}
-      {isDimmed && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-1000">
-          <BotanicalLeafSprig className="w-6 h-6 text-[#22332A] mb-3 opacity-40 animate-pulse" />
-          <p className="text-[11px] font-mono text-[#859189]/40 tracking-[0.35em] uppercase">
-            Observing Physical Earth • Tap Anywhere to Return
-          </p>
-        </div>
-      )}
-
-      {/* 3. RETURN ACTION FOOTER: Fades out in deep observation, reappears on touch */}
-      <footer
-        className={`max-w-md mx-auto w-full transition-all duration-1000 ${
-          isDimmed ? 'opacity-0 pointer-events-none translate-y-3' : 'opacity-100 translate-y-0'
-        }`}
-        onClick={(e) => e.stopPropagation()}
-      >
+      {/* 3. RETURN ACTION FOOTER */}
+      <footer className="max-w-sm mx-auto w-full space-y-3" onClick={(e) => e.stopPropagation()}>
         <TactileButton
           onClick={onReturn}
-          variant="field"
-          className="w-full py-4 text-sm sm:text-base tracking-wider uppercase font-medium border-[#3D5648] hover:border-[#46A093] hover:text-[#46A093] min-h-[52px]"
+          variant="primary"
+          className="w-full py-4 text-base font-semibold shadow-journal min-h-[52px] bg-[#2F8175] hover:bg-[#256a60] border-transparent text-[#FCFBF7]"
         >
-          Return to Record Observation
+          I'm Back / Record Observation
           <ArrowRight className="w-4 h-4 ml-2" />
         </TactileButton>
+
+        <div className="flex items-center justify-center text-[11px] font-mono text-[#859189] space-x-1">
+          <ChevronUp className="w-3.5 h-3.5 animate-bounce" />
+          <span>Tap button when your observation is complete</span>
+        </div>
       </footer>
     </div>
   );

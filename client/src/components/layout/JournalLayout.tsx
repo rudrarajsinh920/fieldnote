@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Header } from './Header.js';
+import { BottomNav } from './BottomNav.js';
+import { SettingsModal } from '../common/SettingsModal.js';
 import { useFieldSession } from '../../context/field-session-context.js';
 
 export const JournalLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { state } = useFieldSession();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const isField = state.currentView === 'field';
 
   return (
@@ -13,10 +16,15 @@ export const JournalLayout: React.FC<{ children: React.ReactNode }> = ({ childre
       }`}
       data-theme={isField ? 'field-mode' : 'journal-mode'}
     >
-      <Header />
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <Header onOpenSettings={() => setIsSettingsOpen(true)} />
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 pb-28 md:pb-10">
         {children}
       </main>
+      <BottomNav onOpenSettings={() => setIsSettingsOpen(true)} />
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
     </div>
   );
 };

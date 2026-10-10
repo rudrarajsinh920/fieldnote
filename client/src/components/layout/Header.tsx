@@ -5,15 +5,21 @@ import { BotanicalLeafSprig } from '../common/BotanicalIllustrations.js';
 import { SettingsModal } from '../common/SettingsModal.js';
 import { getGeminiApiKey } from '../../services/gemini-service.js';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  onOpenSettings?: () => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
   const { state, navigate } = useFieldSession();
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [internalSettingsOpen, setInternalSettingsOpen] = useState(false);
   const isField = state.currentView === 'field';
 
   if (isField) {
     // In field mode, header disappears completely to avoid distraction
     return null;
   }
+
+  const handleOpenSettings = onOpenSettings || (() => setInternalSettingsOpen(true));
 
   const isInvestigateActive =
     state.currentView === 'setup' || state.currentView === 'reveal' || state.currentView === 'return' || state.currentView === 'reflect';
@@ -83,7 +89,7 @@ export const Header: React.FC = () => {
 
             {/* AI Settings Dialog Trigger */}
             <button
-              onClick={() => setIsSettingsOpen(true)}
+              onClick={handleOpenSettings}
               className="p-2 text-ink-muted hover:text-ink hover:bg-stone-light/40 rounded transition-all min-h-[38px] min-w-[38px] flex items-center justify-center relative"
               title="AI Settings & Gemini Key"
               aria-label="Naturalist AI Settings"
@@ -100,11 +106,13 @@ export const Header: React.FC = () => {
         </div>
       </header>
 
-      {/* Settings Dialog */}
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-      />
+      {/* Settings Dialog (if managed internally) */}
+      {!onOpenSettings && (
+        <SettingsModal
+          isOpen={internalSettingsOpen}
+          onClose={() => setInternalSettingsOpen(false)}
+        />
+      )}
     </>
   );
 };

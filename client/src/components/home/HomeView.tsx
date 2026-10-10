@@ -64,7 +64,7 @@ const CATEGORIES: CategoryCardItem[] = [
 ];
 
 export const HomeView: React.FC = () => {
-  const { state, updatePreferences, navigate } = useFieldSession();
+  const { state, updatePreferences, navigate, viewEntryDetail } = useFieldSession();
   const [showRitual, setShowRitual] = useState<boolean>(false);
   const [showPhenology, setShowPhenology] = useState<boolean>(false);
   const microSeason = getCurrentMicroSeason();
@@ -172,22 +172,22 @@ export const HomeView: React.FC = () => {
               <span className="text-stone-deep">•</span>
               <span className="font-mono text-xs text-ink-muted">Silent Immersion</span>
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl text-ink font-medium leading-snug">
-              Step outside. Observe the living edge between built concrete and wild soil.
+            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-ink font-medium leading-snug">
+              Step outside. Notice more. Understand deeper.
             </h2>
-            <p className="font-sans text-sm text-ink-muted leading-relaxed">
-              FIELDNOTE uses local AI to synthesize what you notice—without cloud tracking, advertisements, or screens competing for your gaze.
+            <p className="font-sans text-sm sm:text-base text-ink-muted leading-relaxed">
+              FIELDNOTE is an AI that teaches you to notice. Put your phone away, step into the physical earth, make authentic sensory observations, and return to reflect.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0">
             <TactileButton
-              onClick={() => navigate('setup')}
+              onClick={() => navigate('categories')}
               variant="primary"
               className="px-8 py-4 text-base font-semibold shadow-journal min-h-[52px]"
             >
               <Compass className="w-4 h-4 mr-2" />
-              Begin Investigation
+              Begin an Investigation
               <ArrowRight className="w-4 h-4 ml-2" />
             </TactileButton>
 
@@ -356,7 +356,7 @@ export const HomeView: React.FC = () => {
               return (
                 <article
                   key={entry.id}
-                  onClick={() => navigate('archive')}
+                  onClick={() => viewEntryDetail(entry)}
                   className="p-5 rounded-sm border border-stone-deep/50 bg-paper-bright shadow-journal-subtle hover:shadow-journal hover:border-forest/60 transition-all cursor-pointer space-y-3 flex flex-col justify-between"
                 >
                   <div className="space-y-2">

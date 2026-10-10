@@ -24,6 +24,7 @@ interface FieldSessionState {
   activeReflection: Reflection | null;
   activeDiscovery: Discovery | null;
   journalEntries: JournalEntry[];
+  selectedEntry: JournalEntry | null;
   screenAwaySeconds: number;
   isFieldActive: boolean;
   isGenerating: boolean;
@@ -37,6 +38,7 @@ type FieldSessionAction =
   | { type: 'SET_GENERATING'; payload: boolean }
   | { type: 'SET_AI_ERROR'; payload: AIStructuredError | null }
   | { type: 'SET_INVESTIGATION'; payload: Investigation }
+  | { type: 'SELECT_ENTRY'; payload: JournalEntry | null }
   | { type: 'ENTER_FIELD' }
   | { type: 'INCREMENT_SCREEN_AWAY' }
   | { type: 'LEAVE_FIELD' }
@@ -62,6 +64,7 @@ const initialState: FieldSessionState = {
   activeReflection: null,
   activeDiscovery: null,
   journalEntries: INITIAL_JOURNAL_ENTRIES,
+  selectedEntry: null,
   screenAwaySeconds: 0,
   isFieldActive: false,
   isGenerating: false,
@@ -73,6 +76,13 @@ function sessionReducer(state: FieldSessionState, action: FieldSessionAction): F
   switch (action.type) {
     case 'SET_VIEW':
       return { ...state, currentView: action.payload };
+
+    case 'SELECT_ENTRY':
+      return {
+        ...state,
+        selectedEntry: action.payload,
+        currentView: action.payload ? 'detail' : 'archive',
+      };
 
     case 'SET_PREFERENCES':
       return {
@@ -206,6 +216,8 @@ interface FieldSessionContextType {
     audioUri?: string
   ) => Promise<void>;
   saveEntryToJournal: () => void;
+  viewEntryDetail: (entry: JournalEntry) => void;
+  clearSelectedEntry: () => void;
   resetSession: () => void;
 }
 
@@ -389,6 +401,14 @@ export const FieldSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const saveEntryToJournal = () => dispatch({ type: 'COMMIT_ENTRY_TO_JOURNAL' });
 
+  const viewEntryDetail = (entry: JournalEntry) => {
+    dispatch({ type: 'SELECT_ENTRY', payload: entry });
+  };
+
+  const clearSelectedEntry = () => {
+    dispatch({ type: 'SELECT_ENTRY', payload: null });
+  };
+
   const resetSession = () => dispatch({ type: 'RESET_SESSION' });
 
   return (
@@ -405,6 +425,8 @@ export const FieldSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         returnFromField,
         submitObservationAndReflect,
         saveEntryToJournal,
+        viewEntryDetail,
+        clearSelectedEntry,
         resetSession,
       }}
     >

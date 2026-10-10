@@ -1,23 +1,15 @@
 import React, { useState } from 'react';
 import { useFieldSession } from '../../context/field-session-context.js';
 import { TactileButton } from '../common/TactileButton.js';
-import { EditorialBadge } from '../common/EditorialBadge.js';
-import {
-  BotanicalLeafSprig,
-  BotanicalWaxSeal,
-} from '../common/BotanicalIllustrations.js';
-import { CollectorPassport } from './CollectorPassport.js';
+import { BotanicalLeafSprig, BotanicalWaxSeal } from '../common/BotanicalIllustrations.js';
 import { HerbariumModal } from '../common/HerbariumModal.js';
-import { TactileAudioPlayer } from '../common/TactileAudioPlayer.js';
 import { JournalEntry } from '@fieldnote/shared';
 import {
   Compass,
   Calendar,
-  Pocket,
+  Clock,
   ArrowLeft,
-  ShieldCheck,
   Search,
-  Award,
   Download,
   FileText,
   Database,
@@ -25,10 +17,9 @@ import {
 } from 'lucide-react';
 
 export const JournalArchive: React.FC = () => {
-  const { state, navigate } = useFieldSession();
+  const { state, navigate, viewEntryDetail } = useFieldSession();
   const { journalEntries } = state;
-  const [viewMode, setViewMode] = useState<'folios' | 'passport'>('folios');
-  const [activeFilter, setActiveFilter] = useState<'all' | 'science' | 'community' | 'everyday' | 'edge'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'botany' | 'community' | 'everyday'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedHerbariumEntry, setSelectedHerbariumEntry] = useState<JournalEntry | null>(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -67,12 +58,6 @@ export const JournalArchive: React.FC = () => {
       lines.push('');
       lines.push(`### Ground Truth Observation (User Evidence)`);
       lines.push(`> "${entry.observation.rawNotes}"`);
-      if (entry.observation.sensoryDetails?.visual) {
-        lines.push(`- **Visual Detail**: ${entry.observation.sensoryDetails.visual}`);
-      }
-      if (entry.observation.sensoryDetails?.tactile) {
-        lines.push(`- **Tactile Detail**: ${entry.observation.sensoryDetails.tactile}`);
-      }
       lines.push('');
       lines.push(`### Ecological Synthesis (Probabilistic Interpretation)`);
       lines.push(`${entry.reflection.syntheticInsight}`);
@@ -80,11 +65,6 @@ export const JournalArchive: React.FC = () => {
       lines.push(`### Reflective Question to Carry`);
       lines.push(`> "${entry.reflection.deepeningQuestion}"`);
       lines.push('');
-      if (entry.reflection.nextInvestigationSeed) {
-        lines.push(`### Next Field Seed`);
-        lines.push(`*${entry.reflection.nextInvestigationSeed}*`);
-        lines.push('');
-      }
       lines.push('---');
       lines.push('');
     });
@@ -98,7 +78,7 @@ export const JournalArchive: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  // Export raw JSON backup
+  // Export JSON backup
   const handleExportJson = () => {
     setShowExportMenu(false);
     if (journalEntries.length === 0) {
@@ -116,47 +96,10 @@ export const JournalArchive: React.FC = () => {
   };
 
   const filterTabs = [
-    { id: 'all' as const, label: 'All Folios', count: journalEntries.length },
-    {
-      id: 'science' as const,
-      label: 'School & Science',
-      count: journalEntries.filter((e) =>
-        e.discovery?.fieldCategory?.toLowerCase().includes('science') ||
-        e.discovery?.fieldCategory?.toLowerCase().includes('botan') ||
-        e.investigation.title?.toLowerCase().includes('venation') ||
-        e.investigation.title?.toLowerCase().includes('botan')
-      ).length,
-    },
-    {
-      id: 'community' as const,
-      label: 'Community & Environment',
-      count: journalEntries.filter((e) =>
-        e.discovery?.fieldCategory?.toLowerCase().includes('community') ||
-        e.discovery?.fieldCategory?.toLowerCase().includes('environ') ||
-        e.investigation.title?.toLowerCase().includes('canopy') ||
-        e.investigation.title?.toLowerCase().includes('water')
-      ).length,
-    },
-    {
-      id: 'everyday' as const,
-      label: 'Everyday Discovery',
-      count: journalEntries.filter((e) =>
-        e.discovery?.fieldCategory?.toLowerCase().includes('everyday') ||
-        e.discovery?.fieldCategory?.toLowerCase().includes('micro') ||
-        e.investigation.title?.toLowerCase().includes('lichen') ||
-        e.investigation.title?.toLowerCase().includes('shadow')
-      ).length,
-    },
-    {
-      id: 'edge' as const,
-      label: 'Built vs. Wild',
-      count: journalEntries.filter((e) =>
-        e.discovery?.fieldCategory?.toLowerCase().includes('edge') ||
-        e.discovery?.fieldCategory?.toLowerCase().includes('border') ||
-        e.investigation.title?.toLowerCase().includes('mortar') ||
-        e.investigation.title?.toLowerCase().includes('edge')
-      ).length,
-    },
+    { id: 'all' as const, label: 'All' },
+    { id: 'botany' as const, label: 'Botany' },
+    { id: 'community' as const, label: 'Community' },
+    { id: 'everyday' as const, label: 'Everyday' },
   ];
 
   const filteredEntries = journalEntries.filter((entry) => {
@@ -174,10 +117,10 @@ export const JournalArchive: React.FC = () => {
 
     // Category tab filter
     if (activeFilter === 'all') return true;
-    if (activeFilter === 'science') {
+    if (activeFilter === 'botany') {
       return (
-        entry.discovery?.fieldCategory?.toLowerCase().includes('science') ||
         entry.discovery?.fieldCategory?.toLowerCase().includes('botan') ||
+        entry.discovery?.fieldCategory?.toLowerCase().includes('science') ||
         entry.investigation.title?.toLowerCase().includes('venation') ||
         entry.investigation.title?.toLowerCase().includes('botan')
       );
@@ -186,91 +129,60 @@ export const JournalArchive: React.FC = () => {
       return (
         entry.discovery?.fieldCategory?.toLowerCase().includes('community') ||
         entry.discovery?.fieldCategory?.toLowerCase().includes('environ') ||
-        entry.investigation.title?.toLowerCase().includes('canopy') ||
-        entry.investigation.title?.toLowerCase().includes('water')
+        entry.investigation.title?.toLowerCase().includes('canopy')
       );
     }
     if (activeFilter === 'everyday') {
       return (
         entry.discovery?.fieldCategory?.toLowerCase().includes('everyday') ||
         entry.discovery?.fieldCategory?.toLowerCase().includes('micro') ||
-        entry.investigation.title?.toLowerCase().includes('lichen') ||
-        entry.investigation.title?.toLowerCase().includes('shadow')
-      );
-    }
-    if (activeFilter === 'edge') {
-      return (
-        entry.discovery?.fieldCategory?.toLowerCase().includes('edge') ||
-        entry.discovery?.fieldCategory?.toLowerCase().includes('border') ||
-        entry.investigation.title?.toLowerCase().includes('mortar') ||
-        entry.investigation.title?.toLowerCase().includes('edge')
+        entry.investigation.title?.toLowerCase().includes('moss')
       );
     }
     return true;
   });
 
-  if (viewMode === 'passport') {
-    return (
-      <CollectorPassport
-        entries={journalEntries}
-        onBackToNotes={() => setViewMode('folios')}
-      />
-    );
-  }
-
   return (
-    <div className="space-y-8 sm:space-y-10 animate-journal-entry">
+    <div className="space-y-6 sm:space-y-8 animate-journal-entry max-w-2xl mx-auto pb-12">
       {/* 1. ARCHIVE MASTHEAD */}
-      <section className="journal-page p-6 sm:p-10 border border-stone-deep/40 rounded-sm bg-paper-bright flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-journal">
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2.5">
+      <section className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-deep/40 pb-5">
+        <div className="space-y-1">
+          <div className="flex items-center space-x-2">
             <BotanicalLeafSprig className="w-5 h-5 text-forest" />
-            <span className="font-mono text-xs tracking-widest text-ink-faint uppercase font-semibold">
-              Permanent Field Archive • {journalEntries.length} {journalEntries.length === 1 ? 'Folio' : 'Folios'}
+            <span className="font-mono text-xs tracking-widest text-terracotta uppercase font-bold">
+              {journalEntries.length} {journalEntries.length === 1 ? 'Observation' : 'Observations'}
             </span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-5xl text-ink font-medium tracking-tight">
-            The Naturalist's Logbook
+          <h1 className="font-serif text-3xl sm:text-4xl text-ink font-medium tracking-tight">
+            My Field Journal
           </h1>
-          <p className="font-serif italic text-sm sm:text-base text-ink-muted max-w-lg">
-            A permanent chronological record of physical observations and synthesized ecological dynamics.
+          <p className="font-serif italic text-xs sm:text-sm text-ink-muted">
+            Permanent records of physical fieldwork and synthesized reflections.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0 relative">
-          {/* Sub-view toggle: Folios vs Collector's Passport */}
-          <button
-            type="button"
-            onClick={() => setViewMode('passport')}
-            className="px-4 py-3 rounded-sm border border-terracotta/60 bg-terracotta/5 hover:bg-terracotta/10 text-xs font-mono uppercase tracking-wider text-terracotta font-semibold transition-colors flex items-center min-h-[48px]"
-          >
-            <Award className="w-4 h-4 mr-1.5" />
-            Collector's Passport
-          </button>
-
-          {/* Export Journal Archive Dropdown */}
+        <div className="flex items-center space-x-2 self-start sm:self-auto">
+          {/* Export Dropdown */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setShowExportMenu(!showExportMenu)}
-              className="px-4 py-3 rounded-sm border border-stone-deep/70 bg-paper-bright hover:bg-stone-light/50 text-xs font-mono uppercase tracking-wider text-ink font-semibold transition-colors flex items-center min-h-[48px]"
-              aria-expanded={showExportMenu}
-              aria-haspopup="true"
+              className="px-3.5 py-2 rounded-sm border border-stone-deep/70 bg-paper-bright hover:bg-stone-light/50 text-xs font-mono uppercase tracking-wider text-ink font-semibold flex items-center min-h-[42px]"
             >
-              <Download className="w-4 h-4 mr-1.5 text-forest" />
+              <Download className="w-3.5 h-3.5 mr-1.5 text-forest" />
               Export
-              <ChevronDown className="w-3.5 h-3.5 ml-1 text-ink-muted" />
+              <ChevronDown className="w-3 h-3 ml-1 text-ink-muted" />
             </button>
 
             {showExportMenu && (
-              <div className="absolute right-0 top-full mt-1.5 w-52 rounded-sm border border-stone-deep bg-paper-bright shadow-journal z-20 py-1.5 text-xs font-mono">
+              <div className="absolute right-0 top-full mt-1 w-48 rounded-sm border border-stone-deep bg-paper-bright shadow-journal z-20 py-1 text-xs font-mono">
                 <button
                   type="button"
                   onClick={handleExportMarkdown}
                   className="w-full px-3 py-2 text-left hover:bg-stone-light/60 flex items-center space-x-2 text-ink"
                 >
                   <FileText className="w-3.5 h-3.5 text-forest" />
-                  <span>Markdown Journal (.md)</span>
+                  <span>Markdown (.md)</span>
                 </button>
                 <button
                   type="button"
@@ -278,271 +190,165 @@ export const JournalArchive: React.FC = () => {
                   className="w-full px-3 py-2 text-left hover:bg-stone-light/60 flex items-center space-x-2 text-ink"
                 >
                   <Database className="w-3.5 h-3.5 text-botanical-teal" />
-                  <span>Backup Archive (.json)</span>
+                  <span>JSON Backup</span>
                 </button>
               </div>
             )}
           </div>
 
           <TactileButton
-            onClick={() => navigate('setup')}
+            onClick={() => navigate('categories')}
             variant="primary"
-            className="px-6 py-3.5 text-sm font-semibold shadow-journal min-h-[48px]"
+            className="px-4 py-2 text-xs font-semibold uppercase tracking-wider min-h-[42px]"
           >
-            <Compass className="w-4 h-4 mr-2" />
-            New Investigation
+            <Compass className="w-3.5 h-3.5 mr-1.5" />
+            New
           </TactileButton>
         </div>
       </section>
 
-      {/* 2. SEARCH & DISCIPLINE FILTER TABS */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-deep/40 pb-4">
-        {/* Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-1.5" role="tablist">
-          {filterTabs.map((tab) => {
-            const isTabActive = activeFilter === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveFilter(tab.id)}
-                className={`px-3.5 py-1.5 rounded-[2px] text-xs font-mono tracking-wide transition-all min-h-[38px] flex items-center ${
-                  isTabActive
-                    ? 'bg-forest text-paper font-semibold shadow-journal-subtle'
-                    : 'bg-paper text-ink-muted hover:text-ink hover:bg-stone-light/60 border border-stone-deep/30'
-                }`}
-              >
-                <span>{tab.label}</span>
-                {tab.count > 0 && (
-                  <span
-                    className={`ml-1.5 text-[10px] px-1.5 py-0.2 rounded-full ${
-                      isTabActive ? 'bg-terracotta text-paper' : 'bg-stone-deep/40 text-ink'
-                    }`}
-                  >
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Search input */}
-        <div className="relative w-full sm:w-64">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search field records..."
-            className="w-full pl-9 pr-3 py-1.5 rounded-[2px] border border-stone-deep/40 bg-paper-bright text-ink text-xs font-sans placeholder:text-ink-faint focus:border-forest focus:outline-none min-h-[38px]"
-          />
-        </div>
+      {/* 2. SEARCH BAR */}
+      <div className="relative">
+        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-muted" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search entries..."
+          className="w-full pl-10 pr-4 py-2.5 rounded-sm border border-stone-deep/60 bg-paper-bright text-ink text-sm font-sans placeholder:text-ink-faint focus:border-forest focus:outline-none min-h-[44px]"
+        />
       </div>
 
-      {/* 3. EMPTY STATE OR RECORD LIST */}
+      {/* 3. CATEGORY FILTER CHIPS */}
+      <div className="flex items-center space-x-2 overflow-x-auto pb-1" role="tablist">
+        {filterTabs.map((tab) => {
+          const isSelected = activeFilter === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveFilter(tab.id)}
+              className={`px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider transition-all min-h-[36px] whitespace-nowrap ${
+                isSelected
+                  ? 'bg-forest text-paper font-semibold shadow-journal-subtle'
+                  : 'bg-paper-bright text-ink-muted hover:text-ink border border-stone-deep/60'
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 4. SAVED OBSERVATION CARDS LIST */}
       {journalEntries.length === 0 ? (
-        <div className="journal-page p-8 sm:p-14 text-center border border-stone-deep/40 rounded-sm bg-paper-bright shadow-journal space-y-6">
-          <div className="w-16 h-16 mx-auto rounded-full border border-stone-deep/60 flex items-center justify-center text-forest bg-paper">
-            <BotanicalWaxSeal className="w-10 h-10" label="OPEN" />
+        <div className="journal-page p-8 sm:p-12 text-center border border-stone-deep/40 rounded-sm bg-paper-bright shadow-journal space-y-4">
+          <div className="w-14 h-14 mx-auto rounded-full border border-stone-deep/60 flex items-center justify-center text-forest bg-paper">
+            <BotanicalWaxSeal className="w-9 h-9" label="OPEN" />
           </div>
-          <div className="space-y-2 max-w-md mx-auto">
-            <span className="font-mono text-xs tracking-widest text-ink-faint uppercase font-semibold block">
-              Folio Open • Uninscribed
-            </span>
-            <h2 className="font-serif text-2xl sm:text-4xl text-ink font-medium">
-              The Logbook Lies Open
+          <div className="space-y-1 max-w-sm mx-auto">
+            <h2 className="font-serif text-2xl text-ink font-medium">
+              No Discoveries Yet
             </h2>
-            <p className="font-serif italic text-sm text-ink-muted leading-relaxed">
-              No field notes have been sealed yet. Step outside, let your phone rest in your pocket, and record your first physical observation.
+            <p className="font-serif italic text-xs sm:text-sm text-ink-muted">
+              Step outside, observe the natural world, and inscribe your first field discovery.
             </p>
           </div>
-          <div className="pt-2">
-            <TactileButton
-              onClick={() => navigate('setup')}
-              variant="primary"
-              className="min-h-[48px] px-8 text-sm font-semibold shadow-journal"
-            >
-              <Compass className="w-4 h-4 mr-2" />
-              Begin First Investigation
-            </TactileButton>
-          </div>
+          <TactileButton
+            onClick={() => navigate('categories')}
+            variant="primary"
+            className="min-h-[46px] px-6 text-xs uppercase tracking-wider font-semibold"
+          >
+            <Compass className="w-4 h-4 mr-1.5" />
+            Begin an Investigation
+          </TactileButton>
         </div>
       ) : filteredEntries.length === 0 ? (
-        <div className="journal-page p-8 text-center border border-stone-deep/40 rounded-sm bg-paper-bright shadow-journal space-y-3">
-          <p className="font-serif italic text-base text-ink-muted">
-            No field notes match the selected filter or search query.
+        <div className="p-8 text-center border border-stone-deep/40 rounded-sm bg-paper-bright space-y-2">
+          <p className="font-serif italic text-sm text-ink-muted">
+            No entries match your search criteria.
           </p>
           <button
             onClick={() => {
               setActiveFilter('all');
               setSearchQuery('');
             }}
-            className="text-xs font-mono text-forest uppercase tracking-wider underline"
+            className="text-xs font-mono text-forest uppercase underline"
           >
-            Clear filters
+            Reset Filters
           </button>
         </div>
       ) : (
-        /* Vertical Journal Flow (Editorial Collectible Field Notes) */
-        <div className="space-y-8">
+        <div className="space-y-3.5">
           {filteredEntries.map((entry) => {
             const dateStr = new Date(entry.createdAt).toLocaleDateString('en-US', {
-              month: 'long',
+              month: 'short',
               day: 'numeric',
-              year: 'numeric',
             });
+            const durationMin = Math.round((entry.observation.actualDurationSeconds || 600) / 60) || 10;
+            const categoryName = entry.discovery?.fieldCategory || 'Botany';
 
             return (
-              <article
+              <div
                 key={entry.id}
-                className="journal-page p-6 sm:p-10 border border-stone-deep/40 rounded-sm bg-paper-bright shadow-journal space-y-6 hover:border-forest/40 transition-colors"
+                onClick={() => viewEntryDetail(entry)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    viewEntryDetail(entry);
+                  }
+                }}
+                className="group p-4 sm:p-5 rounded-sm border border-stone-deep/60 bg-paper-bright hover:border-forest/60 hover:shadow-journal-subtle transition-all cursor-pointer flex items-center justify-between gap-4"
               >
-                {/* 1. Header: Folio No & Meaningful Date */}
-                <div className="border-b border-stone/80 pb-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                  <div className="flex items-center space-x-2.5">
-                    <BotanicalLeafSprig className="w-4 h-4 text-forest" />
-                    <span className="font-mono text-xs tracking-widest text-terracotta uppercase font-bold">
-                      FOLIO NO. {String(entry.investigation.sequenceNumber).padStart(3, '0')}
-                    </span>
-                    <span className="text-stone-deep">•</span>
-                    <span className="font-mono text-xs text-forest uppercase font-semibold">
-                      {entry.discovery?.fieldCategory || 'Botanical Note'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center space-x-3 text-xs font-mono text-ink-muted">
-                    {/* Herbarium Plate Export Button */}
-                    <button
-                      type="button"
-                      onClick={() => setSelectedHerbariumEntry(entry)}
-                      className="px-2.5 py-1 rounded-[2px] bg-paper border border-stone-deep/50 hover:border-forest text-[11px] text-forest font-semibold flex items-center transition-colors"
-                      title="Export as 18th-century Herbarium Specimen Sheet"
-                    >
-                      <Download className="w-3 h-3 mr-1 text-terracotta" />
-                      Herbarium Plate
-                    </button>
-
-                    <div className="flex items-center space-x-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-moss" />
-                      <span>{dateStr}</span>
-                    </div>
-
-                    {entry.observation.actualDurationSeconds > 0 && (
-                      <>
-                        <span className="text-stone-deep font-mono">•</span>
-                        <span className="text-moss flex items-center">
-                          <Pocket className="w-3.5 h-3.5 mr-1 text-terracotta" />
-                          {entry.observation.actualDurationSeconds}s notice
-                        </span>
-                      </>
-                    )}
-                  </div>
+                {/* Left Thumbnail */}
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[2px] bg-paper border border-stone-deep/60 overflow-hidden shrink-0 flex items-center justify-center">
+                  {entry.observation.photoUri ? (
+                    <img
+                      src={entry.observation.photoUri}
+                      alt={entry.investigation.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    />
+                  ) : (
+                    <BotanicalLeafSprig className="w-8 h-8 text-forest opacity-70 group-hover:scale-105 transition-transform" />
+                  )}
                 </div>
 
-                {/* 2. Investigation Title & Prompt */}
-                <div className="space-y-2">
-                  <h2 className="font-serif text-2xl sm:text-4xl text-ink font-medium tracking-tight">
+                {/* Middle Content */}
+                <div className="flex-1 min-w-0 space-y-1">
+                  <h3 className="font-serif text-lg sm:text-xl font-medium text-ink group-hover:text-forest transition-colors truncate">
                     {entry.investigation.title}
-                  </h2>
-                  <div className="border-l-2 border-stone-deep/60 pl-3.5 py-1 bg-paper-deep/20 rounded-r-sm">
-                    <span className="font-mono text-[10px] tracking-widest uppercase text-ink-faint block">
-                      Field Directive
-                    </span>
-                    <p className="font-serif italic text-sm text-ink-muted leading-relaxed">
-                      “{entry.investigation.prompt}”
-                    </p>
-                  </div>
-                </div>
-
-                {/* 3. Observation Evidence (Observer's notes + photo/audio) */}
-                <section className="space-y-3 border-l-2 border-forest pl-4 sm:pl-6 bg-paper py-3 rounded-r-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[11px] tracking-widest uppercase text-forest font-semibold block">
-                      Observed Evidence
-                    </span>
-                    <span className="font-mono text-[10px] text-ink-faint">Direct Record</span>
-                  </div>
-                  <p className="font-serif text-base sm:text-lg text-ink leading-relaxed italic">
+                  </h3>
+                  <p className="font-serif italic text-xs text-ink-muted line-clamp-1">
                     “{entry.observation.rawNotes}”
                   </p>
-
-                  {/* Photo Thumbnail if attached */}
-                  {entry.observation.photoUri && (
-                    <div className="pt-2">
-                      <div className="inline-block border border-stone-deep/60 p-1 bg-paper-bright rounded-[2px] shadow-sm">
-                        <img
-                          src={entry.observation.photoUri}
-                          alt="Field record specimen"
-                          className="w-56 h-36 object-cover rounded-[2px]"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Audio note if recorded */}
-                  {entry.observation.audioUri && (
-                    <div className="pt-2">
-                      <TactileAudioPlayer
-                        src={entry.observation.audioUri}
-                        className="max-w-md w-full"
-                        label="Archived Voice Memo"
-                      />
-                    </div>
-                  )}
-                </section>
-
-                {/* 4. Naturalist Reflection */}
-                <section className="space-y-2 border-l-2 border-botanical-teal pl-4 sm:pl-6 py-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-mono text-[11px] tracking-widest uppercase text-botanical-teal font-semibold block">
-                      Naturalist Synthesis
+                  <div className="flex items-center space-x-2 text-[11px] font-mono text-ink-muted pt-1">
+                    <span className="flex items-center text-moss">
+                      <Calendar className="w-3 h-3 mr-1" />
+                      {dateStr}
                     </span>
-                    <span className="text-[10px] font-mono text-ink-faint uppercase tracking-wider">
-                      (Probabilistic)
+                    <span>•</span>
+                    <span className="flex items-center">
+                      <Clock className="w-3 h-3 mr-1" />
+                      {durationMin} min
                     </span>
-                  </div>
-                  <p className="font-serif text-sm sm:text-base text-ink-muted leading-relaxed">
-                    {entry.reflection.syntheticInsight}
-                  </p>
-                </section>
-
-                {/* 5. Question to Carry */}
-                <section className="space-y-1 border-l-2 border-terracotta pl-4 sm:pl-6 bg-terracotta/5 py-2.5 rounded-r-sm">
-                  <span className="font-mono text-[10px] tracking-widest uppercase text-terracotta font-semibold block">
-                    Question to Carry
-                  </span>
-                  <p className="font-serif italic text-base text-ink font-medium leading-relaxed">
-                    “{entry.reflection.deepeningQuestion}”
-                  </p>
-                </section>
-
-                {/* 6. Curiosity Tags & Discovery Category */}
-                <div className="p-3.5 rounded-sm bg-stone-light/50 border border-stone-deep/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                  <span className="font-serif text-sm font-semibold text-forest flex items-center">
-                    <BotanicalLeafSprig className="w-3.5 h-3.5 mr-1.5 text-forest" />
-                    {entry.discovery?.fieldCategory || 'Specimen Sealed'}
-                  </span>
-
-                  <div className="flex flex-wrap gap-1.5">
-                    {entry.reflection.curiosityTags.map((tag) => (
-                      <EditorialBadge key={tag} label={`#${tag}`} variant="stone" />
-                    ))}
+                    <span>•</span>
+                    <span className="uppercase text-forest font-semibold">
+                      {categoryName}
+                    </span>
                   </div>
                 </div>
 
-                {/* Bottom Provenance Strip */}
-                <div className="pt-2 border-t border-stone-deep/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 text-[11px] font-mono text-ink-faint">
-                  <span className="flex items-center">
-                    <ShieldCheck className="w-3.5 h-3.5 mr-1 text-moss" />
-                    {entry.reflection.modelMetadata?.provider === 'gemini-cloud'
-                      ? 'Google Gemini AI (Cloud)'
-                      : entry.reflection.modelMetadata?.provider === 'ollama'
-                      ? `Local AI • ${entry.reflection.modelMetadata?.modelName || 'llama3.2:3b'}`
-                      : 'Naturalist AI Engine'}
+                {/* Right Arrow / Folio Badge */}
+                <div className="text-right shrink-0 flex flex-col justify-between self-stretch">
+                  <span className="font-mono text-[10px] text-ink-faint">
+                    #{String(entry.investigation.sequenceNumber).padStart(3, '0')}
                   </span>
-                  <span>Inscribed in SQLite Logbook</span>
+                  <span className="text-forest text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                    Inspect →
+                  </span>
                 </div>
-              </article>
+              </div>
             );
           })}
         </div>
@@ -556,14 +362,14 @@ export const JournalArchive: React.FC = () => {
         />
       )}
 
-      {/* Back button */}
+      {/* Back Link */}
       <div className="text-center pt-4">
         <button
           onClick={() => navigate('home')}
-          className="min-h-[44px] px-4 inline-flex items-center text-xs font-mono uppercase tracking-wider text-ink-muted hover:text-ink transition-colors"
+          className="text-xs font-mono uppercase tracking-wider text-ink-muted hover:text-ink transition-colors min-h-[44px] inline-flex items-center"
         >
           <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
-          Return to Editorial Masthead
+          Back to Home
         </button>
       </div>
     </div>

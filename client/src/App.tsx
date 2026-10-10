@@ -9,6 +9,9 @@ import { ReturnView } from './components/observation/ReturnView.js';
 import { ReflectionView } from './components/reflection/ReflectionView.js';
 import { JournalArchive } from './components/journal/JournalArchive.js';
 
+import { CategorySelectionView } from './components/investigation/CategorySelectionView.js';
+import { DiscoveryDetailView } from './components/journal/DiscoveryDetailView.js';
+
 const FieldSessionRouter: React.FC = () => {
   const { state, returnFromField } = useFieldSession();
 
@@ -26,11 +29,13 @@ const FieldSessionRouter: React.FC = () => {
   return (
     <JournalLayout>
       {state.currentView === 'home' && <HomeView />}
+      {state.currentView === 'categories' && <CategorySelectionView />}
       {state.currentView === 'setup' && <InvestigationSetup />}
       {state.currentView === 'reveal' && <InvestigationReveal />}
       {state.currentView === 'return' && <ReturnView />}
       {state.currentView === 'reflect' && <ReflectionView />}
       {state.currentView === 'archive' && <JournalArchive />}
+      {state.currentView === 'detail' && <DiscoveryDetailView />}
     </JournalLayout>
   );
 };
