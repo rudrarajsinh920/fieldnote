@@ -10,6 +10,15 @@ import { AIStructuredError, InvestigationGenerationInput, ReflectionGenerationIn
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function safeJsonParse<T>(value: any, fallback: T): T {
+  if (!value || typeof value !== 'string') return fallback;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+}
+
 export function createApp(): Express {
   const app = express();
 
@@ -149,7 +158,7 @@ export function createApp(): Express {
           prompt: row.prompt,
           groundingConstraint: row.grounding_constraint,
           inquiryQuestion: row.inquiry_question,
-          sensoryFocus: JSON.parse(row.sensory_focus || '[]'),
+          sensoryFocus: safeJsonParse(row.sensory_focus, []),
           targetDurationSeconds: row.target_duration_seconds,
           fieldModeNotice: 'LOOK. NOTICE. REMEMBER.',
           status: 'completed',
@@ -161,7 +170,7 @@ export function createApp(): Express {
           recordedAt: row.recorded_at,
           actualDurationSeconds: row.actual_duration_seconds,
           rawNotes: row.raw_notes,
-          sensoryDetails: row.sensory_details ? JSON.parse(row.sensory_details) : undefined,
+          sensoryDetails: row.sensory_details ? safeJsonParse(row.sensory_details, undefined) : undefined,
           photoUri: row.photo_uri || undefined,
           audioUri: row.audio_uri || undefined,
           putAwayComplied: true,
@@ -172,7 +181,7 @@ export function createApp(): Express {
           investigationId: row.inv_id,
           syntheticInsight: row.synthetic_insight,
           deepeningQuestion: row.deepening_question,
-          curiosityTags: JSON.parse(row.curiosity_tags || '[]'),
+          curiosityTags: safeJsonParse(row.curiosity_tags, []),
           nextInvestigationSeed: row.next_investigation_seed || undefined,
           modelMetadata: {
             modelName: row.model_name || 'llama3.2:3b',
