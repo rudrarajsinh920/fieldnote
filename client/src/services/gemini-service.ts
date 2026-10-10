@@ -232,3 +232,26 @@ Generate a structured JSON reflection matching EXACTLY this JSON schema:
 
   return { reflection, discovery };
 }
+
+export async function testGeminiApiKey(
+  apiKey: string
+): Promise<{ success: boolean; message?: string; modelUsed?: string }> {
+  try {
+    const testPrompt = `Respond with valid JSON: {"status":"connected","engine":"FIELDNOTE Naturalist"}`;
+    const result = await callGeminiApi(testPrompt, apiKey);
+    if (result && (result.status === 'connected' || result.status || result.engine)) {
+      return { success: true, modelUsed: 'gemini-2.5-flash' };
+    }
+    return { success: true, modelUsed: 'gemini-flash' };
+  } catch (err: any) {
+    const msg = err?.message || 'Unable to connect to Google Gemini API';
+    if (msg.includes('400') || msg.includes('API_KEY_INVALID') || msg.includes('invalid')) {
+      return { success: false, message: 'Invalid API Key. Please verify in Google AI Studio.' };
+    }
+    if (msg.includes('429') || msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED')) {
+      return { success: false, message: 'API quota limit reached. Please check Google AI Studio.' };
+    }
+    return { success: false, message: msg };
+  }
+}
+

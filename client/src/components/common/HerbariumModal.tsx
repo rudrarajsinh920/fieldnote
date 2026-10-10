@@ -22,106 +22,7 @@ export const HerbariumModal: React.FC<HerbariumModalProps> = ({ entry, onClose }
 
   const formattedSeq = String(entry.investigation.sequenceNumber).padStart(3, '0');
 
-  // Download printable PNG using HTML canvas
-  const handleDownloadImage = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1200;
-    canvas.height = 1600;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const isCyan = plateTheme === 'cyanotype';
-
-    // Background
-    ctx.fillStyle = isCyan ? '#0F2B48' : '#FAF6ED';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Decorative Borders
-    ctx.strokeStyle = isCyan ? 'rgba(255, 255, 255, 0.4)' : '#12372A';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(50, 50, canvas.width - 100, canvas.height - 100);
-
-    ctx.strokeStyle = isCyan ? 'rgba(255, 255, 255, 0.2)' : '#CEC5B5';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(62, 62, canvas.width - 124, canvas.height - 124);
-
-    // Header Masthead
-    ctx.fillStyle = isCyan ? '#FFFFFF' : '#12372A';
-    ctx.textAlign = 'center';
-    ctx.font = '600 36px serif';
-    ctx.fillText('HORTUS SICCUS & HERBARIUM SPECIMEN', canvas.width / 2, 130);
-
-    ctx.font = '400 20px monospace';
-    ctx.fillStyle = isCyan ? '#8EC5FC' : '#C96B4B';
-    ctx.fillText(`FOLIO NO. ${formattedSeq} • ${entry.discovery?.fieldCategory?.toUpperCase() || 'BOTANICAL STUDY'}`, canvas.width / 2, 175);
-
-    // Title
-    ctx.fillStyle = isCyan ? '#FFFFFF' : '#17201B';
-    ctx.font = 'bold 50px serif';
-    ctx.fillText(entry.investigation.title.toUpperCase(), canvas.width / 2, 260);
-
-    // Photo or Specimen Frame
-    const frameX = 140;
-    const frameY = 320;
-    const frameW = canvas.width - 280;
-    const frameH = 680;
-
-    ctx.strokeStyle = isCyan ? 'rgba(255, 255, 255, 0.3)' : '#CEC5B5';
-    ctx.strokeRect(frameX, frameY, frameW, frameH);
-
-    // Specimen image if present
-    if (entry.observation.photoUri) {
-      const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, frameX + 10, frameY + 10, frameW - 20, frameH - 20);
-        finishAndDownload();
-      };
-      img.src = entry.observation.photoUri;
-    } else {
-      ctx.fillStyle = isCyan ? 'rgba(255, 255, 255, 0.1)' : '#F2EDE2';
-      ctx.fillRect(frameX + 10, frameY + 10, frameW - 20, frameH - 20);
-      ctx.fillStyle = isCyan ? '#8EC5FC' : '#859189';
-      ctx.font = 'italic 28px serif';
-      ctx.fillText('[ Tactile Field Observation Sealed ]', canvas.width / 2, frameY + frameH / 2);
-      finishAndDownload();
-    }
-
-    function finishAndDownload() {
-      if (!ctx) return;
-      // Body Observation
-      ctx.fillStyle = isCyan ? '#E0ECF8' : '#17201B';
-      ctx.textAlign = 'left';
-      ctx.font = 'italic 28px serif';
-      const notes = `“${entry.observation.rawNotes}”`;
-      wrapText(ctx, notes, 140, 1070, canvas.width - 280, 42);
-
-      // Reflection Insight
-      ctx.font = '400 22px serif';
-      ctx.fillStyle = isCyan ? '#AFCDE7' : '#4F6F52';
-      const insight = `Ecological Synthesis: ${entry.reflection.syntheticInsight}`;
-      wrapText(ctx, insight, 140, 1260, canvas.width - 280, 34);
-
-      // Footer
-      ctx.strokeStyle = isCyan ? 'rgba(255, 255, 255, 0.2)' : '#CEC5B5';
-      ctx.beginPath();
-      ctx.moveTo(140, 1450);
-      ctx.lineTo(canvas.width - 140, 1450);
-      ctx.stroke();
-
-      ctx.font = '400 18px monospace';
-      ctx.fillStyle = isCyan ? '#8EC5FC' : '#859189';
-      ctx.fillText(`COLLECTED: ${formattedDate.toUpperCase()} • SCREEN-AWAY: ${entry.observation.actualDurationSeconds}s`, 140, 1490);
-      ctx.textAlign = 'right';
-      ctx.fillText('NATURALIST AI ENGINE • ON-DEVICE SPECIMEN', canvas.width - 140, 1490);
-
-      // Trigger download
-      const link = document.createElement('a');
-      link.download = `herbarium-specimen-${formattedSeq}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    }
-  };
-
+  // Text wrapping helper
   const wrapText = (
     ctx: CanvasRenderingContext2D,
     text: string,
@@ -148,24 +49,187 @@ export const HerbariumModal: React.FC<HerbariumModalProps> = ({ entry, onClose }
     ctx.fillText(line, x, currY);
   };
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `FIELDNOTE: ${entry.investigation.title}`,
-          text: `Folio No. ${formattedSeq}: “${entry.observation.rawNotes}” — FIELDNOTE Naturalist Journal`,
-          url: window.location.href,
-        });
-      } catch {
-        // user cancelled
+  // Reusable canvas generator for export and sharing
+  const generateCanvas = (): Promise<HTMLCanvasElement> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1200;
+      canvas.height = 1600;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(canvas);
+        return;
       }
-    } else {
-      navigator.clipboard.writeText(
-        `FIELDNOTE Folio No. ${formattedSeq}: ${entry.investigation.title}\n“${entry.observation.rawNotes}”\n${window.location.href}`
+
+      const isCyan = plateTheme === 'cyanotype';
+
+      // Background
+      ctx.fillStyle = isCyan ? '#0F2B48' : '#FAF6ED';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Decorative Borders
+      ctx.strokeStyle = isCyan ? 'rgba(255, 255, 255, 0.4)' : '#12372A';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(50, 50, canvas.width - 100, canvas.height - 100);
+
+      ctx.strokeStyle = isCyan ? 'rgba(255, 255, 255, 0.2)' : '#CEC5B5';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(62, 62, canvas.width - 124, canvas.height - 124);
+
+      // Header Masthead
+      ctx.fillStyle = isCyan ? '#FFFFFF' : '#12372A';
+      ctx.textAlign = 'center';
+      ctx.font = '600 36px serif';
+      ctx.fillText('HORTUS SICCUS & HERBARIUM SPECIMEN', canvas.width / 2, 130);
+
+      ctx.font = '400 20px monospace';
+      ctx.fillStyle = isCyan ? '#8EC5FC' : '#C96B4B';
+      ctx.fillText(
+        `FOLIO NO. ${formattedSeq} • ${entry.discovery?.fieldCategory?.toUpperCase() || 'BOTANICAL STUDY'}`,
+        canvas.width / 2,
+        175
       );
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
+
+      // Title
+      ctx.fillStyle = isCyan ? '#FFFFFF' : '#17201B';
+      ctx.font = 'bold 50px serif';
+      ctx.fillText(entry.investigation.title.toUpperCase(), canvas.width / 2, 260);
+
+      // Frame
+      const frameX = 140;
+      const frameY = 320;
+      const frameW = canvas.width - 280;
+      const frameH = 680;
+
+      ctx.strokeStyle = isCyan ? 'rgba(255, 255, 255, 0.3)' : '#CEC5B5';
+      ctx.strokeRect(frameX, frameY, frameW, frameH);
+
+      const finalizeDraw = () => {
+        // Body Observation
+        ctx.fillStyle = isCyan ? '#E0ECF8' : '#17201B';
+        ctx.textAlign = 'left';
+        ctx.font = 'italic 28px serif';
+        const notes = `“${entry.observation.rawNotes}”`;
+        wrapText(ctx, notes, 140, 1070, canvas.width - 280, 42);
+
+        // Reflection Insight
+        ctx.font = '400 22px serif';
+        ctx.fillStyle = isCyan ? '#AFCDE7' : '#4F6F52';
+        const insight = `Ecological Synthesis: ${entry.reflection.syntheticInsight}`;
+        wrapText(ctx, insight, 140, 1260, canvas.width - 280, 34);
+
+        // Footer
+        ctx.strokeStyle = isCyan ? 'rgba(255, 255, 255, 0.2)' : '#CEC5B5';
+        ctx.beginPath();
+        ctx.moveTo(140, 1450);
+        ctx.lineTo(canvas.width - 140, 1450);
+        ctx.stroke();
+
+        ctx.font = '400 18px monospace';
+        ctx.fillStyle = isCyan ? '#8EC5FC' : '#859189';
+        ctx.fillText(
+          `COLLECTED: ${formattedDate.toUpperCase()} • SCREEN-AWAY: ${entry.observation.actualDurationSeconds}s`,
+          140,
+          1490
+        );
+        ctx.textAlign = 'right';
+        ctx.fillText('NATURALIST AI ENGINE • ON-DEVICE SPECIMEN', canvas.width - 140, 1490);
+
+        resolve(canvas);
+      };
+
+      if (entry.observation.photoUri) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          ctx.drawImage(img, frameX + 10, frameY + 10, frameW - 20, frameH - 20);
+          finalizeDraw();
+        };
+        img.onerror = () => {
+          finalizeDraw();
+        };
+        img.src = entry.observation.photoUri;
+      } else {
+        ctx.fillStyle = isCyan ? 'rgba(255, 255, 255, 0.1)' : '#F2EDE2';
+        ctx.fillRect(frameX + 10, frameY + 10, frameW - 20, frameH - 20);
+        ctx.fillStyle = isCyan ? '#8EC5FC' : '#859189';
+        ctx.font = 'italic 28px serif';
+        ctx.fillText('[ Tactile Field Observation Sealed ]', canvas.width / 2, frameY + frameH / 2);
+        finalizeDraw();
+      }
+    });
+  };
+
+  // Download high-resolution PNG
+  const handleDownloadImage = async () => {
+    const canvas = await generateCanvas();
+    const link = document.createElement('a');
+    link.download = `herbarium-specimen-${formattedSeq}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
+
+  // Native Web Share with image file support (iOS AirDrop/Instagram/WhatsApp + Android Share)
+  const handleShare = async () => {
+    try {
+      const canvas = await generateCanvas();
+      if (canvas.toBlob) {
+        canvas.toBlob(async (blob) => {
+          if (blob) {
+            const file = new File(
+              [blob],
+              `herbarium-specimen-${formattedSeq}.png`,
+              { type: 'image/png' }
+            );
+
+            // Attempt rich native file sharing
+            if (
+              typeof navigator.canShare === 'function' &&
+              navigator.canShare({ files: [file] })
+            ) {
+              try {
+                await navigator.share({
+                  title: `FIELDNOTE: ${entry.investigation.title}`,
+                  text: `Folio No. ${formattedSeq}: “${entry.observation.rawNotes}” — FIELDNOTE Naturalist Journal`,
+                  files: [file],
+                });
+                return;
+              } catch {
+                // User cancelled or aborted
+                return;
+              }
+            }
+          }
+
+          // Fallback to text/URL share if file share not supported
+          if (navigator.share) {
+            try {
+              await navigator.share({
+                title: `FIELDNOTE: ${entry.investigation.title}`,
+                text: `FIELDNOTE Folio No. ${formattedSeq}: ${entry.investigation.title}\n“${entry.observation.rawNotes}”\n\n${window.location.href}`,
+              });
+              return;
+            } catch {}
+          }
+
+          // Fallback to clipboard
+          await navigator.clipboard.writeText(
+            `FIELDNOTE • Folio No. ${formattedSeq}: ${entry.investigation.title}\n“${entry.observation.rawNotes}”\nEcological Synthesis: ${entry.reflection.syntheticInsight}\n${window.location.href}`
+          );
+          setIsCopied(true);
+          setTimeout(() => setIsCopied(false), 2500);
+        }, 'image/png');
+        return;
+      }
+    } catch (err) {
+      console.warn('[Share] Fallback triggered:', err);
     }
+
+    navigator.clipboard.writeText(
+      `FIELDNOTE • Folio No. ${formattedSeq}: ${entry.investigation.title}\n“${entry.observation.rawNotes}”\n${window.location.href}`
+    );
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2500);
   };
 
   const isCyan = plateTheme === 'cyanotype';

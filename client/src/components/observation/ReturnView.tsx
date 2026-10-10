@@ -3,6 +3,7 @@ import { useFieldSession } from '../../context/field-session-context.js';
 import { TactileButton } from '../common/TactileButton.js';
 import { BotanicalLeafSprig } from '../common/BotanicalIllustrations.js';
 import { FieldSketchpad } from './FieldSketchpad.js';
+import { TactileAudioPlayer } from '../common/TactileAudioPlayer.js';
 import {
   Camera,
   Image as GalleryIcon,
@@ -34,12 +35,14 @@ export const ReturnView: React.FC = () => {
   const [photoUri, setPhotoUri] = useState<string | undefined>(undefined);
   const [audioUri, setAudioUri] = useState<string | undefined>(undefined);
   const [isRecordingAudio, setIsRecordingAudio] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [showSketchpad, setShowSketchpad] = useState(false);
 
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<number | null>(null);
 
   if (!activeInvestigation) {
     return null;
@@ -60,32 +63,63 @@ export const ReturnView: React.FC = () => {
   // Cross-platform Voice Note Recording (iOS Safari + Chrome Android compatible)
   const startRecordingAudio = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true },
+      });
 
-      // Determine supported MIME type for cross-platform compatibility (iOS doesn't support webm)
-      let mimeType: string | undefined = undefined;
-      if (typeof MediaRecorder.isTypeSupported === 'function') {
-        if (MediaRecorder.isTypeSupported('audio/webm')) {
-          mimeType = 'audio/webm';
-        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-          mimeType = 'audio/mp4';
-        } else if (MediaRecorder.isTypeSupported('audio/aac')) {
-          mimeType = 'audio/aac';
+      // Probe codecs in order of reliability for iOS Safari & Android Chrome
+      const candidates = [
+        'audio/mp4',
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/aac',
+        '',
+      ];
+      let recorder: MediaRecorder | null = null;
+      let chosenMime = '';
+
+      for (const candidate of candidates) {
+        if (!candidate) {
+          try {
+            recorder = new MediaRecorder(stream);
+            chosenMime = recorder.mimeType || 'audio/mp4';
+            break;
+          } catch {
+            continue;
+          }
+        }
+        if (
+          typeof MediaRecorder !== 'undefined' &&
+          typeof MediaRecorder.isTypeSupported === 'function' &&
+          MediaRecorder.isTypeSupported(candidate)
+        ) {
+          try {
+            recorder = new MediaRecorder(stream, { mimeType: candidate });
+            chosenMime = candidate;
+            break;
+          } catch {
+            continue;
+          }
         }
       }
 
-      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+      if (!recorder) {
+        recorder = new MediaRecorder(stream);
+        chosenMime = recorder.mimeType || 'audio/mp4';
+      }
+
       mediaRecorderRef.current = recorder;
       audioChunksRef.current = [];
 
       recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
+        if (event.data && event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
       };
 
       recorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType || 'audio/mp4' });
+        const finalType = recorder?.mimeType || chosenMime || 'audio/mp4';
+        const audioBlob = new Blob(audioChunksRef.current, { type: finalType });
         const reader = new FileReader();
         reader.onload = (event) => {
           setAudioUri(event.target?.result as string);
@@ -94,15 +128,28 @@ export const ReturnView: React.FC = () => {
         stream.getTracks().forEach((track) => track.stop());
       };
 
-      recorder.start();
+      recorder.start(250); // Slice chunks every 250ms for reliable iOS buffering
       setIsRecordingAudio(true);
+      setRecordingSeconds(0);
+
+      // Live recording duration counter
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = window.setInterval(() => {
+        setRecordingSeconds((prev) => prev + 1);
+      }, 1000);
+
       if ('vibrate' in navigator) navigator.vibrate(20);
-    } catch {
+    } catch (err) {
+      console.warn('[Microphone] Access failed or rejected:', err);
       alert('Microphone access is unavailable or was declined.');
     }
   };
 
   const stopRecordingAudio = () => {
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
     if (mediaRecorderRef.current && isRecordingAudio) {
       mediaRecorderRef.current.stop();
       setIsRecordingAudio(false);
@@ -366,14 +413,15 @@ export const ReturnView: React.FC = () => {
                   onClick={isRecordingAudio ? stopRecordingAudio : startRecordingAudio}
                   className={`inline-flex items-center px-3.5 py-2.5 rounded-sm border text-xs font-mono tracking-wide transition-colors min-h-[44px] ${
                     isRecordingAudio
-                      ? 'border-terracotta bg-terracotta/10 text-terracotta animate-pulse font-semibold'
+                      ? 'border-terracotta bg-terracotta/10 text-terracotta font-semibold'
                       : 'border-stone-deep/60 bg-paper-bright hover:bg-stone-light/50 text-ink'
                   }`}
                 >
                   {isRecordingAudio ? (
                     <>
-                      <Square className="w-3.5 h-3.5 mr-2 text-terracotta" />
-                      Stop Voice Memo
+                      <span className="w-2 h-2 rounded-full bg-terracotta animate-ping mr-2" />
+                      <Square className="w-3.5 h-3.5 mr-1.5 text-terracotta fill-terracotta" />
+                      Stop Recording ({Math.floor(recordingSeconds / 60)}:{recordingSeconds % 60 < 10 ? '0' : ''}{recordingSeconds % 60})
                     </>
                   ) : (
                     <>
@@ -412,13 +460,18 @@ export const ReturnView: React.FC = () => {
 
             {/* Attached Voice Memo Preview */}
             {audioUri && (
-              <div className="flex items-center space-x-2 p-2 rounded-sm border border-stone-deep/50 bg-paper-bright">
-                <audio controls src={audioUri} className="h-8 flex-1" />
+              <div className="flex items-center space-x-2">
+                <TactileAudioPlayer
+                  src={audioUri}
+                  className="flex-1"
+                  label="Bioacoustic Voice Memo"
+                />
                 <button
                   type="button"
                   onClick={() => setAudioUri(undefined)}
-                  className="p-2 text-terracotta hover:text-terracotta-deep min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  className="p-2 text-terracotta hover:text-terracotta-deep min-h-[44px] min-w-[44px] flex items-center justify-center self-center"
                   aria-label="Remove audio"
+                  title="Remove recorded audio"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

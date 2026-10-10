@@ -8,6 +8,7 @@ import {
 } from '../common/BotanicalIllustrations.js';
 import { CollectorPassport } from './CollectorPassport.js';
 import { HerbariumModal } from '../common/HerbariumModal.js';
+import { TactileAudioPlayer } from '../common/TactileAudioPlayer.js';
 import { JournalEntry } from '@fieldnote/shared';
 import {
   Compass,
@@ -18,6 +19,9 @@ import {
   Search,
   Award,
   Download,
+  FileText,
+  Database,
+  ChevronDown,
 } from 'lucide-react';
 
 export const JournalArchive: React.FC = () => {
@@ -27,6 +31,89 @@ export const JournalArchive: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<'all' | 'science' | 'community' | 'everyday' | 'edge'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedHerbariumEntry, setSelectedHerbariumEntry] = useState<JournalEntry | null>(null);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+
+  // Export full journal as formatted Markdown document
+  const handleExportMarkdown = () => {
+    setShowExportMenu(false);
+    if (journalEntries.length === 0) {
+      alert('Your logbook has no folios to export yet.');
+      return;
+    }
+
+    const lines: string[] = [
+      '# FIELDNOTE — NATURALIST FIELD LOGBOOK',
+      `*Exported on ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} • ${journalEntries.length} Inscribed Folios*`,
+      '',
+      '---',
+      '',
+    ];
+
+    journalEntries.forEach((entry, idx) => {
+      const seq = String(entry.investigation.sequenceNumber || idx + 1).padStart(3, '0');
+      const date = new Date(entry.createdAt).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+
+      lines.push(`## FOLIO NO. ${seq}: ${entry.investigation.title}`);
+      lines.push(`- **Date Recorded**: ${date}`);
+      lines.push(`- **Discipline**: ${entry.discovery?.fieldCategory || 'Botanical Study'}`);
+      lines.push(`- **Silent Notice Duration**: ${entry.observation.actualDurationSeconds}s`);
+      lines.push('');
+      lines.push(`### Investigation Directive`);
+      lines.push(`> "${entry.investigation.prompt}"`);
+      lines.push('');
+      lines.push(`### Ground Truth Observation (User Evidence)`);
+      lines.push(`> "${entry.observation.rawNotes}"`);
+      if (entry.observation.sensoryDetails?.visual) {
+        lines.push(`- **Visual Detail**: ${entry.observation.sensoryDetails.visual}`);
+      }
+      if (entry.observation.sensoryDetails?.tactile) {
+        lines.push(`- **Tactile Detail**: ${entry.observation.sensoryDetails.tactile}`);
+      }
+      lines.push('');
+      lines.push(`### Ecological Synthesis (Probabilistic Interpretation)`);
+      lines.push(`${entry.reflection.syntheticInsight}`);
+      lines.push('');
+      lines.push(`### Reflective Question to Carry`);
+      lines.push(`> "${entry.reflection.deepeningQuestion}"`);
+      lines.push('');
+      if (entry.reflection.nextInvestigationSeed) {
+        lines.push(`### Next Field Seed`);
+        lines.push(`*${entry.reflection.nextInvestigationSeed}*`);
+        lines.push('');
+      }
+      lines.push('---');
+      lines.push('');
+    });
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fieldnote-journal-${new Date().toISOString().split('T')[0]}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Export raw JSON backup
+  const handleExportJson = () => {
+    setShowExportMenu(false);
+    if (journalEntries.length === 0) {
+      alert('Your logbook has no folios to export yet.');
+      return;
+    }
+    const dataStr = JSON.stringify(journalEntries, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fieldnote-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const filterTabs = [
     { id: 'all' as const, label: 'All Folios', count: journalEntries.length },
@@ -150,7 +237,7 @@ export const JournalArchive: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0 relative">
           {/* Sub-view toggle: Folios vs Collector's Passport */}
           <button
             type="button"
@@ -160,6 +247,42 @@ export const JournalArchive: React.FC = () => {
             <Award className="w-4 h-4 mr-1.5" />
             Collector's Passport
           </button>
+
+          {/* Export Journal Archive Dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="px-4 py-3 rounded-sm border border-stone-deep/70 bg-paper-bright hover:bg-stone-light/50 text-xs font-mono uppercase tracking-wider text-ink font-semibold transition-colors flex items-center min-h-[48px]"
+              aria-expanded={showExportMenu}
+              aria-haspopup="true"
+            >
+              <Download className="w-4 h-4 mr-1.5 text-forest" />
+              Export
+              <ChevronDown className="w-3.5 h-3.5 ml-1 text-ink-muted" />
+            </button>
+
+            {showExportMenu && (
+              <div className="absolute right-0 top-full mt-1.5 w-52 rounded-sm border border-stone-deep bg-paper-bright shadow-journal z-20 py-1.5 text-xs font-mono">
+                <button
+                  type="button"
+                  onClick={handleExportMarkdown}
+                  className="w-full px-3 py-2 text-left hover:bg-stone-light/60 flex items-center space-x-2 text-ink"
+                >
+                  <FileText className="w-3.5 h-3.5 text-forest" />
+                  <span>Markdown Journal (.md)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportJson}
+                  className="w-full px-3 py-2 text-left hover:bg-stone-light/60 flex items-center space-x-2 text-ink"
+                >
+                  <Database className="w-3.5 h-3.5 text-botanical-teal" />
+                  <span>Backup Archive (.json)</span>
+                </button>
+              </div>
+            )}
+          </div>
 
           <TactileButton
             onClick={() => navigate('setup')}
@@ -359,7 +482,11 @@ export const JournalArchive: React.FC = () => {
                   {/* Audio note if recorded */}
                   {entry.observation.audioUri && (
                     <div className="pt-2">
-                      <audio controls src={entry.observation.audioUri} className="h-8 max-w-xs" />
+                      <TactileAudioPlayer
+                        src={entry.observation.audioUri}
+                        className="max-w-md w-full"
+                        label="Archived Voice Memo"
+                      />
                     </div>
                   )}
                 </section>
