@@ -1,12 +1,8 @@
 import React from 'react';
-import { Home, Compass, BookOpen, Settings, Plus } from 'lucide-react';
+import { Home, Compass, BookOpen, User, Plus } from 'lucide-react';
 import { useFieldSession } from '../../context/field-session-context.js';
 
-interface BottomNavProps {
-  onOpenSettings: () => void;
-}
-
-export const BottomNav: React.FC<BottomNavProps> = ({ onOpenSettings }) => {
+export const BottomNav: React.FC = () => {
   const { state, navigate } = useFieldSession();
   const isField = state.currentView === 'field';
 
@@ -94,15 +90,15 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onOpenSettings }) => {
           <span className="text-[10px] font-mono tracking-wider uppercase">Journal</span>
         </button>
 
-        {/* 5. Settings / AI */}
+        {/* 5. Profile */}
         <button
           type="button"
-          onClick={onOpenSettings}
+          onClick={() => navigate('archive')}
           className="flex flex-col items-center justify-center p-1.5 min-w-[56px] min-h-[48px] rounded text-ink-muted hover:text-ink transition-colors"
-          aria-label="Naturalist AI Settings"
+          aria-label="Naturalist Profile & Folios"
         >
-          <Settings className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px] font-mono tracking-wider uppercase">Settings</span>
+          <User className="w-5 h-5 mb-0.5" />
+          <span className="text-[10px] font-mono tracking-wider uppercase">Profile</span>
         </button>
       </div>
     </nav>

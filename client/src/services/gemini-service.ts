@@ -8,19 +8,20 @@ import {
   SensoryFocus,
 } from '@fieldnote/shared';
 
-// API Key can come from localStorage or environment variable (VITE_GEMINI_API_KEY)
+// Security: API Key is strictly server/environment-based (VITE_GEMINI_API_KEY).
+// It is NEVER stored in browser localStorage and NEVER accessible or displayed to users.
+if (typeof window !== 'undefined') {
+  try {
+    localStorage.removeItem('fieldnote_gemini_api_key');
+  } catch {}
+}
+
 export function getGeminiApiKey(): string {
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem('fieldnote_gemini_api_key');
-    if (stored) return stored.trim();
-  }
   return ((import.meta as any).env?.VITE_GEMINI_API_KEY || '').trim();
 }
 
-export function setGeminiApiKey(key: string): void {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('fieldnote_gemini_api_key', key.trim());
-  }
+export function setGeminiApiKey(_key: string): void {
+  // No-op for security: keys are never saved in browser storage
 }
 
 const SYSTEM_PROMPT = `
