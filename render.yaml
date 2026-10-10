@@ -3,12 +3,14 @@ services:
     name: fieldnote
     runtime: node
     plan: free
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /healthz
     envVars:
-      - key: NODE_ENV
-        value: production
+      - key: NODE_VERSION
+        value: 22.13.0
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"
       - key: PORT
         value: 10000
       - key: HOST
