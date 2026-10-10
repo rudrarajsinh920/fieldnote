@@ -135,6 +135,7 @@ describe('FIELDNOTE Phase 3 Test Suite', () => {
     assert.equal(result.inquiryQuestion, 'What evidence of the process do you see?');
     assert.deepEqual(result.sensoryTags, ['visual', 'tactile']);
     assert.equal(result.estimatedMinutes, 10);
+    assert.equal(result.targetDurationSeconds, 600);
     assert.equal(result.intention, 'notice');
   });
 

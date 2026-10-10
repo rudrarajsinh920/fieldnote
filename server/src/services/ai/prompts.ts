@@ -29,7 +29,11 @@ export function buildInvestigationPrompt(input: InvestigationGenerationInput): s
 ${input.priorObservations.slice(-3).map((p, i) => `${i + 1}. [${p.curiosityTags.join(', ')}] ${p.title}: "${p.rawNotes.slice(0, 100)}"`).join('\n')}`
     : 'This is the user\'s first field investigation.';
 
-  const envText = input.environment?.weatherHint ? `Context: ${input.environment.weatherHint}.\n` : '';
+  const environmentNotes = [
+    input.environment?.weatherHint ? `Current conditions: ${input.environment.weatherHint}.` : '',
+    input.environment?.habitatHint ? `Naturalist's local focus: ${input.environment.habitatHint}.` : '',
+  ].filter(Boolean);
+  const envText = environmentNotes.length ? `${environmentNotes.join('\n')}\n` : '';
 
   return `
 GENERATE FIELD INVESTIGATION NO. ${String(input.sequenceNumber).padStart(3, '0')}.

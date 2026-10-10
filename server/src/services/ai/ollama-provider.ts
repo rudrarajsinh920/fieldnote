@@ -111,7 +111,7 @@ export class OllamaModelProvider implements IAIModelService {
       sensoryTags: parsed.sensoryTags,
       sensoryFocus: (parsed.sensoryTags as SensoryFocus[]) || ['visual', 'tactile'],
       estimatedMinutes: parsed.estimatedMinutes || input.durationMinutes,
-      targetDurationSeconds: 30,
+      targetDurationSeconds: input.durationMinutes * 60,
       intention: parsed.intention || input.intention,
       fieldModeNotice: 'LOOK. NOTICE. REMEMBER.',
     };

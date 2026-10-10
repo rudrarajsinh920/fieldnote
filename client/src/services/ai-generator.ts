@@ -23,7 +23,8 @@ import {
 export async function generateInvestigationLive(
   intention: InvestigationIntention,
   durationMinutes: InvestigationDurationMinutes,
-  sequenceNumber: number
+  sequenceNumber: number,
+  optionalFocus?: string
 ): Promise<GenerationOutcome<Investigation>> {
   // 1. Try Gemini API if key is configured
   const geminiKey = getGeminiApiKey();
@@ -33,7 +34,8 @@ export async function generateInvestigationLive(
         intention,
         durationMinutes,
         sequenceNumber,
-        geminiKey
+        geminiKey,
+        optionalFocus
       );
       return { data: inv };
     } catch (geminiErr) {
@@ -44,7 +46,7 @@ export async function generateInvestigationLive(
   // 2. Try local server if running
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
 
     const response = await fetch('/api/investigations/generate', {
       method: 'POST',
@@ -54,6 +56,9 @@ export async function generateInvestigationLive(
         sequenceNumber,
         intention,
         durationMinutes,
+        environment: optionalFocus?.trim()
+          ? { habitatHint: optionalFocus.trim() }
+          : undefined,
       }),
     });
     clearTimeout(timeoutId);
@@ -68,7 +73,9 @@ export async function generateInvestigationLive(
         groundingConstraint: data.groundingRule || data.groundingConstraint || "Don't photograph it yet. Observe silently for 30 seconds.",
         inquiryQuestion: data.inquiryQuestion || 'What evidence do you see?',
         sensoryFocus: (data.sensoryTags as SensoryFocus[]) || ['visual', 'tactile'],
-        targetDurationSeconds: 30,
+        targetDurationSeconds:
+          Number(data.targetDurationSeconds) ||
+          Math.round(Number(data.estimatedMinutes) || durationMinutes) * 60,
         fieldModeNotice: 'LOOK. NOTICE. REMEMBER.',
         status: 'pending',
         createdAt: new Date().toISOString(),
@@ -106,7 +113,7 @@ export async function generateReflectionLive(
   // 2. Try local server if running
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
 
     const response = await fetch('/api/reflections/generate', {
       method: 'POST',
@@ -171,7 +178,7 @@ export async function generateReflectionLive(
 // Fallback offline generator (used when offline or on static web deployment)
 export function getOfflineInvestigationFallback(
   intention: InvestigationIntention,
-  _durationMinutes: InvestigationDurationMinutes,
+  durationMinutes: InvestigationDurationMinutes,
   sequenceNumber: number
 ): Investigation {
   const directives: Record<string, { title: string; prompt: string; grounding: string; inquiry: string; focus: SensoryFocus[] }> = {
@@ -222,7 +229,7 @@ export function getOfflineInvestigationFallback(
     groundingConstraint: selected.grounding,
     inquiryQuestion: selected.inquiry,
     sensoryFocus: selected.focus,
-    targetDurationSeconds: 30,
+    targetDurationSeconds: durationMinutes * 60,
     fieldModeNotice: 'LOOK. NOTICE. REMEMBER.',
     status: 'pending',
     createdAt: new Date().toISOString(),

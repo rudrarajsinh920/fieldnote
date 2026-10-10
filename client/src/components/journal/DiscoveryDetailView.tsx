@@ -119,7 +119,7 @@ export const DiscoveryDetailView: React.FC = () => {
           )}
 
           {/* Botanical Badge Ribbon */}
-          <div className="absolute top-4 left-4 bg-paper-bright/95 backdrop-blur-sm px-3 py-1 rounded-[2px] border border-stone-deep/60 shadow-sm flex items-center space-x-1.5 text-[11px] font-mono text-terracotta uppercase font-bold">
+          <div className="absolute top-4 left-4 bg-paper-bright px-3 py-1 rounded-[2px] border border-stone-deep/60 shadow-sm flex items-center space-x-1.5 text-[11px] font-mono text-terracotta uppercase font-bold">
             <BotanicalLeafSprig className="w-3.5 h-3.5" />
             <span>Folio No. {String(selectedEntry.investigation.sequenceNumber).padStart(3, '0')}</span>
           </div>

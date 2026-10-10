@@ -312,7 +312,8 @@ export const FieldSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const outcome = await generateInvestigationLive(
       state.preferences.intention,
       state.preferences.durationMinutes,
-      state.nextSequenceNumber
+      state.nextSequenceNumber,
+      state.preferences.optionalFocus
     );
 
     if (outcome.data) {

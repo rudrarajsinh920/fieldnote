@@ -101,12 +101,14 @@ export async function generateInvestigationWithGemini(
   intention: InvestigationIntention,
   durationMinutes: InvestigationDurationMinutes,
   sequenceNumber: number,
-  apiKey: string
+  apiKey: string,
+  optionalFocus?: string
 ): Promise<Investigation> {
   const prompt = `
 GENERATE FIELD INVESTIGATION NO. ${String(sequenceNumber).padStart(3, '0')}.
 Target Duration: ${durationMinutes} minutes.
 Perceptual Intention: ${intention.toUpperCase()}.
+${optionalFocus?.trim() ? `Local focus chosen by the naturalist: ${optionalFocus.trim()}.` : ''}
 
 Generate a structured JSON investigation matching EXACTLY this JSON schema:
 {
@@ -130,7 +132,7 @@ Generate a structured JSON investigation matching EXACTLY this JSON schema:
     groundingConstraint: data.groundingRule || data.groundingConstraint || "Don't photograph it yet. Observe silently for 30 seconds.",
     inquiryQuestion: data.inquiryQuestion || 'What physical evidence reveals the ongoing process?',
     sensoryFocus: (data.sensoryTags as SensoryFocus[]) || ['visual', 'tactile'],
-    targetDurationSeconds: 30,
+    targetDurationSeconds: durationMinutes * 60,
     fieldModeNotice: 'LOOK. NOTICE. REMEMBER.',
     status: 'pending',
     createdAt: new Date().toISOString(),

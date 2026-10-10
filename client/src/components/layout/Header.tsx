@@ -21,8 +21,8 @@ export const Header: React.FC = () => {
   const isJournalActive = state.currentView === 'archive' || state.currentView === 'detail';
 
   return (
-    <header className="border-b border-stone-deep/60 bg-paper-bright/95 backdrop-blur-sm sticky top-0 z-30 transition-all duration-300">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 h-15 py-2.5 flex items-center justify-between">
+    <header className="border-b border-stone-deep/60 bg-paper-bright sticky top-0 z-30 transition-all duration-300">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-15 py-2.5 flex items-center justify-between">
         {/* Left: Mobile Menu & Brand Link */}
         <div className="flex items-center space-x-3">
           <button
@@ -52,7 +52,7 @@ export const Header: React.FC = () => {
         </div>
 
         {/* Right: Primary View Navigation */}
-        <nav className="flex items-center space-x-1.5 sm:space-x-2" aria-label="Main Navigation">
+        <nav className="hidden md:flex items-center space-x-1.5 sm:space-x-2" aria-label="Main Navigation">
           <button
             onClick={() => {
               if (state.activeInvestigation) {

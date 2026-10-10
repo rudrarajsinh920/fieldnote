@@ -3,6 +3,15 @@ import ReactDOM from 'react-dom/client';
 import App from './App.js';
 import './index.css';
 
+// Force service worker to update immediately so stale caches never persist
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (const registration of registrations) {
+      registration.update();
+    }
+  });
+}
+
 const rootElement = document.getElementById('root');
 if (rootElement) {
   ReactDOM.createRoot(rootElement).render(

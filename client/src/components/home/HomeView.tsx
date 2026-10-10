@@ -53,14 +53,6 @@ const CATEGORIES: CategoryCardItem[] = [
     directiveExample: '“Find three distinct textures of moss flourishing in the shaded pavement seam.”',
     specimenCount: 'Discipline 03',
   },
-  {
-    id: 'edge',
-    title: 'Built vs. Wild',
-    discipline: 'URBAN EDGES & TENSION',
-    summary: 'Examine the exact boundary where masonry mortar, asphalt, or brick touches living soil and roots.',
-    directiveExample: '“Compare the temperature and moisture on either side of a 2-inch border between brick and moss.”',
-    specimenCount: 'Discipline 04',
-  },
 ];
 
 export const HomeView: React.FC = () => {
@@ -150,7 +142,7 @@ export const HomeView: React.FC = () => {
         <div className="relative border-b border-stone-deep/30">
           <BotanicalHeroForest className="w-full h-44 sm:h-64 lg:h-72" />
           {/* Subtle Overlay Badge */}
-          <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-paper-bright/90 backdrop-blur-sm border border-stone-deep/60 px-3 py-1 rounded-[2px] flex items-center space-x-2">
+          <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-paper-bright border border-stone-deep/60 px-3 py-1 rounded-[2px] flex items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-botanical-teal animate-pulse" />
             <span className="font-mono text-[10px] sm:text-xs text-ink uppercase tracking-wider font-semibold">
               Live Observation Canopy
@@ -236,7 +228,7 @@ export const HomeView: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {CATEGORIES.map((cat) => {
             const isSelected = state.preferences.category === cat.id;
 

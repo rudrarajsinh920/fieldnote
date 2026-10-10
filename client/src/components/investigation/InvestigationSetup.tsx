@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFieldSession } from '../../context/field-session-context.js';
 import { TactileButton } from '../common/TactileButton.js';
-import { BotanicalLeafSprig } from '../common/BotanicalIllustrations.js';
+import { BotanicalCategoryIllustration, BotanicalLeafSprig } from '../common/BotanicalIllustrations.js';
 import { FieldCategory } from '../../types/index.js';
 import {
   Clock,
@@ -51,6 +51,11 @@ export const InvestigationSetup: React.FC = () => {
   };
 
   const currentCat = categoryMap[preferences.category || 'science'];
+  const categoryOptions: Array<{ id: FieldCategory; title: string; code: string }> = [
+    { id: 'science', title: 'School & Science', code: '01' },
+    { id: 'community', title: 'Community', code: '02' },
+    { id: 'everyday', title: 'Everyday', code: '03' },
+  ];
 
   const durationOptions: Array<{
     value: InvestigationDurationMinutes;
@@ -138,6 +143,39 @@ export const InvestigationSetup: React.FC = () => {
           Fine-tune your observation window, sensory intention, and optional focus before heading into the field.
         </p>
       </div>
+
+      <section className="space-y-3" aria-labelledby="discipline-heading">
+        <div className="flex items-center justify-between border-b border-stone-deep/20 pb-2">
+          <h2 id="discipline-heading" className="font-mono text-xs tracking-wider uppercase text-ink font-semibold">
+            1. Botanical Discipline
+          </h2>
+          <span className="font-mono text-[11px] text-ink-faint">Tactile Focus</span>
+        </div>
+        <div className="grid grid-cols-3 gap-2.5">
+          {categoryOptions.map((option) => {
+            const isSelected = preferences.category === option.id;
+            return (
+              <button
+                key={option.id}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => updatePreferences({ category: option.id })}
+                className={`overflow-hidden rounded-sm border text-left transition-all duration-150 focus-visible:outline-offset-2 ${
+                  isSelected
+                    ? 'border-forest ring-1 ring-forest/40 bg-forest/5 shadow-journal-subtle'
+                    : 'border-stone-deep/50 bg-paper-bright hover:border-botanical-teal/60'
+                }`}
+              >
+                <BotanicalCategoryIllustration category={option.id} className="h-16 sm:h-20 w-full" />
+                <span className="block px-2.5 py-2 text-[10px] sm:text-[11px] font-mono leading-snug text-ink">
+                  <span className="block text-terracotta font-bold mb-0.5">{option.code}</span>
+                  {option.title}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       {/* AI Error State */}
       {state.aiError && (

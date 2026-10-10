@@ -19,7 +19,7 @@ export const BottomNav: React.FC = () => {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-paper-bright/95 backdrop-blur-md border-t border-stone-deep/60 px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-lg transition-all"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-paper-bright border-t border-stone-deep/60 px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-lg transition-all"
       aria-label="Mobile Navigation"
     >
       <div className="flex items-center justify-around max-w-md mx-auto relative">

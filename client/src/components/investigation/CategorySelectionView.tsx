@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFieldSession } from '../../context/field-session-context.js';
 import { FieldCategory } from '../../types/index.js';
-import { BotanicalLeafSprig } from '../common/BotanicalIllustrations.js';
+import { BotanicalCategoryIllustration, BotanicalLeafSprig } from '../common/BotanicalIllustrations.js';
 import { ArrowLeft, Dices, ArrowRight } from 'lucide-react';
 
 interface CategoryOption {
@@ -9,9 +9,6 @@ interface CategoryOption {
   num: string;
   title: string;
   description: string;
-  iconBg: string;
-  borderColor: string;
-  accentColor: string;
   svgType: 'science' | 'community' | 'everyday';
 }
 
@@ -24,9 +21,6 @@ export const CategorySelectionView: React.FC = () => {
       num: '01',
       title: 'Botanical Science',
       description: 'Plant anatomy, leaf venation, lichen symbiosis, and micro-physics.',
-      iconBg: 'bg-[#2F8175]/10',
-      borderColor: 'border-[#2F8175]/40',
-      accentColor: '#2F8175',
       svgType: 'science',
     },
     {
@@ -34,9 +28,6 @@ export const CategorySelectionView: React.FC = () => {
       num: '02',
       title: 'Community & Environment',
       description: 'Map tree canopy, runoff channels, shade lines and local ecosystems.',
-      iconBg: 'bg-[#12372A]/10',
-      borderColor: 'border-[#12372A]/40',
-      accentColor: '#12372A',
       svgType: 'community',
     },
     {
@@ -44,9 +35,6 @@ export const CategorySelectionView: React.FC = () => {
       num: '03',
       title: 'Everyday Discovery',
       description: 'Notice organisms, textures, patterns and micro-habitats.',
-      iconBg: 'bg-[#C96B4B]/10',
-      borderColor: 'border-[#C96B4B]/40',
-      accentColor: '#C96B4B',
       svgType: 'everyday',
     },
   ];
@@ -57,7 +45,7 @@ export const CategorySelectionView: React.FC = () => {
   };
 
   const handleSurpriseMe = () => {
-    const list: FieldCategory[] = ['science', 'community', 'everyday', 'edge'];
+    const list: FieldCategory[] = ['science', 'community', 'everyday'];
     const randomCat = list[Math.floor(Math.random() * list.length)];
     const intentions = ['notice', 'explore', 'understand', 'create'] as const;
     const randomIntention = intentions[Math.floor(Math.random() * intentions.length)];
@@ -69,7 +57,7 @@ export const CategorySelectionView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8 animate-journal-entry pb-12">
+    <div className="max-w-3xl mx-auto space-y-6 sm:space-y-8 animate-journal-entry pb-12">
       {/* Top Header Bar */}
       <div className="flex items-center justify-between">
         <button
@@ -108,21 +96,17 @@ export const CategorySelectionView: React.FC = () => {
                 handleSelectCategory(cat.id);
               }
             }}
-            className="group p-5 sm:p-6 rounded-sm border border-stone-deep/60 bg-paper-bright hover:border-forest/70 hover:shadow-journal-subtle transition-all cursor-pointer flex items-center justify-between gap-4"
+            className="group overflow-hidden rounded-sm border border-stone-deep/60 bg-paper-bright hover:border-forest/70 hover:shadow-journal transition-all cursor-pointer grid grid-cols-[6.5rem_minmax(0,1fr)_auto] sm:grid-cols-[10rem_minmax(0,1fr)_auto] items-stretch gap-0"
           >
-            {/* Left Botanical Thumbnail */}
-            <div
-              className={`w-16 h-16 sm:w-20 sm:h-20 rounded-[2px] ${cat.iconBg} border ${cat.borderColor} flex items-center justify-center shrink-0 p-2 group-hover:scale-105 transition-transform`}
-            >
-              <BotanicalLeafSprig
-                className="w-10 h-10"
-                color={cat.accentColor}
-                accent={cat.accentColor === '#C96B4B' ? '#12372A' : '#C96B4B'}
+            <div className="min-h-[7.5rem] sm:min-h-[9.5rem] border-r border-stone-deep/30 bg-paper overflow-hidden">
+              <BotanicalCategoryIllustration
+                category={cat.svgType}
+                className="h-full w-full transition-transform duration-300 group-hover:scale-[1.035]"
               />
             </div>
 
             {/* Middle Content */}
-            <div className="flex-1 min-w-0 space-y-1">
+            <div className="min-w-0 space-y-1 self-center px-4 py-4 sm:px-5 sm:py-5">
               <h2 className="font-serif text-xl sm:text-2xl font-medium text-ink group-hover:text-forest transition-colors leading-tight">
                 {cat.title}
               </h2>
@@ -132,8 +116,8 @@ export const CategorySelectionView: React.FC = () => {
             </div>
 
             {/* Right Badge / Arrow */}
-            <div className="flex flex-col items-end justify-between self-stretch shrink-0">
-              <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-[2px] bg-stone-light/70 text-ink-muted border border-stone-deep/40">
+            <div className="flex flex-col items-end justify-between self-stretch shrink-0 p-3 sm:p-4">
+              <span className="font-mono text-[10px] font-semibold px-2 py-0.5 rounded-[2px] bg-stone-light/70 text-ink-muted border border-stone-deep/40">
                 {cat.num}
               </span>
               <span className="text-forest opacity-0 group-hover:opacity-100 transition-opacity">
