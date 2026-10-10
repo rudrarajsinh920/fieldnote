@@ -8,7 +8,7 @@ import {
   SensoryFocus,
 } from '@fieldnote/shared';
 
-// API Key can come from environment variable or localStorage
+// API Key can come from localStorage or environment variable (VITE_GEMINI_API_KEY)
 export function getGeminiApiKey(): string {
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem('fieldnote_gemini_api_key');
@@ -42,7 +42,7 @@ OUTPUT FORMAT: Return raw, valid JSON only. No markdown formatting, no code fenc
 `.trim();
 
 async function callGeminiApi(prompt: string, apiKey: string): Promise<any> {
-  const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+  const models = ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-1.5-flash'];
   let lastError: Error | null = null;
 
   for (const model of models) {
@@ -154,7 +154,7 @@ export async function generateReflectionWithGemini(
       curiosityTags: ['preliminary', 'perceptual-focus'],
       nextInvestigationSeed: 'Return to this exact location and observe silently for 60 seconds without moving.',
       modelMetadata: {
-        modelName: 'gemini-2.5-flash',
+        modelName: 'gemini-3.8-flash',
         inferenceDurationMs: 50,
         provider: 'gemini/anti-hallucination',
       },
@@ -213,7 +213,7 @@ Generate a structured JSON reflection matching EXACTLY this JSON schema:
     curiosityTags: [data.discoveryCategory?.toLowerCase().replace(/\s+/g, '-') || 'weathering', 'field-observation', 'micro-climate'],
     nextInvestigationSeed: data.nextInvestigationSeed || 'Follow the threshold where this phenomenon meets unaffected ground.',
     modelMetadata: {
-      modelName: 'gemini-2.5-flash',
+      modelName: 'gemini-3.8-flash',
       inferenceDurationMs: 300,
       provider: 'gemini-cloud',
     },
@@ -240,7 +240,7 @@ export async function testGeminiApiKey(
     const testPrompt = `Respond with valid JSON: {"status":"connected","engine":"FIELDNOTE Naturalist"}`;
     const result = await callGeminiApi(testPrompt, apiKey);
     if (result && (result.status === 'connected' || result.status || result.engine)) {
-      return { success: true, modelUsed: 'gemini-2.5-flash' };
+      return { success: true, modelUsed: 'gemini-3.8-flash' };
     }
     return { success: true, modelUsed: 'gemini-flash' };
   } catch (err: any) {

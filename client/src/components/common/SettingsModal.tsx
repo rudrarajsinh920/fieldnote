@@ -214,7 +214,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               <strong>{testResult.success ? 'Connection Verified' : 'Connection Error'}:</strong>
               <p>
                 {testResult.success
-                  ? 'Gemini 2.5 Flash model is active and responding. Live field synthesis enabled!'
+                  ? 'Gemini 3.8 Flash model is active and responding. Live field synthesis enabled!'
                   : testResult.message}
               </p>
             </div>
