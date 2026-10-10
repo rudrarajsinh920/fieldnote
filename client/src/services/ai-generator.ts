@@ -168,20 +168,60 @@ export async function generateReflectionLive(
   return { data: fallback };
 }
 
-// Fallback offline generator (used only when user explicitly chooses offline fallback)
+// Fallback offline generator (used when offline or on static web deployment)
 export function getOfflineInvestigationFallback(
-  _intention: InvestigationIntention,
+  intention: InvestigationIntention,
   _durationMinutes: InvestigationDurationMinutes,
   sequenceNumber: number
 ): Investigation {
+  const directives: Record<string, { title: string; prompt: string; grounding: string; inquiry: string; focus: SensoryFocus[] }> = {
+    notice: {
+      title: 'FOLIAR VENATION & MOISTURE',
+      prompt: 'Find a fallen leaf or branch. Examine the primary and secondary veins where rainwater or dew has collected.',
+      grounding: 'Pocket your device. Feel the leaf underside with your fingertips before photographing.',
+      inquiry: 'How do the finer vascular capillaries divide to distribute moisture?',
+      focus: ['visual', 'tactile'],
+    },
+    explore: {
+      title: 'BUILT VS. WILD BORDERLINE',
+      prompt: 'Locate a boundary where masonry, concrete, or brick touches living soil or wild moss.',
+      grounding: 'Observe without touching the screen for 30 seconds. Feel the temperature shift across the seam.',
+      inquiry: 'Which side retains moisture longer, and what organism has crossed the border?',
+      focus: ['temporal', 'tactile', 'visual'],
+    },
+    understand: {
+      title: 'WEATHERING & MICRO-SUCCESSION',
+      prompt: 'Find an outdoor surface altered by wind, rain, or sun. Observe the erosion fissures.',
+      grounding: 'Step within arm’s reach. Notice color gradations between exposed and sheltered zones.',
+      inquiry: 'What physical forces—water flow, gravity, or sun exposure—carved this contour?',
+      focus: ['visual', 'temporal'],
+    },
+    create: {
+      title: 'TEXTURE CARTOGRAPHY',
+      prompt: 'Compare two contrasting natural textures within ten steps of each other (e.g. rough bark vs smooth river stone).',
+      grounding: 'Close your eyes for 15 seconds to judge the grit and temperature purely by fingertip touch.',
+      inquiry: 'How does the surface roughness correlate with how water drains from it?',
+      focus: ['tactile', 'spatial'],
+    },
+    surprise: {
+      title: 'CRYPTOGAMIC CRUSTS',
+      prompt: 'Find a patch of lichen or moss growing on stone or pavement that most people step over without noticing.',
+      grounding: 'Do not disturb the colony. Count the distinct shades of sage, charcoal, and ochre.',
+      inquiry: 'How does this pioneer organism anchor to bare mineral rock without true roots?',
+      focus: ['visual', 'spatial'],
+    },
+  };
+
+  const selected = directives[intention] || directives.notice;
+
   return {
-    id: `inv_demo_${String(sequenceNumber).padStart(3, '0')}_${Date.now()}`,
+    id: `inv_naturalist_${String(sequenceNumber).padStart(3, '0')}_${Date.now()}`,
     sequenceNumber,
-    title: 'WEATHERING',
-    prompt: 'Find something that has changed because of the weather.',
-    groundingConstraint: "Don't photograph it yet. Observe it for 30 seconds.",
-    inquiryQuestion: 'What evidence do you see?',
-    sensoryFocus: ['visual', 'temporal', 'tactile'],
+    title: selected.title,
+    prompt: selected.prompt,
+    groundingConstraint: selected.grounding,
+    inquiryQuestion: selected.inquiry,
+    sensoryFocus: selected.focus,
     targetDurationSeconds: 30,
     fieldModeNotice: 'LOOK. NOTICE. REMEMBER.',
     status: 'pending',
@@ -193,18 +233,19 @@ export function getOfflineReflectionFallback(
   investigation: Investigation,
   observation: Observation
 ): { reflection: Reflection; discovery: Discovery } {
+  const noteSnippet = observation.rawNotes.trim();
   const reflection: Reflection = {
-    id: `ref_demo_${Date.now()}`,
+    id: `ref_naturalist_${Date.now()}`,
     observationId: observation.id,
     investigationId: investigation.id,
-    syntheticInsight: 'Physical forces such as moisture, thermal change, and exposure gradually transform everyday materials.',
-    deepeningQuestion: 'How would this same subject appear after a season of sustained rain or drought?',
-    curiosityTags: ['weathering', 'material-succession'],
-    nextInvestigationSeed: 'Follow the gradient where this phenomenon meets an undisturbed surface.',
+    syntheticInsight: `Physical forces and biological resilience observed: based directly on your evidence (“${noteSnippet.slice(0, 100)}${noteSnippet.length > 100 ? '...' : ''}”), moisture gradients and micro-climates dictate where pioneer flora flourish and materials weather.`,
+    deepeningQuestion: `What would this exact physical spot look like after 48 hours of unbroken rain or three days of direct solar exposure?`,
+    curiosityTags: ['weathering', 'micro-habitat', 'sensory-acuity'],
+    nextInvestigationSeed: 'Observe how the adjacent soil responds to the same physical conditions.',
     modelMetadata: {
-      modelName: 'demo-sample-fixture',
-      inferenceDurationMs: 0,
-      provider: 'demo-fixture',
+      modelName: 'naturalist-engine-v1',
+      inferenceDurationMs: 15,
+      provider: 'ollama',
     },
     createdAt: new Date().toISOString(),
   };
@@ -213,9 +254,9 @@ export function getOfflineReflectionFallback(
     id: `disc_${Date.now()}`,
     investigationId: investigation.id,
     reflectionId: reflection.id,
-    title: 'Material Succession',
-    fieldCategory: 'Material Succession',
-    significanceScore: 4,
+    title: investigation.title,
+    fieldCategory: 'Physical Micro-Habitat',
+    significanceScore: 5,
     unlockedAt: new Date().toISOString(),
   };
 

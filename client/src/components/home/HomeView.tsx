@@ -7,6 +7,7 @@ import {
   BotanicalCategoryIllustration,
 } from '../common/BotanicalIllustrations.js';
 import { FieldCategory } from '../../types/index.js';
+import { getCurrentMicroSeason } from '../../services/phenology-calendar.js';
 import {
   Compass,
   ArrowRight,
@@ -15,6 +16,7 @@ import {
   ChevronDown,
   ChevronUp,
   Calendar,
+  History,
 } from 'lucide-react';
 
 interface CategoryCardItem {
@@ -51,11 +53,21 @@ const CATEGORIES: CategoryCardItem[] = [
     directiveExample: '“Find three distinct textures of moss flourishing in the shaded pavement seam.”',
     specimenCount: 'Discipline 03',
   },
+  {
+    id: 'edge',
+    title: 'Built vs. Wild',
+    discipline: 'URBAN EDGES & TENSION',
+    summary: 'Examine the exact boundary where masonry mortar, asphalt, or brick touches living soil and roots.',
+    directiveExample: '“Compare the temperature and moisture on either side of a 2-inch border between brick and moss.”',
+    specimenCount: 'Discipline 04',
+  },
 ];
 
 export const HomeView: React.FC = () => {
   const { state, updatePreferences, navigate } = useFieldSession();
   const [showRitual, setShowRitual] = useState<boolean>(false);
+  const [showPhenology, setShowPhenology] = useState<boolean>(false);
+  const microSeason = getCurrentMicroSeason();
 
   const handleCategorySelect = (categoryId: FieldCategory) => {
     updatePreferences({ category: categoryId });
@@ -90,6 +102,46 @@ export const HomeView: React.FC = () => {
         <p className="font-sans text-sm sm:text-base text-ink-muted leading-relaxed max-w-xl mx-auto px-2">
           A physical-first field journal designed to make itself unnecessary. Formulate a sensory directive, put your phone in your pocket, and examine the physical earth.
         </p>
+
+        {/* The 72 Micro-Seasons Dial (Phenology Clock) */}
+        <div className="pt-2 max-w-xl mx-auto px-2">
+          <div className="rounded-sm border border-stone-deep/60 bg-paper-bright/95 shadow-journal-subtle overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setShowPhenology(!showPhenology)}
+              className="w-full flex items-center justify-between p-3.5 text-left hover:bg-stone-light/40 transition-colors min-h-[48px]"
+            >
+              <div className="flex items-center space-x-3">
+                <span className="text-terracotta text-sm">✦</span>
+                <div>
+                  <span className="font-mono text-[10px] tracking-widest uppercase text-terracotta font-semibold block">
+                    Solar Phenology • 72 Micro-Seasons
+                  </span>
+                  <span className="font-serif text-sm sm:text-base font-medium text-ink">
+                    {microSeason.name}{' '}
+                    <span className="font-serif italic text-xs text-ink-muted">
+                      — {microSeason.subSeason} ({microSeason.poeticName})
+                    </span>
+                  </span>
+                </div>
+              </div>
+              <span className="font-mono text-[11px] text-ink-muted">
+                {showPhenology ? 'Hide' : 'Phenology Directive'} {showPhenology ? '▴' : '▾'}
+              </span>
+            </button>
+
+            {showPhenology && (
+              <div className="p-4 border-t border-stone-deep/30 bg-paper-deep/20 space-y-2 text-left animate-investigation-unfold">
+                <p className="font-serif italic text-xs sm:text-sm text-ink leading-relaxed">
+                  <strong>Atmospheric Shift:</strong> {microSeason.botanicalFocus}
+                </p>
+                <div className="p-2.5 rounded-[2px] bg-forest/5 border border-forest/20 text-xs font-sans text-forest">
+                  <strong>Micro-Season Inquiry:</strong> “{microSeason.phenologyDirective}”
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </header>
 
       {/* 2. NATURE-INSPIRED HERO CARD (Reference 1 & 3: Teal-green forest artwork & clean ivory card) */}
@@ -165,7 +217,7 @@ export const HomeView: React.FC = () => {
         </div>
       </section>
 
-      {/* 3. THREE BOTANICAL DISCIPLINE CATEGORIES (Reference 1 & 2: Leaf art & clean white cards) */}
+      {/* 3. FOUR BOTANICAL DISCIPLINE CATEGORIES (Including Built vs. Wild) */}
       <section className="space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-stone/80 pb-3">
           <div className="space-y-1">
@@ -184,7 +236,7 @@ export const HomeView: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {CATEGORIES.map((cat) => {
             const isSelected = state.preferences.category === cat.id;
 
@@ -265,6 +317,33 @@ export const HomeView: React.FC = () => {
             View Complete Logbook ({state.journalEntries.length}) →
           </button>
         </div>
+
+        {recentEntries.length > 0 && (
+          <div className="p-4 sm:p-5 rounded-sm border border-moss/40 bg-moss/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-start sm:items-center space-x-3">
+              <span className="p-2 rounded bg-paper-bright text-forest border border-moss/30 shrink-0">
+                <History className="w-4 h-4" />
+              </span>
+              <div className="space-y-0.5">
+                <span className="font-mono text-[10px] tracking-widest uppercase text-forest font-semibold block">
+                  Slow Ecological Time • Comparative Revisit
+                </span>
+                <p className="font-serif italic text-ink text-sm">
+                  “Folio No. {String(recentEntries[0].investigation.sequenceNumber).padStart(3, '0')} ({recentEntries[0].investigation.title}): Return to this exact spot to notice what has weathered or sprouted.”
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                updatePreferences({ category: 'edge' });
+                navigate('setup');
+              }}
+              className="px-4 py-2 rounded-[2px] bg-forest text-paper font-mono uppercase tracking-wider text-[11px] shrink-0 font-semibold hover:bg-forest-deep transition-colors min-h-[36px]"
+            >
+              Revisit Spot →
+            </button>
+          </div>
+        )}
 
         {recentEntries.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

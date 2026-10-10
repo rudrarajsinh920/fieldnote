@@ -2,8 +2,11 @@ import React, { useState, useRef } from 'react';
 import { useFieldSession } from '../../context/field-session-context.js';
 import { TactileButton } from '../common/TactileButton.js';
 import { BotanicalLeafSprig } from '../common/BotanicalIllustrations.js';
+import { FieldSketchpad } from './FieldSketchpad.js';
 import {
   Camera,
+  Image as GalleryIcon,
+  PenTool,
   Mic,
   Square,
   Trash2,
@@ -31,8 +34,10 @@ export const ReturnView: React.FC = () => {
   const [photoUri, setPhotoUri] = useState<string | undefined>(undefined);
   const [audioUri, setAudioUri] = useState<string | undefined>(undefined);
   const [isRecordingAudio, setIsRecordingAudio] = useState(false);
+  const [showSketchpad, setShowSketchpad] = useState(false);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
@@ -40,7 +45,7 @@ export const ReturnView: React.FC = () => {
     return null;
   }
 
-  // Handle Photo File Selection
+  // Handle Photo Selection (Camera or Gallery)
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -52,11 +57,24 @@ export const ReturnView: React.FC = () => {
     }
   };
 
-  // Voice Note Recording using MediaRecorder API
+  // Cross-platform Voice Note Recording (iOS Safari + Chrome Android compatible)
   const startRecordingAudio = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
+
+      // Determine supported MIME type for cross-platform compatibility (iOS doesn't support webm)
+      let mimeType: string | undefined = undefined;
+      if (typeof MediaRecorder.isTypeSupported === 'function') {
+        if (MediaRecorder.isTypeSupported('audio/webm')) {
+          mimeType = 'audio/webm';
+        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          mimeType = 'audio/mp4';
+        } else if (MediaRecorder.isTypeSupported('audio/aac')) {
+          mimeType = 'audio/aac';
+        }
+      }
+
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
       mediaRecorderRef.current = recorder;
       audioChunksRef.current = [];
 
@@ -67,7 +85,7 @@ export const ReturnView: React.FC = () => {
       };
 
       recorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType || 'audio/mp4' });
         const reader = new FileReader();
         reader.onload = (event) => {
           setAudioUri(event.target?.result as string);
@@ -78,8 +96,9 @@ export const ReturnView: React.FC = () => {
 
       recorder.start();
       setIsRecordingAudio(true);
+      if ('vibrate' in navigator) navigator.vibrate(20);
     } catch {
-      alert('Microphone access unavailable or declined.');
+      alert('Microphone access is unavailable or was declined.');
     }
   };
 
@@ -87,12 +106,15 @@ export const ReturnView: React.FC = () => {
     if (mediaRecorderRef.current && isRecordingAudio) {
       mediaRecorderRef.current.stop();
       setIsRecordingAudio(false);
+      if ('vibrate' in navigator) navigator.vibrate([15, 50, 15]);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isGenerating || !rawNotes.trim()) return;
+
+    if ('vibrate' in navigator) navigator.vibrate(25);
 
     await submitObservationAndReflect(
       rawNotes.trim(),
@@ -273,102 +295,158 @@ export const ReturnView: React.FC = () => {
             </div>
           </div>
 
-          {/* Deferred Media Attachments */}
+          {/* SECTION B: DEFERRED SPECIMEN MEDIA (CAMERA, GALLERY, CHARCOAL SKETCH, VOICE) */}
           <div className="pt-4 border-t border-stone-deep/20 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="font-mono text-[11px] uppercase tracking-wider text-ink-muted font-medium">
-                Deferred Specimen Media (Optional)
+              <span className="font-mono text-[11px] uppercase tracking-wider text-ink font-semibold">
+                Deferred Specimen Media & Sketches
               </span>
               <span className="text-[10px] font-serif italic text-ink-faint">
-                Attached only after physical touch
+                Unlocked post-observation
               </span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                ref={fileInputRef}
-                onChange={handlePhotoUpload}
-                className="hidden"
-              />
+            {/* Hidden file inputs: one for live camera, one for gallery/files */}
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              ref={cameraInputRef}
+              onChange={handlePhotoUpload}
+              className="hidden"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              ref={galleryInputRef}
+              onChange={handlePhotoUpload}
+              className="hidden"
+            />
 
-              {!photoUri ? (
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center px-4 py-2.5 rounded-sm border border-stone-deep/60 bg-paper-bright hover:bg-stone-light/50 text-xs font-mono text-ink tracking-wide transition-colors min-h-[44px]"
-                >
-                  <Camera className="w-3.5 h-3.5 mr-2 text-moss" />
-                  Attach Specimen Photo
-                </button>
-              ) : (
-                <div className="flex items-center space-x-2.5 p-1.5 rounded-sm border border-stone-deep/50 bg-paper-bright">
-                  <img
-                    src={photoUri}
-                    alt="Observed specimen"
-                    className="w-10 h-10 object-cover rounded-[2px]"
-                  />
-                  <span className="text-xs font-mono text-ink">Photo attached</span>
-                  <button
-                    type="button"
-                    onClick={() => setPhotoUri(undefined)}
-                    className="p-2 text-terracotta hover:text-terracotta-deep min-h-[44px] min-w-[44px] flex items-center justify-center"
-                    aria-label="Remove photo"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
+            {/* Media Action Buttons */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* 1. Take Photo (Camera) */}
+              <button
+                type="button"
+                onClick={() => cameraInputRef.current?.click()}
+                className="inline-flex items-center px-3.5 py-2.5 rounded-sm border border-stone-deep/60 bg-paper-bright hover:bg-stone-light/50 text-xs font-mono text-ink tracking-wide transition-colors min-h-[44px]"
+              >
+                <Camera className="w-3.5 h-3.5 mr-2 text-moss" />
+                Take Photo (Camera)
+              </button>
 
-              {/* Voice Memo trigger */}
+              {/* 2. Choose from Gallery / Album (New or Old Photos) */}
+              <button
+                type="button"
+                onClick={() => galleryInputRef.current?.click()}
+                className="inline-flex items-center px-3.5 py-2.5 rounded-sm border border-stone-deep/60 bg-paper-bright hover:bg-stone-light/50 text-xs font-mono text-ink tracking-wide transition-colors min-h-[44px]"
+              >
+                <GalleryIcon className="w-3.5 h-3.5 mr-2 text-botanical-teal" />
+                Choose from Gallery
+              </button>
+
+              {/* 3. Field Charcoal Rubbing Sketchpad */}
+              <button
+                type="button"
+                onClick={() => setShowSketchpad(!showSketchpad)}
+                className={`inline-flex items-center px-3.5 py-2.5 rounded-sm border text-xs font-mono tracking-wide transition-colors min-h-[44px] ${
+                  showSketchpad
+                    ? 'bg-forest text-paper border-forest'
+                    : 'border-stone-deep/60 bg-paper-bright hover:bg-stone-light/50 text-ink'
+                }`}
+              >
+                <PenTool className="w-3.5 h-3.5 mr-2 text-terracotta" />
+                Charcoal Sketchpad
+              </button>
+
+              {/* 4. Voice Memo Recorder */}
               {!audioUri ? (
                 <button
                   type="button"
                   onClick={isRecordingAudio ? stopRecordingAudio : startRecordingAudio}
-                  className={`inline-flex items-center px-4 py-2.5 rounded-sm border text-xs font-mono tracking-wide transition-colors min-h-[44px] ${
+                  className={`inline-flex items-center px-3.5 py-2.5 rounded-sm border text-xs font-mono tracking-wide transition-colors min-h-[44px] ${
                     isRecordingAudio
-                      ? 'border-terracotta bg-terracotta/10 text-terracotta animate-pulse'
+                      ? 'border-terracotta bg-terracotta/10 text-terracotta animate-pulse font-semibold'
                       : 'border-stone-deep/60 bg-paper-bright hover:bg-stone-light/50 text-ink'
                   }`}
                 >
                   {isRecordingAudio ? (
                     <>
-                      <Square className="w-3.5 h-3.5 mr-2" />
+                      <Square className="w-3.5 h-3.5 mr-2 text-terracotta" />
                       Stop Voice Memo
                     </>
                   ) : (
                     <>
                       <Mic className="w-3.5 h-3.5 mr-2 text-moss" />
-                      Record Audio Note
+                      Record Voice Memo
                     </>
                   )}
                 </button>
-              ) : (
-                <div className="flex items-center space-x-2 p-2 rounded-sm border border-stone-deep/50 bg-paper-bright">
-                  <audio controls src={audioUri} className="h-7 w-44" />
-                  <button
-                    type="button"
-                    onClick={() => setAudioUri(undefined)}
-                    className="p-2 text-terracotta hover:text-terracotta-deep min-h-[44px] min-w-[44px] flex items-center justify-center"
-                    aria-label="Remove audio"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
+              ) : null}
             </div>
+
+            {/* Attached Photo Preview */}
+            {photoUri && (
+              <div className="flex items-center space-x-3 p-2 rounded-sm border border-stone-deep/50 bg-paper-bright">
+                <img
+                  src={photoUri}
+                  alt="Observed specimen"
+                  className="w-12 h-12 object-cover rounded-[2px] border border-stone-deep/40"
+                />
+                <div className="flex-1 min-w-0">
+                  <span className="text-xs font-mono text-ink block truncate font-medium">
+                    Specimen Image / Sketch Attached
+                  </span>
+                  <span className="text-[10px] font-mono text-ink-muted">Ready for archival folio</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPhotoUri(undefined)}
+                  className="p-2 text-terracotta hover:text-terracotta-deep min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  aria-label="Remove specimen photo"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {/* Attached Voice Memo Preview */}
+            {audioUri && (
+              <div className="flex items-center space-x-2 p-2 rounded-sm border border-stone-deep/50 bg-paper-bright">
+                <audio controls src={audioUri} className="h-8 flex-1" />
+                <button
+                  type="button"
+                  onClick={() => setAudioUri(undefined)}
+                  className="p-2 text-terracotta hover:text-terracotta-deep min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  aria-label="Remove audio"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {/* Inline Charcoal Rubbing Sketchpad Drawer */}
+            {showSketchpad && (
+              <div className="pt-2">
+                <FieldSketchpad
+                  onSaveSketch={(dataUrl) => {
+                    setPhotoUri(dataUrl);
+                    setShowSketchpad(false);
+                  }}
+                  onCancel={() => setShowSketchpad(false)}
+                />
+              </div>
+            )}
           </div>
         </div>
 
-        {/* SECTION B: DISTINCTION OF AI SYNTHESIS */}
+        {/* SECTION C: DISTINCTION OF AI SYNTHESIS */}
         <div className="p-4 rounded-sm bg-stone-light/40 border border-stone-deep/40 flex items-start space-x-3 text-xs text-ink-muted">
           <ShieldCheck className="w-4 h-4 text-forest shrink-0 mt-0.5" />
           <div className="space-y-0.5 leading-relaxed font-sans">
             <strong className="text-forest font-semibold block">Separation of Evidence & Interpretation:</strong>
             <p>
-              Your notes above represent primary ground truth. The AI synthesis on the next screen will treat your observations as immutable evidence and will never invent or fabricate facts not observed by you.
+              Your notes and attached images represent primary ground truth. The AI synthesis on the next screen will treat your observations as immutable evidence and will never invent facts not observed by you.
             </p>
           </div>
         </div>

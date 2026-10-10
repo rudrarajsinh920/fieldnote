@@ -9,7 +9,7 @@ export type AppView =
   | 'reflect'
   | 'archive';
 
-export type FieldCategory = 'science' | 'community' | 'everyday';
+export type FieldCategory = 'science' | 'community' | 'everyday' | 'edge';
 
 export interface FieldCategoryMeta {
   id: FieldCategory;

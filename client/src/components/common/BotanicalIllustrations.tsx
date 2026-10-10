@@ -216,9 +216,71 @@ export const BotanicalLeafSprig: React.FC<{ className?: string; color?: string; 
  * 3. "everyday" = Everyday Discovery (Sunlit Cobblestone, Fissures, Seedling)
  */
 export const BotanicalCategoryIllustration: React.FC<{
-  category: 'science' | 'community' | 'everyday';
+  category: 'science' | 'community' | 'everyday' | 'edge';
   className?: string;
 }> = ({ category, className = 'w-full h-36' }) => {
+  if (category === 'edge') {
+    return (
+      <svg
+        viewBox="0 0 240 140"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={`w-full overflow-hidden ${className}`}
+        preserveAspectRatio="xMidYMid slice"
+        role="img"
+        aria-label="Built vs Wild: Brick and asphalt boundary meeting living soil and moss"
+      >
+        <rect width="240" height="140" fill="#F8F4EE" rx="4" />
+        {/* Left half: Man-made brick/mortar structure */}
+        <rect x="0" y="0" width="118" height="140" fill="#F1ECE1" />
+        <g stroke="#C96B4B" strokeWidth="1" opacity="0.6">
+          <line x1="10" y1="35" x2="115" y2="35" />
+          <line x1="10" y1="70" x2="115" y2="70" />
+          <line x1="10" y1="105" x2="115" y2="105" />
+          <line x1="50" y1="10" x2="50" y2="35" />
+          <line x1="85" y1="35" x2="85" y2="70" />
+          <line x1="35" y1="70" x2="35" y2="105" />
+          <line x1="75" y1="105" x2="75" y2="135" />
+        </g>
+
+        {/* Central Boundary Division (The Edge) */}
+        <line x1="118" y1="0" x2="118" y2="140" stroke="#17201B" strokeWidth="2" strokeDasharray="4 2" />
+
+        {/* Right half: Wild soil & foliage */}
+        <rect x="118" y="0" width="122" height="140" fill="#EAF3EE" />
+        <circle cx="180" cy="70" r="50" fill="#4F6F52" fillOpacity="0.15" />
+
+        {/* Living Moss Creeping Across the Boundary */}
+        <g fill="#4F6F52">
+          <circle cx="118" cy="45" r="7" fill="#4F6F52" />
+          <circle cx="114" cy="52" r="5" fill="#2F8175" />
+          <circle cx="124" cy="42" r="6" fill="#12372A" />
+          <circle cx="118" cy="85" r="8" fill="#4F6F52" />
+          <circle cx="110" cy="88" r="5" fill="#698E6C" />
+          <circle cx="125" cy="82" r="6.5" fill="#2F8175" />
+        </g>
+
+        {/* Climbing Tendril / Ivy Root crossing border */}
+        <path
+          d="M170 125 C145 100 130 90 105 75 C85 62 80 50 65 45"
+          stroke="#12372A"
+          strokeWidth="2"
+          strokeLinecap="round"
+          fill="none"
+        />
+        {/* Ivy Leaves */}
+        <path d="M135 96 C138 90 148 92 144 100 Z" fill="#2F8175" />
+        <path d="M102 74 C96 70 94 78 100 80 Z" fill="#4F6F52" />
+        <path d="M78 52 C72 48 70 56 76 58 Z" fill="#2F8175" />
+
+        {/* Specimen Index Badge in Mono */}
+        <rect x="18" y="14" width="76" height="18" rx="2" fill="#FCFBF7" stroke="#CEC5B5" strokeWidth="0.75" />
+        <text x="24" y="27" fill="#12372A" fontSize="9" fontFamily="monospace" fontWeight="600" letterSpacing="0.08em">
+          BORDER • 04
+        </text>
+      </svg>
+    );
+  }
   if (category === 'science') {
     return (
       <svg

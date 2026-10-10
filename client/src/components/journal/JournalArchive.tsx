@@ -6,6 +6,9 @@ import {
   BotanicalLeafSprig,
   BotanicalWaxSeal,
 } from '../common/BotanicalIllustrations.js';
+import { CollectorPassport } from './CollectorPassport.js';
+import { HerbariumModal } from '../common/HerbariumModal.js';
+import { JournalEntry } from '@fieldnote/shared';
 import {
   Compass,
   Calendar,
@@ -13,13 +16,17 @@ import {
   ArrowLeft,
   ShieldCheck,
   Search,
+  Award,
+  Download,
 } from 'lucide-react';
 
 export const JournalArchive: React.FC = () => {
   const { state, navigate } = useFieldSession();
   const { journalEntries } = state;
-  const [activeFilter, setActiveFilter] = useState<'all' | 'science' | 'community' | 'everyday'>('all');
+  const [viewMode, setViewMode] = useState<'folios' | 'passport'>('folios');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'science' | 'community' | 'everyday' | 'edge'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedHerbariumEntry, setSelectedHerbariumEntry] = useState<JournalEntry | null>(null);
 
   const filterTabs = [
     { id: 'all' as const, label: 'All Folios', count: journalEntries.length },
@@ -51,6 +58,16 @@ export const JournalArchive: React.FC = () => {
         e.discovery?.fieldCategory?.toLowerCase().includes('micro') ||
         e.investigation.title?.toLowerCase().includes('lichen') ||
         e.investigation.title?.toLowerCase().includes('shadow')
+      ).length,
+    },
+    {
+      id: 'edge' as const,
+      label: 'Built vs. Wild',
+      count: journalEntries.filter((e) =>
+        e.discovery?.fieldCategory?.toLowerCase().includes('edge') ||
+        e.discovery?.fieldCategory?.toLowerCase().includes('border') ||
+        e.investigation.title?.toLowerCase().includes('mortar') ||
+        e.investigation.title?.toLowerCase().includes('edge')
       ).length,
     },
   ];
@@ -94,8 +111,25 @@ export const JournalArchive: React.FC = () => {
         entry.investigation.title?.toLowerCase().includes('shadow')
       );
     }
+    if (activeFilter === 'edge') {
+      return (
+        entry.discovery?.fieldCategory?.toLowerCase().includes('edge') ||
+        entry.discovery?.fieldCategory?.toLowerCase().includes('border') ||
+        entry.investigation.title?.toLowerCase().includes('mortar') ||
+        entry.investigation.title?.toLowerCase().includes('edge')
+      );
+    }
     return true;
   });
+
+  if (viewMode === 'passport') {
+    return (
+      <CollectorPassport
+        entries={journalEntries}
+        onBackToNotes={() => setViewMode('folios')}
+      />
+    );
+  }
 
   return (
     <div className="space-y-8 sm:space-y-10 animate-journal-entry">
@@ -116,11 +150,21 @@ export const JournalArchive: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center shrink-0">
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          {/* Sub-view toggle: Folios vs Collector's Passport */}
+          <button
+            type="button"
+            onClick={() => setViewMode('passport')}
+            className="px-4 py-3 rounded-sm border border-terracotta/60 bg-terracotta/5 hover:bg-terracotta/10 text-xs font-mono uppercase tracking-wider text-terracotta font-semibold transition-colors flex items-center min-h-[48px]"
+          >
+            <Award className="w-4 h-4 mr-1.5" />
+            Collector's Passport
+          </button>
+
           <TactileButton
             onClick={() => navigate('setup')}
             variant="primary"
-            className="w-full sm:w-auto px-7 py-3.5 text-sm font-semibold shadow-journal min-h-[48px]"
+            className="px-6 py-3.5 text-sm font-semibold shadow-journal min-h-[48px]"
           >
             <Compass className="w-4 h-4 mr-2" />
             New Investigation
@@ -243,9 +287,23 @@ export const JournalArchive: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="flex items-center space-x-2 text-xs font-mono text-ink-muted">
-                    <Calendar className="w-3.5 h-3.5 text-moss" />
-                    <span>{dateStr}</span>
+                  <div className="flex items-center space-x-3 text-xs font-mono text-ink-muted">
+                    {/* Herbarium Plate Export Button */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedHerbariumEntry(entry)}
+                      className="px-2.5 py-1 rounded-[2px] bg-paper border border-stone-deep/50 hover:border-forest text-[11px] text-forest font-semibold flex items-center transition-colors"
+                      title="Export as 18th-century Herbarium Specimen Sheet"
+                    >
+                      <Download className="w-3 h-3 mr-1 text-terracotta" />
+                      Herbarium Plate
+                    </button>
+
+                    <div className="flex items-center space-x-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-moss" />
+                      <span>{dateStr}</span>
+                    </div>
+
                     {entry.observation.actualDurationSeconds > 0 && (
                       <>
                         <span className="text-stone-deep font-mono">•</span>
@@ -361,6 +419,14 @@ export const JournalArchive: React.FC = () => {
             );
           })}
         </div>
+      )}
+
+      {/* Herbarium Plate Modal */}
+      {selectedHerbariumEntry && (
+        <HerbariumModal
+          entry={selectedHerbariumEntry}
+          onClose={() => setSelectedHerbariumEntry(null)}
+        />
       )}
 
       {/* Back button */}

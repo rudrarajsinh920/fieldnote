@@ -53,6 +53,12 @@ export const InvestigationSetup: React.FC = () => {
       discipline: 'MICRO-HABITATS & TEXTURES',
       desc: 'Pavement seams, moss colonies, loose pebbles, and diurnal shifts.',
     },
+    {
+      id: 'edge',
+      title: 'Built vs. Wild',
+      discipline: 'URBAN EDGES & TENSION',
+      desc: 'Masonry borders, asphalt fissures, moss colonization & micro-climates.',
+    },
   ];
 
   const durationOptions: Array<{
@@ -205,7 +211,7 @@ export const InvestigationSetup: React.FC = () => {
           <span className="font-mono text-[11px] text-ink-faint">Tactile Focus</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {categoryOptions.map((cat) => {
             const isSelected = preferences.category === cat.id;
 

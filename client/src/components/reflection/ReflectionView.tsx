@@ -6,6 +6,7 @@ import {
   BotanicalWaxSeal,
   BotanicalLeafSprig,
 } from '../common/BotanicalIllustrations.js';
+import { HerbariumModal } from '../common/HerbariumModal.js';
 import {
   BookOpen,
   Compass,
@@ -16,6 +17,7 @@ import {
   Eye,
   Calendar,
   AlertCircle,
+  Download,
 } from 'lucide-react';
 
 export const ReflectionView: React.FC = () => {
@@ -23,6 +25,7 @@ export const ReflectionView: React.FC = () => {
   const { activeInvestigation, activeObservation, activeReflection, activeDiscovery } = state;
   const [isSealing, setIsSealing] = useState<boolean>(false);
   const [sealTarget, setSealTarget] = useState<'archive' | 'setup'>('archive');
+  const [showHerbarium, setShowHerbarium] = useState<boolean>(false);
 
   if (!activeInvestigation || !activeObservation || !activeReflection) {
     return null;
@@ -241,27 +244,61 @@ export const ReflectionView: React.FC = () => {
 
       {/* Actions */}
       <div className="pt-4 border-t border-stone/80 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <TactileButton
-          onClick={handleSaveAndArchive}
-          disabled={isSealing}
-          variant="secondary"
-          className="w-full sm:w-auto px-6 min-h-[48px] text-sm"
+        <button
+          type="button"
+          onClick={() => setShowHerbarium(true)}
+          className="w-full sm:w-auto px-5 py-3 rounded-sm border border-stone-deep/60 bg-paper-bright text-xs font-mono uppercase tracking-wider text-forest font-semibold hover:border-botanical-teal transition-all min-h-[48px] flex items-center justify-center"
         >
-          <BookOpen className="w-4 h-4 mr-2 text-moss" />
-          Seal Folio & View Journal
-        </TactileButton>
+          <Download className="w-3.5 h-3.5 mr-2 text-terracotta" />
+          Export Herbarium Plate (.PNG)
+        </button>
 
-        <TactileButton
-          onClick={handleSaveAndNext}
-          disabled={isSealing}
-          variant="primary"
-          className="w-full sm:w-auto px-8 min-h-[48px] text-sm font-semibold shadow-journal"
-        >
-          <Compass className="w-4 h-4 mr-2" />
-          Seal & Begin Next Investigation
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </TactileButton>
+        <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
+          <TactileButton
+            onClick={handleSaveAndArchive}
+            disabled={isSealing}
+            variant="secondary"
+            className="w-full sm:w-auto px-6 min-h-[48px] text-sm"
+          >
+            <BookOpen className="w-4 h-4 mr-2 text-moss" />
+            Seal Folio & View Journal
+          </TactileButton>
+
+          <TactileButton
+            onClick={handleSaveAndNext}
+            disabled={isSealing}
+            variant="primary"
+            className="w-full sm:w-auto px-8 min-h-[48px] text-sm font-semibold shadow-journal"
+          >
+            <Compass className="w-4 h-4 mr-2" />
+            Seal & Begin Next Investigation
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </TactileButton>
+        </div>
       </div>
+
+      {/* Herbarium Plate Modal */}
+      {showHerbarium && (
+        <HerbariumModal
+          entry={{
+            id: `temp_${Date.now()}`,
+            investigation: activeInvestigation,
+            observation: activeObservation,
+            reflection: activeReflection,
+            discovery: activeDiscovery || {
+              id: `disc_${Date.now()}`,
+              investigationId: activeInvestigation.id,
+              reflectionId: activeReflection.id,
+              title: activeInvestigation.title,
+              fieldCategory: 'Botanical Field Study',
+              significanceScore: 5,
+              unlockedAt: new Date().toISOString(),
+            },
+            createdAt: new Date().toISOString(),
+          }}
+          onClose={() => setShowHerbarium(false)}
+        />
+      )}
     </article>
   );
 };
