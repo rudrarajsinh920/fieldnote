@@ -3,6 +3,12 @@
 > **“AI that teaches you to notice.”**  
 > *A collectible field journal from the future for Hacktoberfest 2026 Week 1 “Touch Grass” Challenge.*
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-brightgreen?style=for-the-badge&logo=render)](https://fieldnote-97c7.onrender.com/)
+[![Tests](https://img.shields.io/badge/Tests-10%2F10%20Passing-success?style=for-the-badge)](https://github.com/rudrarajsinh920/fieldnote)
+[![PWA](https://img.shields.io/badge/PWA-Offline%20Ready-blue?style=for-the-badge)](https://fieldnote-97c7.onrender.com/)
+
+🔗 **Live Application URL:** **[https://fieldnote-97c7.onrender.com/](https://fieldnote-97c7.onrender.com/)**
+
 ---
 
 ## Core Product Philosophy
