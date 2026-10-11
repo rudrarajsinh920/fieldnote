@@ -79,11 +79,6 @@ export const HomeView: React.FC = () => {
           <div className="grid grid-cols-12 min-h-[460px]">
             {/* Left Column: Editorial Headline & Actions */}
             <div className="col-span-6 p-10 xl:p-14 flex flex-col justify-between z-10 relative overflow-hidden">
-              {/* Subtle Botanical Elements Background Watermark */}
-              <div className="absolute -bottom-10 -left-10 pointer-events-none z-0 opacity-15">
-                <BotanicalElementsDecor className="w-60 h-auto" />
-              </div>
-
               <div className="space-y-4 relative z-10">
                 <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-forest font-semibold">
                   <BotanicalLeafSprig className="w-4 h-4 text-forest" />
@@ -103,7 +98,7 @@ export const HomeView: React.FC = () => {
                 </p>
               </div>
 
-              <div className="pt-6 space-y-6">
+              <div className="pt-6 space-y-6 relative z-10">
                 {/* Primary Action Button */}
                 <div>
                   <button
@@ -117,26 +112,36 @@ export const HomeView: React.FC = () => {
                 </div>
 
                 {/* Three Naturalist Stat Counters */}
-                <div className="grid grid-cols-3 gap-6 pt-4 border-t border-stone-light/60">
-                  <div>
-                    <div className="font-serif text-3xl font-medium text-ink">3</div>
-                    <div className="font-mono text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
-                      Disciplines
+                <div className="relative pt-4 border-t border-stone-light/60">
+                  <div className="relative z-10 grid grid-cols-3 gap-6">
+                    <div className="relative z-10">
+                      <div className="font-serif text-3xl font-medium text-ink">3</div>
+                      <div className="font-mono text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
+                        Disciplines
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <div className="font-serif text-3xl font-medium text-ink">10+</div>
-                    <div className="font-mono text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
-                      Minutes Outdoors
+                    <div className="relative z-10">
+                      <div className="font-serif text-3xl font-medium text-ink">10+</div>
+                      <div className="font-mono text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
+                        Minutes Outdoors
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <div className="font-serif text-3xl font-medium text-ink">∞</div>
-                    <div className="font-mono text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
-                      Real Discoveries
+                    <div className="relative z-10">
+                      <div className="font-serif text-3xl font-medium text-ink">∞</div>
+                      <div className="font-mono text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
+                        Real Discoveries
+                      </div>
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Subtle Botanical Landscape & Bird Illustration Accent (fully inside bottom-left hero panel) */}
+              <div
+                className="absolute bottom-0 left-0 pointer-events-none select-none z-0 opacity-10 max-w-[85%] h-32 flex items-end justify-start overflow-hidden"
+                aria-hidden="true"
+              >
+                <BotanicalElementsDecor className="w-auto h-full" />
               </div>
             </div>
 
