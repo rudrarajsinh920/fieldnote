@@ -533,7 +533,7 @@ export const FieldSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const urlView = urlParams.get('view') as AppView | null;
-      const validViews: AppView[] = ['home', 'categories', 'setup', 'reveal', 'field', 'return', 'reflect', 'archive', 'detail'];
+      const validViews: AppView[] = ['home', 'categories', 'setup', 'reveal', 'field', 'return', 'reflect', 'archive', 'profile', 'detail'];
 
       const saved = localStorage.getItem('fieldnote_session_v3');
       if (saved) {
@@ -620,9 +620,34 @@ export const FieldSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     };
   }, [state.isFieldActive]);
 
+  // Support browser Back/Forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlView = (urlParams.get('view') as AppView) || 'home';
+        const validViews: AppView[] = ['home', 'categories', 'setup', 'reveal', 'field', 'return', 'reflect', 'archive', 'profile', 'detail'];
+        if (validViews.includes(urlView)) {
+          dispatch({ type: 'SET_VIEW', payload: urlView });
+        }
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const navigate = (view: AppView) => {
     dispatch({ type: 'SET_AI_ERROR', payload: null });
     dispatch({ type: 'SET_VIEW', payload: view });
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (view === 'home') {
+        url.searchParams.delete('view');
+      } else {
+        url.searchParams.set('view', view);
+      }
+      window.history.pushState({ view }, '', url.toString());
+    }
   };
 
   const updatePreferences = (prefs: Partial<FieldSetupPreferences>) => {
@@ -728,10 +753,20 @@ export const FieldSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const viewEntryDetail = (entry: JournalEntry) => {
     dispatch({ type: 'SELECT_ENTRY', payload: entry });
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('view', 'detail');
+      window.history.pushState({ view: 'detail' }, '', url.toString());
+    }
   };
 
   const clearSelectedEntry = () => {
     dispatch({ type: 'SELECT_ENTRY', payload: null });
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('view', 'archive');
+      window.history.pushState({ view: 'archive' }, '', url.toString());
+    }
   };
 
   const resetSession = () => dispatch({ type: 'RESET_SESSION' });

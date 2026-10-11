@@ -9,7 +9,8 @@ export type AppView =
   | 'return'
   | 'reflect'
   | 'archive'
-  | 'detail';
+  | 'detail'
+  | 'profile';
 
 export type FieldCategory = 'science' | 'community' | 'everyday' | 'edge';
 

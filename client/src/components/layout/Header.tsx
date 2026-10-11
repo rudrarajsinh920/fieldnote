@@ -14,6 +14,7 @@ export const Header: React.FC = () => {
   const isHome = state.currentView === 'home';
   const isExplore = state.currentView === 'categories' || state.currentView === 'setup' || state.currentView === 'reveal';
   const isJournal = state.currentView === 'archive' || state.currentView === 'detail';
+  const isProfile = state.currentView === 'profile';
 
   return (
     <header className="border-b border-stone/80 bg-paper-bright/95 backdrop-blur-sm sticky top-0 z-30 transition-all">
@@ -56,7 +57,7 @@ export const Header: React.FC = () => {
           >
             <span>Home</span>
             {isHome && (
-              <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-forest rounded-full" />
+              <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-forest rounded-full transition-all duration-300" />
             )}
           </button>
           <button
@@ -67,7 +68,7 @@ export const Header: React.FC = () => {
           >
             <span>Explore</span>
             {isExplore && (
-              <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-forest rounded-full" />
+              <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-forest rounded-full transition-all duration-300" />
             )}
           </button>
           <button
@@ -83,14 +84,19 @@ export const Header: React.FC = () => {
               </span>
             )}
             {isJournal && (
-              <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-forest rounded-full" />
+              <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-forest rounded-full transition-all duration-300" />
             )}
           </button>
           <button
-            onClick={() => navigate('archive')}
-            className="text-sm font-sans font-medium text-ink-muted hover:text-ink transition-colors"
+            onClick={() => navigate('profile')}
+            className={`relative py-1 text-sm font-sans font-medium transition-colors ${
+              isProfile ? 'text-ink font-semibold' : 'text-ink-muted hover:text-ink'
+            }`}
           >
-            Profile
+            <span>Profile</span>
+            {isProfile && (
+              <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-forest rounded-full transition-all duration-300" />
+            )}
           </button>
         </nav>
 
@@ -106,11 +112,13 @@ export const Header: React.FC = () => {
               <Search className="w-5 h-5 text-ink" />
             </button>
             <button
-              onClick={() => navigate('archive')}
-              className="p-2 text-ink-muted hover:text-ink rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center"
+              onClick={() => navigate('profile')}
+              className={`p-2 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors ${
+                isProfile ? 'text-forest bg-forest/10' : 'text-ink-muted hover:text-ink'
+              }`}
               aria-label="Naturalist Profile"
             >
-              <User className="w-5 h-5 text-ink" />
+              <User className="w-5 h-5" />
             </button>
           </div>
 

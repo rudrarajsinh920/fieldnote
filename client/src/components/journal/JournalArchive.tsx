@@ -268,15 +268,11 @@ export const JournalArchive: React.FC = () => {
 
             <button
               type="button"
-              onClick={() => setCurrentSection('profile')}
-              className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-sans transition-colors ${
-                currentSection === 'profile'
-                  ? 'font-semibold bg-forest text-paper shadow-sm'
-                  : 'font-medium text-ink-muted hover:text-ink hover:bg-stone-light/40'
-              }`}
+              onClick={() => navigate('profile')}
+              className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-sans font-medium text-ink-muted hover:text-ink hover:bg-stone-light/40 transition-colors"
               aria-label="Collector Passport Profile"
             >
-              <User className={`w-4 h-4 ${currentSection === 'profile' ? 'text-paper' : 'text-ink-muted'}`} />
+              <User className="w-4 h-4 text-ink-muted" />
               <span>Profile</span>
             </button>
           </nav>
@@ -321,12 +317,8 @@ export const JournalArchive: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => setCurrentSection('profile')}
-              className={`px-3 py-1.5 rounded-full text-xs font-sans font-medium whitespace-nowrap flex items-center space-x-1.5 transition-colors ${
-                currentSection === 'profile'
-                  ? 'bg-forest text-paper shadow-sm'
-                  : 'bg-stone-light/60 text-ink-muted hover:text-ink'
-              }`}
+              onClick={() => navigate('profile')}
+              className="px-3 py-1.5 rounded-full text-xs font-sans font-medium whitespace-nowrap flex items-center space-x-1.5 transition-colors bg-stone-light/60 text-ink-muted hover:text-ink"
             >
               <User className="w-3.5 h-3.5" />
               <span>Passport</span>

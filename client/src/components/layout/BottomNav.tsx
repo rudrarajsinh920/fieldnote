@@ -12,6 +12,7 @@ export const BottomNav: React.FC = () => {
   const isHome = state.currentView === 'home';
   const isCategories = state.currentView === 'categories';
   const isJournal = state.currentView === 'archive' || state.currentView === 'detail';
+  const isProfile = state.currentView === 'profile';
 
   return (
     <nav
@@ -23,26 +24,28 @@ export const BottomNav: React.FC = () => {
         <button
           type="button"
           onClick={() => navigate('home')}
-          className={`flex flex-col items-center justify-center p-1 min-w-[50px] min-h-[44px] transition-colors ${
-            isHome ? 'text-forest font-bold' : 'text-ink-muted hover:text-ink'
+          className={`flex flex-col items-center justify-center p-1 min-w-[40px] min-h-[44px] transition-all ${
+            isHome ? 'text-forest font-bold scale-105' : 'text-ink-muted hover:text-ink'
           }`}
           aria-label="Home"
         >
           <Home className="w-5 h-5 mb-0.5" />
           <span className="text-[10px] font-sans font-medium">Home</span>
+          {isHome && <span className="w-1.5 h-1.5 rounded-full bg-forest mt-0.5 transition-all" />}
         </button>
 
         {/* 2. Explore */}
         <button
           type="button"
           onClick={() => navigate('categories')}
-          className={`flex flex-col items-center justify-center p-1 min-w-[50px] min-h-[44px] transition-colors ${
-            isCategories ? 'text-forest font-bold' : 'text-ink-muted hover:text-ink'
+          className={`flex flex-col items-center justify-center p-1 min-w-[40px] min-h-[44px] transition-all ${
+            isCategories ? 'text-forest font-bold scale-105' : 'text-ink-muted hover:text-ink'
           }`}
           aria-label="Explore Disciplines"
         >
           <Compass className="w-5 h-5 mb-0.5" />
           <span className="text-[10px] font-sans font-medium">Explore</span>
+          {isCategories && <span className="w-1.5 h-1.5 rounded-full bg-forest mt-0.5 transition-all" />}
         </button>
 
         {/* 3. Center Action Button: Leaf Circle Button */}
@@ -68,24 +71,28 @@ export const BottomNav: React.FC = () => {
         <button
           type="button"
           onClick={() => navigate('archive')}
-          className={`flex flex-col items-center justify-center p-1 min-w-[50px] min-h-[44px] transition-colors relative ${
-            isJournal ? 'text-forest font-bold' : 'text-ink-muted hover:text-ink'
+          className={`flex flex-col items-center justify-center p-1 min-w-[40px] min-h-[44px] transition-all relative ${
+            isJournal ? 'text-forest font-bold scale-105' : 'text-ink-muted hover:text-ink'
           }`}
           aria-label="Journal Archive"
         >
           <BookOpen className="w-5 h-5 mb-0.5" />
           <span className="text-[10px] font-sans font-medium">Journal</span>
+          {isJournal && <span className="w-1.5 h-1.5 rounded-full bg-forest mt-0.5 transition-all" />}
         </button>
 
         {/* 5. Profile */}
         <button
           type="button"
-          onClick={() => navigate('archive')}
-          className="flex flex-col items-center justify-center p-1 min-w-[50px] min-h-[44px] text-ink-muted hover:text-ink transition-colors"
+          onClick={() => navigate('profile')}
+          className={`flex flex-col items-center justify-center p-1 min-w-[40px] min-h-[44px] transition-all relative ${
+            isProfile ? 'text-forest font-bold scale-105' : 'text-ink-muted hover:text-ink'
+          }`}
           aria-label="Profile"
         >
           <User className="w-5 h-5 mb-0.5" />
           <span className="text-[10px] font-sans font-medium">Profile</span>
+          {isProfile && <span className="w-1.5 h-1.5 rounded-full bg-forest mt-0.5 transition-all" />}
         </button>
       </div>
     </nav>

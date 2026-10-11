@@ -118,56 +118,56 @@ export const CollectorPassport: React.FC<CollectorPassportProps> = ({
   return (
     <div className="space-y-8 animate-journal-entry">
       {/* Passport Header Banner */}
-      <section className="p-6 sm:p-10 rounded-sm border border-stone-deep/60 bg-[#FAF6ED] shadow-journal space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-deep/40 pb-4">
+      <section className="p-4 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl border border-stone bg-[#FAF6ED] shadow-journal-subtle space-y-4 overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-stone/70 pb-4">
           <div className="space-y-1">
             <div className="flex items-center space-x-2">
-              <BotanicalLeafSprig className="w-5 h-5 text-forest" />
-              <span className="font-mono text-xs tracking-widest text-terracotta uppercase font-bold">
+              <BotanicalLeafSprig className="w-4 h-4 sm:w-5 sm:h-5 text-forest" />
+              <span className="font-mono text-[11px] sm:text-xs tracking-widest text-terracotta uppercase font-bold">
                 Naturalist Field Passport
               </span>
             </div>
-            <h1 className="font-serif text-3xl sm:text-5xl text-ink font-medium tracking-tight">
+            <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl text-ink font-medium tracking-tight break-words">
               Collector's Credential
             </h1>
-            <p className="font-serif italic text-sm text-ink-muted">
+            <p className="font-serif italic text-xs sm:text-sm text-ink-muted">
               Authentic inked stamps certifying physical observation fieldwork.
             </p>
           </div>
 
           <button
             onClick={onBackToNotes}
-            className="text-xs font-mono uppercase tracking-wider text-forest hover:text-botanical-teal transition-colors self-start sm:self-auto min-h-[44px] flex items-center"
+            className="text-xs font-mono uppercase tracking-wider text-forest hover:text-forest-deep transition-colors self-start sm:self-auto min-h-[44px] flex items-center"
           >
             ← Back to Folios
           </button>
         </div>
 
         {/* Physical Stats Ribbon */}
-        <div className="grid grid-cols-3 gap-3 pt-2 text-center">
-          <div className="p-3 rounded-[2px] bg-paper-bright border border-stone-deep/40">
-            <span className="block font-mono text-2xl font-bold text-forest">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-2 text-center">
+          <div className="p-2 sm:p-3.5 rounded-xl bg-paper-bright border border-stone/70 shadow-sm">
+            <span className="block font-mono text-lg sm:text-2xl font-bold text-forest">
               {entries.length}
             </span>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-ink-muted">
+            <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-ink-muted truncate block">
               Folios Inscribed
             </span>
           </div>
 
-          <div className="p-3 rounded-[2px] bg-paper-bright border border-stone-deep/40">
-            <span className="block font-mono text-2xl font-bold text-terracotta">
+          <div className="p-2 sm:p-3.5 rounded-xl bg-paper-bright border border-stone/70 shadow-sm">
+            <span className="block font-mono text-lg sm:text-2xl font-bold text-terracotta">
               {totalScreenAwaySeconds}s
             </span>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-ink-muted">
-              Screen-Away Notice
+            <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-ink-muted truncate block">
+              Screen-Away
             </span>
           </div>
 
-          <div className="p-3 rounded-[2px] bg-paper-bright border border-stone-deep/40">
-            <span className="block font-mono text-2xl font-bold text-botanical-teal">
+          <div className="p-2 sm:p-3.5 rounded-xl bg-paper-bright border border-stone/70 shadow-sm">
+            <span className="block font-mono text-lg sm:text-2xl font-bold text-botanical-teal">
               {earnedCount} / {STAMPS.length}
             </span>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-ink-muted">
+            <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-ink-muted truncate block">
               Stamps Inked
             </span>
           </div>
@@ -176,7 +176,7 @@ export const CollectorPassport: React.FC<CollectorPassportProps> = ({
 
       {/* Grid of Inked Passport Stamps */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between border-b border-stone-deep/30 pb-2">
+        <div className="flex items-center justify-between border-b border-stone/70 pb-2">
           <h2 className="font-serif text-xl sm:text-2xl text-ink font-medium">
             Inked Botanical Seals
           </h2>
@@ -189,10 +189,10 @@ export const CollectorPassport: React.FC<CollectorPassportProps> = ({
           {STAMPS.map((stamp) => (
             <div
               key={stamp.id}
-              className={`p-5 rounded-sm border transition-all flex flex-col justify-between min-h-[220px] relative overflow-hidden ${
+              className={`p-5 rounded-2xl border transition-all flex flex-col justify-between min-h-[220px] relative overflow-hidden ${
                 stamp.earned
-                  ? 'bg-paper-bright border-forest/60 shadow-journal-subtle'
-                  : 'bg-paper/40 border-stone-deep/30 opacity-60'
+                  ? 'bg-paper-bright border-forest/60 shadow-journal-subtle hover:border-forest hover:shadow-journal'
+                  : 'bg-paper/40 border-stone/50 opacity-60'
               }`}
             >
               {/* Authenticated Inked Rubber Stamp Graphic */}
