@@ -50,31 +50,40 @@ export const Header: React.FC = () => {
         <nav className="hidden md:flex items-center space-x-8" aria-label="Main Navigation">
           <button
             onClick={() => navigate('home')}
-            className={`text-sm font-sans font-medium transition-colors ${
-              isHome ? 'text-forest font-semibold' : 'text-ink-muted hover:text-ink'
+            className={`relative py-1 text-sm font-sans font-medium transition-colors ${
+              isHome ? 'text-ink font-semibold' : 'text-ink-muted hover:text-ink'
             }`}
           >
-            Home
+            <span>Home</span>
+            {isHome && (
+              <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-forest rounded-full" />
+            )}
           </button>
           <button
             onClick={() => navigate('categories')}
-            className={`text-sm font-sans font-medium transition-colors ${
-              isExplore ? 'text-forest font-semibold' : 'text-ink-muted hover:text-ink'
+            className={`relative py-1 text-sm font-sans font-medium transition-colors ${
+              isExplore ? 'text-ink font-semibold' : 'text-ink-muted hover:text-ink'
             }`}
           >
-            Explore
+            <span>Explore</span>
+            {isExplore && (
+              <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-forest rounded-full" />
+            )}
           </button>
           <button
             onClick={() => navigate('archive')}
-            className={`text-sm font-sans font-medium transition-colors flex items-center ${
-              isJournal ? 'text-forest font-semibold' : 'text-ink-muted hover:text-ink'
+            className={`relative py-1 text-sm font-sans font-medium transition-colors flex items-center ${
+              isJournal ? 'text-ink font-semibold' : 'text-ink-muted hover:text-ink'
             }`}
           >
-            Journal
+            <span>Journal</span>
             {state.journalEntries.length > 0 && (
-              <span className="ml-1.5 text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-stone-light text-forest font-semibold">
+              <span className="ml-1.5 text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-stone-light text-forest font-semibold">
                 {state.journalEntries.length}
               </span>
+            )}
+            {isJournal && (
+              <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-forest rounded-full" />
             )}
           </button>
           <button
@@ -114,7 +123,7 @@ export const Header: React.FC = () => {
                 navigate('categories');
               }
             }}
-            className="hidden md:inline-flex items-center px-4 py-2 rounded-xl text-xs font-mono uppercase tracking-wider bg-forest hover:bg-forest-deep text-paper font-semibold shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="hidden md:inline-flex items-center px-5 py-2.5 rounded-full text-sm font-sans font-semibold bg-forest hover:bg-forest-deep text-paper shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             Begin Investigation
           </button>
