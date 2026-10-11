@@ -4,7 +4,6 @@ import {
   SpecimenArtwork,
   BotanicalCornerFoliage,
   BotanicalLeafSprig,
-  BotanicalElementsDecor,
 } from '../common/BotanicalIllustrations.js';
 import { FieldCategory } from '../../types/index.js';
 import {
@@ -134,14 +133,6 @@ export const HomeView: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Subtle Botanical Landscape & Bird Illustration Accent (fully inside bottom-left hero panel) */}
-              <div
-                className="absolute bottom-0 left-0 pointer-events-none select-none z-0 opacity-10 max-w-[85%] h-32 flex items-end justify-start overflow-hidden"
-                aria-hidden="true"
-              >
-                <BotanicalElementsDecor className="w-auto h-full" />
               </div>
             </div>
 
