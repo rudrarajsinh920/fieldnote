@@ -62,7 +62,7 @@ FIELDNOTE is architected as a local-first monorepo:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-repo/fieldnote.git
+git clone https://github.com/rudrarajsinh920/fieldnote.git
 cd fieldnote
 
 # Install all workspace dependencies
