@@ -136,12 +136,13 @@ export const HomeView: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Column: High-Resolution Mountain Artwork from Reference */}
-            <div className="col-span-6 relative overflow-hidden bg-[#8FC2CA] flex items-center justify-center border-l border-stone/50 min-h-[460px]">
+            {/* Right Column: High-Resolution Mountain Artwork with Zero Cropping */}
+            <div className="col-span-6 relative bg-paper-bright flex items-center justify-center border-l border-stone/50 p-6 xl:p-8 min-h-[460px]">
               <img
                 src="/images/hero-illustration.png"
                 alt="Mountain peaks, evergreen forest, lake and sunrise illustration"
-                className="w-full h-full object-cover object-center select-none"
+                className="w-full h-auto max-h-full object-contain block select-none"
+                style={{ objectFit: 'contain' }}
               />
             </div>
           </div>
@@ -193,12 +194,13 @@ export const HomeView: React.FC = () => {
       {/* ============================================================ */}
       <section className="block lg:hidden space-y-5">
         {/* Mobile Illustrated Landscape Hero Card */}
-        <div className="rounded-3xl border border-stone bg-paper-bright overflow-hidden shadow-journal-subtle relative">
-          <div className="relative aspect-[16/10] sm:aspect-[16/8] overflow-hidden bg-[#8FC2CA]">
+        <div className="rounded-3xl border border-stone bg-paper-bright shadow-journal-subtle relative">
+          <div className="w-full bg-paper-bright flex items-center justify-center p-3 sm:p-5 pb-0 sm:pb-0">
             <img
               src="/images/hero-illustration.png"
               alt="Mountain peaks, evergreen forest, lake and sunrise illustration"
-              className="w-full h-full object-cover object-[center_50%] select-none"
+              className="w-full h-auto object-contain block select-none"
+              style={{ objectFit: 'contain' }}
             />
           </div>
 
