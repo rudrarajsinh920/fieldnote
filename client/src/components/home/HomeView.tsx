@@ -78,28 +78,28 @@ export const HomeView: React.FC = () => {
           {/* Top Half: 12-col split with Headline & Actions (Left) and Mountain Illustration (Right) */}
           <div className="grid grid-cols-12 items-center">
             {/* Left Column: Editorial Headline & Actions */}
-            <div className="col-span-7 p-8 xl:p-14 flex flex-col justify-between z-10 relative self-stretch">
-              <div className="space-y-4 xl:space-y-5 relative z-10">
-                <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-forest font-semibold">
-                  <BotanicalLeafSprig className="w-4 h-4 text-forest" />
-                  <span>Field Journal & Sensory Instrument</span>
+            <div className="col-span-7 p-8 xl:p-14 flex flex-col justify-center z-10 relative">
+              <div className="space-y-6 lg:space-y-7 relative z-10">
+                <div className="space-y-4 xl:space-y-5">
+                  <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-forest font-semibold">
+                    <BotanicalLeafSprig className="w-4 h-4 text-forest" />
+                    <span>Field Journal & Sensory Instrument</span>
+                  </div>
+
+                  <h1 className="font-serif text-4xl lg:text-[44px] xl:text-5xl text-ink font-medium tracking-tight leading-[1.15]">
+                    Step outside.
+                    <br />
+                    Notice more.
+                    <br />
+                    Understand deeper.
+                  </h1>
+
+                  <p className="font-sans text-sm xl:text-base text-ink-muted leading-relaxed max-w-lg pt-1">
+                    A physical-first field journal that makes itself unnecessary. Put your phone away and explore the world around you.
+                  </p>
                 </div>
 
-                <h1 className="font-serif text-4xl lg:text-[44px] xl:text-5xl text-ink font-medium tracking-tight leading-[1.15]">
-                  Step outside.
-                  <br />
-                  Notice more.
-                  <br />
-                  Understand deeper.
-                </h1>
-
-                <p className="font-sans text-sm xl:text-base text-ink-muted leading-relaxed max-w-lg pt-1">
-                  A physical-first field journal that makes itself unnecessary. Put your phone away and explore the world around you.
-                </p>
-              </div>
-
-              <div className="pt-8 space-y-7 relative z-10">
-                {/* Primary Action Button */}
+                {/* Primary Action Button - directly connected visually to description (24-28px gap) */}
                 <div>
                   <button
                     type="button"
@@ -110,27 +110,27 @@ export const HomeView: React.FC = () => {
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
+              </div>
 
-                {/* Three Naturalist Stat Counters */}
-                <div className="relative pt-6 border-t border-stone-light/60">
-                  <div className="relative z-10 grid grid-cols-3 gap-4 xl:gap-6 divide-x divide-stone-light/60">
-                    <div className="pr-2">
-                      <div className="font-serif text-2xl xl:text-3xl font-medium text-ink">3</div>
-                      <div className="font-mono text-[10px] xl:text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
-                        Disciplines
-                      </div>
+              {/* Three Naturalist Stat Counters */}
+              <div className="relative pt-6 border-t border-stone-light/60 mt-8 xl:mt-10 z-10">
+                <div className="relative z-10 grid grid-cols-3 gap-4 xl:gap-6 divide-x divide-stone-light/60">
+                  <div className="pr-2">
+                    <div className="font-serif text-2xl xl:text-3xl font-medium text-ink">3</div>
+                    <div className="font-mono text-[10px] xl:text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
+                      Disciplines
                     </div>
-                    <div className="px-3 xl:px-4">
-                      <div className="font-serif text-2xl xl:text-3xl font-medium text-ink">10+</div>
-                      <div className="font-mono text-[10px] xl:text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
-                        Minutes Outdoors
-                      </div>
+                  </div>
+                  <div className="px-3 xl:px-4">
+                    <div className="font-serif text-2xl xl:text-3xl font-medium text-ink">10+</div>
+                    <div className="font-mono text-[10px] xl:text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
+                      Minutes Outdoors
                     </div>
-                    <div className="pl-3 xl:pl-4">
-                      <div className="font-serif text-2xl xl:text-3xl font-medium text-ink">∞</div>
-                      <div className="font-mono text-[10px] xl:text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
-                        Real Discoveries
-                      </div>
+                  </div>
+                  <div className="pl-3 xl:pl-4">
+                    <div className="font-serif text-2xl xl:text-3xl font-medium text-ink">∞</div>
+                    <div className="font-mono text-[10px] xl:text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
+                      Real Discoveries
                     </div>
                   </div>
                 </div>
