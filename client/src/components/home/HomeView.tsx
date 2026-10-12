@@ -75,9 +75,9 @@ export const HomeView: React.FC = () => {
           </div>
 
           {/* Top Half: 12-col split with Headline & Actions (Left) and Mountain Illustration (Right) */}
-          <div className="grid grid-cols-12 min-h-[460px]">
+          <div className="grid grid-cols-12 items-center">
             {/* Left Column: Editorial Headline & Actions */}
-            <div className="col-span-6 p-8 xl:p-14 flex flex-col justify-between z-10 relative overflow-hidden">
+            <div className="col-span-6 p-8 xl:p-14 flex flex-col justify-between z-10 relative">
               <div className="space-y-3.5 xl:space-y-4 relative z-10">
                 <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-forest font-semibold">
                   <BotanicalLeafSprig className="w-4 h-4 text-forest" />
@@ -137,12 +137,12 @@ export const HomeView: React.FC = () => {
             </div>
 
             {/* Right Column: High-Resolution Mountain Artwork with Zero Cropping */}
-            <div className="col-span-6 relative bg-paper-bright flex items-center justify-center border-l border-stone/50 p-6 xl:p-8 min-h-[460px]">
+            <div className="col-span-6 bg-paper-bright flex items-center justify-center border-l border-stone/50 p-6 xl:p-8">
               <img
                 src="/images/hero-illustration.png"
                 alt="Mountain peaks, evergreen forest, lake and sunrise illustration"
-                className="w-full h-auto max-h-full object-contain block select-none"
-                style={{ objectFit: 'contain' }}
+                className="w-full h-auto block select-none"
+                style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
               />
             </div>
           </div>
@@ -199,8 +199,8 @@ export const HomeView: React.FC = () => {
             <img
               src="/images/hero-illustration.png"
               alt="Mountain peaks, evergreen forest, lake and sunrise illustration"
-              className="w-full h-auto object-contain block select-none"
-              style={{ objectFit: 'contain' }}
+              className="w-full h-auto block select-none"
+              style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
             />
           </div>
 
