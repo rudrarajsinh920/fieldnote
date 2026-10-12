@@ -65,27 +65,27 @@ export const HomeView: React.FC = () => {
   return (
     <div className="space-y-10 sm:space-y-14 animate-journal-entry relative">
       {/* ============================================================ */}
-      {/* 1. DESKTOP & TABLET HERO ( >= 768px )                        */}
-      {/* Two-column split: Text (Left ~50%), Artwork (Right ~50%)     */}
+      {/* 1. DESKTOP & LAPTOP HERO ( >= 1024px )                       */}
+      {/* Two-column split: Text (Left ~58%), Artwork (Right ~42%)     */}
       {/* ============================================================ */}
-      <section className="hidden md:block">
+      <section className="hidden lg:block">
         <div className="relative rounded-3xl border border-stone bg-paper-bright overflow-hidden shadow-journal-subtle">
           {/* Decorative botanical branch framing top-left inside card boundary */}
-          <div className="absolute top-0 left-0 hidden md:block z-20 pointer-events-none">
+          <div className="absolute top-0 left-0 hidden lg:block z-20 pointer-events-none">
             <BotanicalCornerFoliage position="top-left" className="w-16 h-16 xl:w-20 xl:h-20" />
           </div>
 
           {/* Top Half: 12-col split with Headline & Actions (Left) and Mountain Illustration (Right) */}
           <div className="grid grid-cols-12 items-center">
             {/* Left Column: Editorial Headline & Actions */}
-            <div className="col-span-6 p-6 md:p-8 xl:p-12 flex flex-col justify-between z-10 relative">
-              <div className="space-y-3.5 xl:space-y-4 relative z-10">
+            <div className="col-span-7 p-8 xl:p-14 flex flex-col justify-between z-10 relative self-stretch">
+              <div className="space-y-4 xl:space-y-5 relative z-10">
                 <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-forest font-semibold">
                   <BotanicalLeafSprig className="w-4 h-4 text-forest" />
                   <span>Field Journal & Sensory Instrument</span>
                 </div>
 
-                <h1 className="font-serif text-3xl md:text-4xl lg:text-[44px] xl:text-5xl text-ink font-medium tracking-tight leading-[1.15]">
+                <h1 className="font-serif text-4xl lg:text-[44px] xl:text-5xl text-ink font-medium tracking-tight leading-[1.15]">
                   Step outside.
                   <br />
                   Notice more.
@@ -93,18 +93,18 @@ export const HomeView: React.FC = () => {
                   Understand deeper.
                 </h1>
 
-                <p className="font-sans text-xs md:text-sm xl:text-base text-ink-muted leading-relaxed max-w-md pt-1">
+                <p className="font-sans text-sm xl:text-base text-ink-muted leading-relaxed max-w-lg pt-1">
                   A physical-first field journal that makes itself unnecessary. Put your phone away and explore the world around you.
                 </p>
               </div>
 
-              <div className="pt-6 space-y-6 relative z-10">
+              <div className="pt-8 space-y-7 relative z-10">
                 {/* Primary Action Button */}
                 <div>
                   <button
                     type="button"
                     onClick={handleBeginInvestigation}
-                    className="inline-flex items-center space-x-3 px-6 md:px-7 py-3 md:py-3.5 rounded-xl bg-forest hover:bg-forest-deep text-paper font-sans font-semibold text-sm tracking-wide shadow-journal transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    className="inline-flex items-center space-x-3 px-7 py-3.5 rounded-xl bg-forest hover:bg-forest-deep text-paper font-sans font-semibold text-sm tracking-wide shadow-journal transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <span>Begin an Investigation</span>
                     <ArrowRight className="w-4 h-4" />
@@ -112,21 +112,21 @@ export const HomeView: React.FC = () => {
                 </div>
 
                 {/* Three Naturalist Stat Counters */}
-                <div className="relative pt-5 border-t border-stone-light/60">
-                  <div className="relative z-10 grid grid-cols-3 gap-3 md:gap-4 xl:gap-6 divide-x divide-stone-light/60">
+                <div className="relative pt-6 border-t border-stone-light/60">
+                  <div className="relative z-10 grid grid-cols-3 gap-4 xl:gap-6 divide-x divide-stone-light/60">
                     <div className="pr-2">
                       <div className="font-serif text-2xl xl:text-3xl font-medium text-ink">3</div>
                       <div className="font-mono text-[10px] xl:text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
                         Disciplines
                       </div>
                     </div>
-                    <div className="px-2 md:px-3 xl:px-4">
+                    <div className="px-3 xl:px-4">
                       <div className="font-serif text-2xl xl:text-3xl font-medium text-ink">10+</div>
                       <div className="font-mono text-[10px] xl:text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
                         Minutes Outdoors
                       </div>
                     </div>
-                    <div className="pl-2 md:px-3 xl:pl-4">
+                    <div className="pl-3 xl:pl-4">
                       <div className="font-serif text-2xl xl:text-3xl font-medium text-ink">∞</div>
                       <div className="font-mono text-[10px] xl:text-[11px] tracking-wider uppercase text-ink-muted mt-0.5">
                         Real Discoveries
@@ -137,11 +137,13 @@ export const HomeView: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Column: High-Resolution Mountain Artwork with Zero Cropping */}
-            <div className="col-span-6 p-3 md:p-4 lg:p-4 xl:p-5 flex items-center justify-center border-l border-stone/50 bg-[#FAF7F0] self-stretch">
+            {/* Right Column: High-Resolution Vintage Botanical Portrait Artwork */}
+            <div className="col-span-5 p-5 lg:p-6 xl:p-8 flex items-center justify-center border-l border-stone/50 bg-[#FAF7F0] self-stretch">
               <img
-                src="/images/hero-illustration.png"
-                alt="Mountain peaks, evergreen forest, lake and sunrise illustration"
+                src="/images/hero-vintage-luxury.jpg"
+                alt="Vintage botanical field journal illustration featuring golden alpine peaks at sunrise, reflective lake, pine forests, foreground wildflowers, an antique compass, and leather-bound notebook"
+                width={682}
+                height={1024}
                 className="w-full h-auto block select-none rounded-2xl shadow-journal-subtle border border-stone/40"
                 style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
               />
@@ -149,8 +151,8 @@ export const HomeView: React.FC = () => {
           </div>
 
           {/* Bottom Row: 3 Wide Integrated Category Cards matching Reference */}
-          <div className="border-t border-stone/70 bg-[#FAF7F0] p-4 md:p-6 xl:p-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 xl:gap-6">
+          <div className="border-t border-stone/70 bg-[#FAF7F0] p-5 xl:p-8">
+            <div className="grid grid-cols-3 gap-5 xl:gap-6">
               {CATEGORIES.map((cat) => (
                 <div
                   key={cat.id}
@@ -163,9 +165,9 @@ export const HomeView: React.FC = () => {
                       handleCategorySelect(cat.id);
                     }
                   }}
-                  className="group rounded-2xl border border-stone bg-paper-bright p-4 md:p-5 hover:border-forest/60 hover:shadow-journal-subtle transition-all cursor-pointer flex items-center space-x-3.5 md:space-x-4"
+                  className="group rounded-2xl border border-stone bg-paper-bright p-5 hover:border-forest/60 hover:shadow-journal-subtle transition-all cursor-pointer flex items-center space-x-4"
                 >
-                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl overflow-hidden bg-stone-light/40 shrink-0 border border-stone/60">
+                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-stone-light/40 shrink-0 border border-stone/60">
                     {cat.id === 'science' ? (
                       <img src="/images/moss-on-stone.jpg" alt="Botanical Science" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : cat.id === 'community' ? (
@@ -175,7 +177,7 @@ export const HomeView: React.FC = () => {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-serif text-sm md:text-base font-semibold text-ink group-hover:text-forest transition-colors truncate">
+                    <h3 className="font-serif text-base font-semibold text-ink group-hover:text-forest transition-colors truncate">
                       {cat.title}
                     </h3>
                     <p className="font-sans text-xs text-ink-muted line-clamp-2 mt-0.5 leading-snug">
@@ -191,17 +193,17 @@ export const HomeView: React.FC = () => {
       </section>
 
       {/* ============================================================ */}
-      {/* 2. MOBILE HERO ( < 768px )                                   */}
+      {/* 2. MOBILE & TABLET HERO ( < 1024px )                         */}
       {/* ============================================================ */}
-      <section className="block md:hidden space-y-5">
+      <section className="block lg:hidden space-y-5">
         {/* Mobile Illustrated Landscape Hero Card */}
-        <div className="rounded-3xl border border-stone bg-paper-bright shadow-journal-subtle p-5 sm:p-7 space-y-5 relative">
-          <div className="space-y-2.5">
-            <div className="flex items-center space-x-2 text-[11px] font-mono uppercase tracking-wider text-forest font-semibold">
+        <div className="rounded-3xl border border-stone bg-paper-bright shadow-journal-subtle p-5 sm:p-7 md:p-8 space-y-6 relative">
+          <div className="space-y-3 max-w-xl">
+            <div className="flex items-center space-x-2 text-[11px] sm:text-xs font-mono uppercase tracking-wider text-forest font-semibold">
               <BotanicalLeafSprig className="w-3.5 h-3.5 text-forest" />
               <span>Field Journal & Sensory Instrument</span>
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl text-ink font-medium tracking-tight leading-tight">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-ink font-medium tracking-tight leading-tight">
               Step outside.
               <br />
               Notice more.
@@ -213,56 +215,62 @@ export const HomeView: React.FC = () => {
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={handleBeginInvestigation}
-            className="w-full py-3.5 px-5 rounded-xl bg-forest hover:bg-forest-deep text-paper font-sans font-semibold text-sm flex items-center justify-center space-x-2 shadow-journal transition-transform active:scale-[0.98]"
-          >
-            <span>Begin an Investigation</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          <div className="max-w-md">
+            <button
+              type="button"
+              onClick={handleBeginInvestigation}
+              className="w-full sm:w-auto sm:px-8 py-3.5 px-5 rounded-xl bg-forest hover:bg-forest-deep text-paper font-sans font-semibold text-sm flex items-center justify-center space-x-2 shadow-journal transition-transform active:scale-[0.98]"
+            >
+              <span>Begin an Investigation</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
 
-          {/* Three Naturalist Stat Counters on Mobile */}
-          <div className="pt-4 border-t border-stone-light/60">
+          {/* Three Naturalist Stat Counters on Mobile & Tablet */}
+          <div className="pt-4 border-t border-stone-light/60 max-w-xl">
             <div className="grid grid-cols-3 divide-x divide-stone-light/60 text-center">
-              <div className="px-1.5">
-                <div className="font-serif text-2xl font-medium text-ink">3</div>
-                <div className="font-mono text-[9px] sm:text-[10px] uppercase text-ink-muted mt-0.5 leading-tight">
+              <div className="px-1.5 sm:px-3">
+                <div className="font-serif text-2xl sm:text-3xl font-medium text-ink">3</div>
+                <div className="font-mono text-[9px] sm:text-[10px] md:text-xs uppercase text-ink-muted mt-0.5 leading-tight">
                   Disciplines
                 </div>
               </div>
-              <div className="px-1.5">
-                <div className="font-serif text-2xl font-medium text-ink">10+</div>
-                <div className="font-mono text-[9px] sm:text-[10px] uppercase text-ink-muted mt-0.5 leading-tight">
+              <div className="px-1.5 sm:px-3">
+                <div className="font-serif text-2xl sm:text-3xl font-medium text-ink">10+</div>
+                <div className="font-mono text-[9px] sm:text-[10px] md:text-xs uppercase text-ink-muted mt-0.5 leading-tight">
                   Minutes Outdoors
                 </div>
               </div>
-              <div className="px-1.5">
-                <div className="font-serif text-2xl font-medium text-ink">∞</div>
-                <div className="font-mono text-[9px] sm:text-[10px] uppercase text-ink-muted mt-0.5 leading-tight">
+              <div className="px-1.5 sm:px-3">
+                <div className="font-serif text-2xl sm:text-3xl font-medium text-ink">∞</div>
+                <div className="font-mono text-[9px] sm:text-[10px] md:text-xs uppercase text-ink-muted mt-0.5 leading-tight">
                   Real Discoveries
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Illustrated Landscape Artwork Stacked Below Text */}
-          <div className="w-full pt-1">
-            <img
-              src="/images/hero-illustration.png"
-              alt="Mountain peaks, evergreen forest, lake and sunrise illustration"
-              className="w-full h-auto block select-none rounded-2xl shadow-journal-subtle border border-stone/40"
-              style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
-            />
+          {/* Vintage Botanical Portrait Artwork Stacked Below Text */}
+          <div className="w-full pt-2 flex justify-center">
+            <div className="w-full max-w-sm sm:max-w-md md:max-w-lg">
+              <img
+                src="/images/hero-vintage-luxury.jpg"
+                alt="Vintage botanical field journal illustration featuring golden alpine peaks at sunrise, reflective lake, pine forests, foreground wildflowers, an antique compass, and leather-bound notebook"
+                width={682}
+                height={1024}
+                className="w-full h-auto block select-none rounded-2xl shadow-journal-subtle border border-stone/40"
+                style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
+              />
+            </div>
           </div>
         </div>
       </section>
 
       {/* ============================================================ */}
-      {/* 3. DISCIPLINE CARDS ("Choose a path" - Mobile)               */}
+      {/* 3. DISCIPLINE CARDS ("Choose a path" - Mobile & Tablet)       */}
       {/* Reference Screen 1: 3-column compact horizontal grid          */}
       {/* ============================================================ */}
-      <section className="block md:hidden space-y-3.5 sm:space-y-4">
+      <section className="block lg:hidden space-y-3.5 sm:space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-serif text-xl sm:text-2xl text-ink font-medium tracking-tight">
