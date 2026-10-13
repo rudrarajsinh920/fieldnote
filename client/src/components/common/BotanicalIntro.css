@@ -1,7 +1,8 @@
 /* ==========================================================================
-   THE NATURE REVEAL — Opening Botanical Intro Animation (Ultra-Smooth Edition)
-   Hardware-accelerated 60/120fps compositor transforms, zero lag, instant refresh
-   Total duration: 1700ms
+   THE NATURE REVEAL — Full-Screen Botanical Intro Animation for FIELDNOTE
+   Duration: 2.5s (2500ms)
+   Hardware-accelerated 60/120fps GPU compositor transforms
+   Lush, responsive botanical sweep across Desktop, Laptop, Tablet, and Mobile
    ========================================================================== */
 
 /* Fullscreen Overlay Container */
@@ -19,18 +20,18 @@
   transform: translateZ(0);
 }
 
-/* Phase 4: Veil Dissolves to Reveal Live Homepage (1.5s–1.75s) */
+/* Phase 4: Veil Dissolves to Reveal Live Homepage (2.0s – 2.5s) */
 .nature-reveal-overlay.nature-reveal-veil-dissolve {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 240ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ==========================================================================
-   Phase 1: Brand Mark Reveal (0.0s – 1.15s)
+   Phase 1: Brand Mark Reveal (0.0s – 1.4s)
    ========================================================================== */
 .nature-reveal-brand {
-  animation: natureRevealBrandMark 1700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: natureRevealBrandMark 2500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
   will-change: opacity, transform;
   transform: translateZ(0);
 }
@@ -38,28 +39,28 @@
 @keyframes natureRevealBrandMark {
   0% {
     opacity: 0;
-    transform: translate3d(0, 10px, 0) scale(0.96);
+    transform: translate3d(0, 14px, 0) scale(0.96);
   }
-  18% { /* ~300ms: swift gentle bloom */
+  16% { /* ~400ms: gentle editorial bloom */
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
   }
-  50% { /* ~850ms: hold while leaves enter */
+  48% { /* ~1200ms: holds clearly during Phase 2 leaf awakening */
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
   }
-  68% { /* ~1150ms: dissolves as leaf curtain gathers */
+  58% { /* ~1450ms: dissolves softly into Phase 3 full-screen botanical sweep */
     opacity: 0;
-    transform: translate3d(0, -6px, 0) scale(0.98);
+    transform: translate3d(0, -8px, 0) scale(0.98);
   }
   100% {
     opacity: 0;
-    transform: translate3d(0, -6px, 0) scale(0.98);
+    transform: translate3d(0, -8px, 0) scale(0.98);
   }
 }
 
 /* ==========================================================================
-   Leaf Base Styling — 100% Compositor GPU Accelerated (No heavy filter drops)
+   Leaf Base & Vector Styling — 100% Compositor GPU Accelerated
    ========================================================================== */
 .nature-reveal-leaf {
   position: absolute;
@@ -72,274 +73,328 @@
   backface-visibility: hidden;
 }
 
+.nature-reveal-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: none; /* Zero CPU repaints; crystal-clear vector contours */
+}
+
+/* Responsive Generous Dimensions via CSS clamp() */
+.nature-reveal-leaf-1 {
+  width: clamp(115px, 18vw, 260px);
+  height: clamp(145px, 24vw, 350px);
+}
+
+.nature-reveal-leaf-2 {
+  width: clamp(125px, 20vw, 290px);
+  height: clamp(105px, 17vw, 250px);
+}
+
+.nature-reveal-leaf-3 {
+  width: clamp(130px, 22vw, 320px);
+  height: clamp(160px, 26vw, 380px);
+}
+
+.nature-reveal-leaf-4 {
+  width: clamp(105px, 17vw, 250px);
+  height: clamp(125px, 20vw, 300px);
+}
+
+.nature-reveal-leaf-5 {
+  width: clamp(115px, 19vw, 280px);
+  height: clamp(155px, 25vw, 360px);
+}
+
+.nature-reveal-leaf-6 {
+  width: clamp(125px, 20vw, 290px);
+  height: clamp(125px, 20vw, 290px);
+}
+
+.nature-reveal-leaf-7 {
+  width: clamp(85px, 14vw, 210px);
+  height: clamp(155px, 25vw, 370px);
+}
+
+.nature-reveal-leaf-8 {
+  width: clamp(115px, 18vw, 270px);
+  height: clamp(155px, 25vw, 370px);
+}
+
 /* ==========================================================================
-   Leaf 1: Top-Left (Oak Leaf, Forest Green #12372A)
+   Leaf 1: Top-Left (Quercus Oak, Deep Forest #143D2D)
    ========================================================================== */
 .nature-reveal-leaf-1 {
-  animation: driftLeaf1 1700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: driftLeaf1 2500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes driftLeaf1 {
-  0%, 18% { /* 0–300ms: offscreen */
-    transform: translate3d(-25vw, -25vh, 0) rotate(-55deg) scale(0.95);
+  0%, 14% {
+    transform: translate3d(-25vw, -25vh, 0) rotate(-45deg) scale(0.92);
     opacity: 0;
   }
-  32% { /* ~540ms: entering boundary smoothly */
-    transform: translate3d(6vw, 6vh, 0) rotate(-35deg) scale(1.1);
-    opacity: 0.9;
-  }
-  52% { /* ~880ms: mid-drift */
-    transform: translate3d(25vw, 23vh, 0) rotate(-5deg) scale(1.22);
-    opacity: 0.98;
-  }
-  68% { /* ~1150ms: center curtain gathering */
-    transform: translate3d(43vw, 38vh, 0) rotate(18deg) scale(1.36);
-    opacity: 1;
-  }
-  74% { /* ~1250ms: peak overlap */
-    transform: translate3d(45vw, 40vh, 0) rotate(26deg) scale(1.38);
+  28% {
+    transform: translate3d(4vw, 2vh, 0) rotate(-30deg) scale(1.02);
     opacity: 0.95;
   }
-  88% { /* ~1500ms: sweeping outward */
-    transform: translate3d(-20vw, 15vh, 0) rotate(-65deg) scale(1.42);
-    opacity: 0;
+  48% {
+    transform: translate3d(11vw, 8vh, 0) rotate(-22deg) scale(1.1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate3d(16vw, 12vh, 0) rotate(-16deg) scale(1.15);
+    opacity: 1;
+  }
+  84% {
+    transform: translate3d(8vw, 4vh, 0) rotate(-28deg) scale(1.1);
+    opacity: 0.75;
   }
   100% {
-    transform: translate3d(-30vw, 10vh, 0) rotate(-75deg) scale(1.45);
+    transform: translate3d(-28vw, -18vh, 0) rotate(-55deg) scale(1.02);
     opacity: 0;
   }
 }
 
 /* ==========================================================================
-   Leaf 2: Top-Right (Laurel Leaf, Deep Moss #4F6F52)
+   Leaf 2: Top-Center (Ginkgo Maidenhair, Antique Amber #8C6F2D)
    ========================================================================== */
 .nature-reveal-leaf-2 {
-  animation: driftLeaf2 1700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: driftLeaf2 2500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes driftLeaf2 {
-  0%, 18% { /* 0–300ms */
-    transform: translate3d(125vw, -25vh, 0) rotate(65deg) scale(0.95);
+  0%, 14% {
+    transform: translate3d(40vw, -25vh, 0) rotate(20deg) scale(0.92);
     opacity: 0;
   }
-  32% { /* ~540ms */
-    transform: translate3d(92vw, 8vh, 0) rotate(42deg) scale(1.1);
-    opacity: 0.9;
-  }
-  52% { /* ~880ms */
-    transform: translate3d(68vw, 24vh, 0) rotate(12deg) scale(1.22);
-    opacity: 0.98;
-  }
-  68% { /* ~1150ms: center curtain gathering */
-    transform: translate3d(50vw, 36vh, 0) rotate(-18deg) scale(1.38);
-    opacity: 1;
-  }
-  74% { /* ~1250ms: peak overlap */
-    transform: translate3d(48vw, 39vh, 0) rotate(-25deg) scale(1.4);
+  28% {
+    transform: translate3d(39vw, 0vh, 0) rotate(15deg) scale(1.02);
     opacity: 0.95;
   }
-  88% { /* ~1500ms: outward sweep */
-    transform: translate3d(120vw, 18vh, 0) rotate(85deg) scale(1.42);
-    opacity: 0;
+  48% {
+    transform: translate3d(38vw, 6vh, 0) rotate(12deg) scale(1.1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate3d(38vw, 10vh, 0) rotate(10deg) scale(1.16);
+    opacity: 1;
+  }
+  84% {
+    transform: translate3d(39vw, 2vh, 0) rotate(18deg) scale(1.1);
+    opacity: 0.75;
   }
   100% {
-    transform: translate3d(130vw, 12vh, 0) rotate(95deg) scale(1.45);
+    transform: translate3d(40vw, -26vh, 0) rotate(26deg) scale(1.02);
     opacity: 0;
   }
 }
 
 /* ==========================================================================
-   Leaf 3: Bottom-Left (Fern Frond, Sage Green #698E6C)
+   Leaf 3: Mid-Left (Mountain Fern Frond, Sage Green #3D684D)
    ========================================================================== */
 .nature-reveal-leaf-3 {
-  animation: driftLeaf3 1700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: driftLeaf3 2500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes driftLeaf3 {
-  0%, 18% { /* 0–300ms */
-    transform: translate3d(-25vw, 125vh, 0) rotate(50deg) scale(0.95);
+  0%, 14% {
+    transform: translate3d(-25vw, 60vh, 0) rotate(45deg) scale(0.92);
     opacity: 0;
   }
-  32% { /* ~540ms */
-    transform: translate3d(8vw, 88vh, 0) rotate(62deg) scale(1.1);
-    opacity: 0.9;
-  }
-  52% { /* ~880ms */
-    transform: translate3d(26vw, 64vh, 0) rotate(76deg) scale(1.22);
-    opacity: 0.98;
-  }
-  68% { /* ~1150ms: center curtain gathering */
-    transform: translate3d(42vw, 46vh, 0) rotate(88deg) scale(1.36);
-    opacity: 1;
-  }
-  74% { /* ~1250ms: peak overlap */
-    transform: translate3d(45vw, 45vh, 0) rotate(92deg) scale(1.38);
+  28% {
+    transform: translate3d(6vw, 54vh, 0) rotate(38deg) scale(1.02);
     opacity: 0.95;
   }
-  88% { /* ~1500ms: outward sweep */
-    transform: translate3d(-18vw, 120vh, 0) rotate(35deg) scale(1.42);
-    opacity: 0;
+  48% {
+    transform: translate3d(14vw, 46vh, 0) rotate(32deg) scale(1.1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate3d(20vw, 40vh, 0) rotate(28deg) scale(1.15);
+    opacity: 1;
+  }
+  84% {
+    transform: translate3d(10vw, 52vh, 0) rotate(36deg) scale(1.1);
+    opacity: 0.75;
   }
   100% {
-    transform: translate3d(-25vw, 125vh, 0) rotate(25deg) scale(1.45);
+    transform: translate3d(-28vw, 70vh, 0) rotate(48deg) scale(1.02);
     opacity: 0;
   }
 }
 
 /* ==========================================================================
-   Leaf 4: Bottom-Right (Heart Leaf, Warm Terracotta #C96B4B)
+   Leaf 4: Mid-Right (Tilia Heart Leaf, Botanical Terracotta #B85D38)
    ========================================================================== */
 .nature-reveal-leaf-4 {
-  animation: driftLeaf4 1700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: driftLeaf4 2500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes driftLeaf4 {
-  0%, 18% { /* 0–300ms */
-    transform: translate3d(125vw, 125vh, 0) rotate(-55deg) scale(0.95);
+  0%, 14% {
+    transform: translate3d(115vw, 60vh, 0) rotate(-45deg) scale(0.92);
     opacity: 0;
   }
-  32% { /* ~540ms */
-    transform: translate3d(90vw, 88vh, 0) rotate(-38deg) scale(1.1);
-    opacity: 0.9;
-  }
-  52% { /* ~880ms */
-    transform: translate3d(68vw, 64vh, 0) rotate(-16deg) scale(1.22);
-    opacity: 0.98;
-  }
-  68% { /* ~1150ms: center curtain gathering */
-    transform: translate3d(50vw, 46vh, 0) rotate(14deg) scale(1.36);
-    opacity: 1;
-  }
-  74% { /* ~1250ms: peak overlap */
-    transform: translate3d(47vw, 45vh, 0) rotate(22deg) scale(1.38);
+  28% {
+    transform: translate3d(74vw, 54vh, 0) rotate(-32deg) scale(1.02);
     opacity: 0.95;
   }
-  88% { /* ~1500ms: outward sweep */
-    transform: translate3d(120vw, 120vh, 0) rotate(-75deg) scale(1.42);
-    opacity: 0;
+  48% {
+    transform: translate3d(62vw, 48vh, 0) rotate(-24deg) scale(1.1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate3d(52vw, 44vh, 0) rotate(-18deg) scale(1.15);
+    opacity: 1;
+  }
+  84% {
+    transform: translate3d(68vw, 52vh, 0) rotate(-28deg) scale(1.1);
+    opacity: 0.75;
   }
   100% {
-    transform: translate3d(130vw, 125vh, 0) rotate(-85deg) scale(1.45);
+    transform: translate3d(120vw, 70vh, 0) rotate(-48deg) scale(1.02);
     opacity: 0;
   }
 }
 
 /* ==========================================================================
-   Leaf 5: Top-Center (Laurel Leaf, Forest Teal #1E5850) — Tablet/Desktop
+   Leaf 5: Top-Right (Laurus Laurel Sprig, Noble Moss #265338)
    ========================================================================== */
 .nature-reveal-leaf-5 {
-  animation: driftLeaf5 1700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: driftLeaf5 2500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes driftLeaf5 {
-  0%, 18% {
-    transform: translate3d(47vw, -25vh, 0) rotate(18deg) scale(0.9);
+  0%, 16% {
+    transform: translate3d(115vw, -25vh, 0) rotate(45deg) scale(0.9);
     opacity: 0;
   }
-  32% {
-    transform: translate3d(48vw, 6vh, 0) rotate(8deg) scale(1.1);
-    opacity: 0.9;
-  }
-  52% {
-    transform: translate3d(47vw, 24vh, 0) rotate(-6deg) scale(1.22);
-    opacity: 0.98;
-  }
-  68% {
-    transform: translate3d(47vw, 42vh, 0) rotate(10deg) scale(1.4);
-    opacity: 1;
-  }
-  74% {
-    transform: translate3d(48vw, 43vh, 0) rotate(16deg) scale(1.42);
+  30% {
+    transform: translate3d(82vw, 2vh, 0) rotate(30deg) scale(1.02);
     opacity: 0.95;
   }
-  88% {
-    transform: translate3d(47vw, -25vh, 0) rotate(-35deg) scale(1.42);
-    opacity: 0;
+  50% {
+    transform: translate3d(72vw, 8vh, 0) rotate(-4deg) scale(1.1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate3d(64vw, 12vh, 0) rotate(-12deg) scale(1.16);
+    opacity: 1;
+  }
+  84% {
+    transform: translate3d(76vw, 4vh, 0) rotate(14deg) scale(1.1);
+    opacity: 0.75;
   }
   100% {
-    transform: translate3d(47vw, -30vh, 0) rotate(-40deg) scale(1.45);
+    transform: translate3d(120vw, -22vh, 0) rotate(42deg) scale(1.02);
     opacity: 0;
   }
 }
 
 /* ==========================================================================
-   Leaf 6: Mid-Left (Oak Leaf, Deep Forest #0B221A) — Tablet/Desktop
+   Leaf 6: Lower-Center-Left (Acer Field Maple, Earth Green #2C5A3E)
    ========================================================================== */
 .nature-reveal-leaf-6 {
-  animation: driftLeaf6 1700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: driftLeaf6 2500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes driftLeaf6 {
-  0%, 18% {
-    transform: translate3d(-25vw, 44vh, 0) rotate(-25deg) scale(0.9);
+  0%, 16% {
+    transform: translate3d(12vw, 120vh, 0) rotate(-24deg) scale(0.9);
     opacity: 0;
   }
-  32% {
-    transform: translate3d(4vw, 43vh, 0) rotate(-8deg) scale(1.1);
-    opacity: 0.9;
-  }
-  52% {
-    transform: translate3d(24vw, 42vh, 0) rotate(12deg) scale(1.22);
-    opacity: 0.98;
-  }
-  68% {
-    transform: translate3d(41vw, 43vh, 0) rotate(26deg) scale(1.36);
-    opacity: 1;
-  }
-  74% {
-    transform: translate3d(44vw, 44vh, 0) rotate(30deg) scale(1.38);
+  30% {
+    transform: translate3d(16vw, 92vh, 0) rotate(-6deg) scale(1.02);
     opacity: 0.95;
   }
-  88% {
-    transform: translate3d(-25vw, 55vh, 0) rotate(-65deg) scale(1.42);
-    opacity: 0;
+  50% {
+    transform: translate3d(20vw, 80vh, 0) rotate(4deg) scale(1.1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate3d(26vw, 68vh, 0) rotate(14deg) scale(1.18);
+    opacity: 1;
+  }
+  84% {
+    transform: translate3d(18vw, 84vh, 0) rotate(2deg) scale(1.1);
+    opacity: 0.75;
   }
   100% {
-    transform: translate3d(-35vw, 60vh, 0) rotate(-75deg) scale(1.45);
+    transform: translate3d(10vw, 122vh, 0) rotate(-18deg) scale(1.02);
     opacity: 0;
   }
 }
 
 /* ==========================================================================
-   Leaf 7: Mid-Right (Fern Frond, Light Moss #698E6C) — Tablet/Desktop
+   Leaf 7: Mid-Far-Right (Salix Slender Willow, Deep Pine #17432F)
    ========================================================================== */
 .nature-reveal-leaf-7 {
-  animation: driftLeaf7 1700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: driftLeaf7 2500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes driftLeaf7 {
-  0%, 18% {
-    transform: translate3d(125vw, 44vh, 0) rotate(40deg) scale(0.9);
+  0%, 16% {
+    transform: translate3d(120vw, 35vh, 0) rotate(35deg) scale(0.9);
     opacity: 0;
   }
-  32% {
-    transform: translate3d(95vw, 45vh, 0) rotate(24deg) scale(1.1);
-    opacity: 0.9;
-  }
-  52% {
-    transform: translate3d(72vw, 45vh, 0) rotate(8deg) scale(1.22);
-    opacity: 0.98;
-  }
-  68% {
-    transform: translate3d(52vw, 44vh, 0) rotate(-20deg) scale(1.36);
-    opacity: 1;
-  }
-  74% {
-    transform: translate3d(50vw, 43vh, 0) rotate(-26deg) scale(1.38);
+  30% {
+    transform: translate3d(90vw, 40vh, 0) rotate(26deg) scale(1.02);
     opacity: 0.95;
   }
-  88% {
-    transform: translate3d(125vw, 40vh, 0) rotate(65deg) scale(1.42);
-    opacity: 0;
+  50% {
+    transform: translate3d(82vw, 44vh, 0) rotate(20deg) scale(1.1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate3d(74vw, 44vh, 0) rotate(16deg) scale(1.18);
+    opacity: 1;
+  }
+  84% {
+    transform: translate3d(86vw, 40vh, 0) rotate(24deg) scale(1.1);
+    opacity: 0.75;
   }
   100% {
-    transform: translate3d(135vw, 36vh, 0) rotate(75deg) scale(1.45);
+    transform: translate3d(124vw, 36vh, 0) rotate(38deg) scale(1.02);
     opacity: 0;
   }
 }
 
 /* ==========================================================================
-   Hero Synchronization Target (Gentle upward rise & fade at 1.5s–1.75s)
+   Leaf 8: Lower-Center-Right (Castanea Chestnut, Forest Olive #224D36)
+   ========================================================================== */
+.nature-reveal-leaf-8 {
+  animation: driftLeaf8 2500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes driftLeaf8 {
+  0%, 16% {
+    transform: translate3d(65vw, 120vh, 0) rotate(-15deg) scale(0.9);
+    opacity: 0;
+  }
+  30% {
+    transform: translate3d(60vw, 94vh, 0) rotate(-12deg) scale(1.02);
+    opacity: 0.95;
+  }
+  50% {
+    transform: translate3d(58vw, 82vh, 0) rotate(-10deg) scale(1.1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate3d(56vw, 72vh, 0) rotate(-8deg) scale(1.16);
+    opacity: 1;
+  }
+  84% {
+    transform: translate3d(58vw, 86vh, 0) rotate(-12deg) scale(1.1);
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate3d(64vw, 122vh, 0) rotate(-18deg) scale(1.02);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Hero Synchronization Target (Subtle upward rise & fade at 2.0s – 2.5s)
    ========================================================================== */
 html.nature-reveal-active .hero-reveal-target {
   opacity: 0.55;
@@ -350,8 +405,8 @@ html.nature-reveal-active .hero-reveal-target {
 html.nature-reveal-unveiling .hero-reveal-target {
   opacity: 1;
   transform: translate3d(0, 0, 0);
-  transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 450ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 450ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ==========================================================================
