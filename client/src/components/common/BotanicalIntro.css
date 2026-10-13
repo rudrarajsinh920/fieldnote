@@ -1,0 +1,373 @@
+/* ==========================================================================
+   THE NATURE REVEAL — Opening Botanical Intro Animation
+   Delicate botanical leaves drifting across a warm cream veil, parting to reveal FIELDNOTE
+   ========================================================================== */
+
+/* Fullscreen Overlay Container */
+.nature-reveal-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100;
+  background-color: var(--color-paper-base, #F7F4EC);
+  overflow: hidden;
+  user-select: none;
+  pointer-events: auto;
+  opacity: 1;
+}
+
+/* Phase 4: Veil Dissolves to Reveal Live Homepage (2.2s–2.5s) */
+.nature-reveal-overlay.nature-reveal-veil-dissolve {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 320ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   Phase 1: Brand Mark Reveal (0.0s – 1.7s)
+   Gentle bloom during 0–0.4s, serene hold 0.4–1.3s, dissolves at 1.4–1.7s
+   ========================================================================== */
+.nature-reveal-brand {
+  animation: natureRevealBrandMark 2500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+@keyframes natureRevealBrandMark {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  16% { /* ~400ms: gentle bloom */
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  54% { /* ~1350ms: serene hold */
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  68% { /* ~1700ms: softly dissolved as leaf curtain gathers */
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+
+/* ==========================================================================
+   Leaf Base Styling & Depth Shadows
+   ========================================================================== */
+.nature-reveal-leaf {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 8px 18px rgba(18, 55, 42, 0.14));
+}
+
+/* ==========================================================================
+   Leaf 1: Top-Left (Oak Leaf, Forest Green #12372A)
+   0–0.5s: hidden offscreen
+   0.5–1.5s: drifts diagonally inward
+   1.5–1.85s: center curtain overlap
+   1.85–2.2s: outward sweep & fade
+   ========================================================================== */
+.nature-reveal-leaf-1 {
+  animation: driftLeaf1 2500ms cubic-bezier(0.25, 1, 0.38, 1) forwards;
+}
+
+@keyframes driftLeaf1 {
+  0%, 20% { /* 0–500ms: completely offscreen */
+    transform: translate3d(-25vw, -25vh, 0) rotate(-55deg) scale(0.9);
+    opacity: 0;
+  }
+  32% { /* 800ms: entering viewport edge */
+    transform: translate3d(5vw, 6vh, 0) rotate(-35deg) scale(1.05);
+    opacity: 0.85;
+  }
+  50% { /* 1250ms: mid-drift */
+    transform: translate3d(24vw, 22vh, 0) rotate(-5deg) scale(1.18);
+    opacity: 0.95;
+  }
+  65% { /* 1625ms: center curtain overlap */
+    transform: translate3d(43vw, 38vh, 0) rotate(18deg) scale(1.35);
+    opacity: 1;
+  }
+  73% { /* 1825ms: maximum curtain convergence */
+    transform: translate3d(45vw, 40vh, 0) rotate(26deg) scale(1.38);
+    opacity: 0.95;
+  }
+  86% { /* 2150ms: sweeping outward */
+    transform: translate3d(-20vw, 15vh, 0) rotate(-65deg) scale(1.42);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(-30vw, 10vh, 0) rotate(-75deg) scale(1.45);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Leaf 2: Top-Right (Laurel Leaf, Deep Moss #4F6F52)
+   ========================================================================== */
+.nature-reveal-leaf-2 {
+  animation: driftLeaf2 2500ms cubic-bezier(0.25, 1, 0.38, 1) forwards;
+}
+
+@keyframes driftLeaf2 {
+  0%, 20% { /* 0–500ms */
+    transform: translate3d(125vw, -25vh, 0) rotate(65deg) scale(0.9);
+    opacity: 0;
+  }
+  32% { /* 800ms */
+    transform: translate3d(92vw, 8vh, 0) rotate(42deg) scale(1.05);
+    opacity: 0.85;
+  }
+  50% { /* 1250ms */
+    transform: translate3d(70vw, 24vh, 0) rotate(12deg) scale(1.18);
+    opacity: 0.95;
+  }
+  65% { /* 1625ms: center curtain overlap */
+    transform: translate3d(50vw, 36vh, 0) rotate(-18deg) scale(1.38);
+    opacity: 1;
+  }
+  73% { /* 1825ms */
+    transform: translate3d(48vw, 39vh, 0) rotate(-25deg) scale(1.4);
+    opacity: 0.95;
+  }
+  86% { /* 2150ms: outward sweep */
+    transform: translate3d(120vw, 18vh, 0) rotate(85deg) scale(1.42);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(130vw, 12vh, 0) rotate(95deg) scale(1.45);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Leaf 3: Bottom-Left (Fern Frond, Sage Green #698E6C)
+   ========================================================================== */
+.nature-reveal-leaf-3 {
+  animation: driftLeaf3 2500ms cubic-bezier(0.25, 1, 0.38, 1) forwards;
+}
+
+@keyframes driftLeaf3 {
+  0%, 20% { /* 0–500ms */
+    transform: translate3d(-25vw, 125vh, 0) rotate(50deg) scale(0.9);
+    opacity: 0;
+  }
+  32% { /* 800ms */
+    transform: translate3d(6vw, 88vh, 0) rotate(62deg) scale(1.05);
+    opacity: 0.85;
+  }
+  50% { /* 1250ms */
+    transform: translate3d(25vw, 64vh, 0) rotate(76deg) scale(1.18);
+    opacity: 0.95;
+  }
+  65% { /* 1625ms: center curtain overlap */
+    transform: translate3d(42vw, 46vh, 0) rotate(88deg) scale(1.35);
+    opacity: 1;
+  }
+  73% { /* 1825ms */
+    transform: translate3d(45vw, 45vh, 0) rotate(92deg) scale(1.38);
+    opacity: 0.95;
+  }
+  86% { /* 2150ms: outward sweep */
+    transform: translate3d(-18vw, 120vh, 0) rotate(35deg) scale(1.42);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(-25vw, 125vh, 0) rotate(25deg) scale(1.45);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Leaf 4: Bottom-Right (Heart Leaf, Warm Terracotta #C96B4B)
+   ========================================================================== */
+.nature-reveal-leaf-4 {
+  animation: driftLeaf4 2500ms cubic-bezier(0.25, 1, 0.38, 1) forwards;
+}
+
+@keyframes driftLeaf4 {
+  0%, 20% { /* 0–500ms */
+    transform: translate3d(125vw, 125vh, 0) rotate(-55deg) scale(0.9);
+    opacity: 0;
+  }
+  32% { /* 800ms */
+    transform: translate3d(92vw, 88vh, 0) rotate(-38deg) scale(1.05);
+    opacity: 0.85;
+  }
+  50% { /* 1250ms */
+    transform: translate3d(70vw, 64vh, 0) rotate(-16deg) scale(1.18);
+    opacity: 0.95;
+  }
+  65% { /* 1625ms: center curtain overlap */
+    transform: translate3d(50vw, 46vh, 0) rotate(14deg) scale(1.35);
+    opacity: 1;
+  }
+  73% { /* 1825ms */
+    transform: translate3d(47vw, 45vh, 0) rotate(22deg) scale(1.38);
+    opacity: 0.95;
+  }
+  86% { /* 2150ms: outward sweep */
+    transform: translate3d(120vw, 120vh, 0) rotate(-75deg) scale(1.42);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(130vw, 125vh, 0) rotate(-85deg) scale(1.45);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Leaf 5: Top-Center (Laurel Leaf, Forest Teal #1E5850) — Tablet/Desktop
+   ========================================================================== */
+.nature-reveal-leaf-5 {
+  animation: driftLeaf5 2500ms cubic-bezier(0.25, 1, 0.38, 1) forwards;
+}
+
+@keyframes driftLeaf5 {
+  0%, 20% {
+    transform: translate3d(47vw, -25vh, 0) rotate(18deg) scale(0.85);
+    opacity: 0;
+  }
+  32% {
+    transform: translate3d(48vw, 6vh, 0) rotate(8deg) scale(1.05);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate3d(47vw, 24vh, 0) rotate(-6deg) scale(1.18);
+    opacity: 0.95;
+  }
+  65% {
+    transform: translate3d(47vw, 42vh, 0) rotate(10deg) scale(1.4);
+    opacity: 1;
+  }
+  73% {
+    transform: translate3d(48vw, 43vh, 0) rotate(16deg) scale(1.42);
+    opacity: 0.95;
+  }
+  86% {
+    transform: translate3d(47vw, -25vh, 0) rotate(-35deg) scale(1.42);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(47vw, -30vh, 0) rotate(-40deg) scale(1.45);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Leaf 6: Mid-Left (Oak Leaf, Deep Forest #0B221A) — Tablet/Desktop
+   ========================================================================== */
+.nature-reveal-leaf-6 {
+  animation: driftLeaf6 2500ms cubic-bezier(0.25, 1, 0.38, 1) forwards;
+}
+
+@keyframes driftLeaf6 {
+  0%, 20% {
+    transform: translate3d(-25vw, 44vh, 0) rotate(-25deg) scale(0.85);
+    opacity: 0;
+  }
+  32% {
+    transform: translate3d(2vw, 43vh, 0) rotate(-8deg) scale(1.05);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate3d(24vw, 42vh, 0) rotate(12deg) scale(1.18);
+    opacity: 0.95;
+  }
+  65% {
+    transform: translate3d(41vw, 43vh, 0) rotate(26deg) scale(1.35);
+    opacity: 1;
+  }
+  73% {
+    transform: translate3d(44vw, 44vh, 0) rotate(30deg) scale(1.38);
+    opacity: 0.95;
+  }
+  86% {
+    transform: translate3d(-25vw, 55vh, 0) rotate(-65deg) scale(1.42);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(-35vw, 60vh, 0) rotate(-75deg) scale(1.45);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Leaf 7: Mid-Right (Fern Frond, Light Moss #698E6C) — Tablet/Desktop
+   ========================================================================== */
+.nature-reveal-leaf-7 {
+  animation: driftLeaf7 2500ms cubic-bezier(0.25, 1, 0.38, 1) forwards;
+}
+
+@keyframes driftLeaf7 {
+  0%, 20% {
+    transform: translate3d(125vw, 44vh, 0) rotate(40deg) scale(0.85);
+    opacity: 0;
+  }
+  32% {
+    transform: translate3d(95vw, 45vh, 0) rotate(24deg) scale(1.05);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate3d(72vw, 45vh, 0) rotate(8deg) scale(1.18);
+    opacity: 0.95;
+  }
+  65% {
+    transform: translate3d(52vw, 44vh, 0) rotate(-20deg) scale(1.35);
+    opacity: 1;
+  }
+  73% {
+    transform: translate3d(50vw, 43vh, 0) rotate(-26deg) scale(1.38);
+    opacity: 0.95;
+  }
+  86% {
+    transform: translate3d(125vw, 40vh, 0) rotate(65deg) scale(1.42);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(135vw, 36vh, 0) rotate(75deg) scale(1.45);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Hero Synchronization Target (Subtle fade & slight upward motion at 2.2s–2.5s)
+   ========================================================================== */
+html.nature-reveal-active .hero-reveal-target {
+  opacity: 0.5;
+  transform: translateY(12px);
+  will-change: opacity, transform;
+}
+
+html.nature-reveal-unveiling .hero-reveal-target {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 650ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 650ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   Reduced Motion Accessibility Mandate
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .nature-reveal-overlay {
+    display: none !important;
+  }
+  .nature-reveal-brand,
+  .nature-reveal-leaf {
+    animation: none !important;
+  }
+  html.nature-reveal-active .hero-reveal-target {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

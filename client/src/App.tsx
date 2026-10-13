@@ -12,6 +12,7 @@ import { JournalArchive } from './components/journal/JournalArchive.js';
 import { CategorySelectionView } from './components/investigation/CategorySelectionView.js';
 import { DiscoveryDetailView } from './components/journal/DiscoveryDetailView.js';
 import { CollectorPassport } from './components/journal/CollectorPassport.js';
+import { BotanicalIntro } from './components/common/BotanicalIntro.js';
 
 const FieldSessionRouter: React.FC = () => {
   const { state, returnFromField, navigate } = useFieldSession();
@@ -52,6 +53,7 @@ const FieldSessionRouter: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <FieldSessionProvider>
+      <BotanicalIntro />
       <FieldSessionRouter />
     </FieldSessionProvider>
   );

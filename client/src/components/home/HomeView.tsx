@@ -69,7 +69,7 @@ export const HomeView: React.FC = () => {
       {/* Two-column split: Text (Left 50%), Artwork (Right 50%)       */}
       {/* ============================================================ */}
       <section className="hidden lg:block">
-        <div className="relative rounded-3xl border border-stone bg-paper-bright overflow-hidden shadow-journal-subtle">
+        <div className="relative rounded-3xl border border-stone bg-paper-bright overflow-hidden shadow-journal-subtle hero-reveal-target">
           {/* Decorative botanical branch framing top-left inside card boundary */}
           <div className="absolute top-0 left-0 hidden lg:block z-20 pointer-events-none">
             <BotanicalCornerFoliage position="top-left" className="w-16 h-16 xl:w-20 xl:h-20" />
@@ -195,7 +195,7 @@ export const HomeView: React.FC = () => {
       {/* ============================================================ */}
       <section className="block lg:hidden space-y-5">
         {/* Mobile Illustrated Landscape Hero Card */}
-        <div className="rounded-3xl border border-stone bg-paper-bright shadow-journal-subtle overflow-hidden relative">
+        <div className="rounded-3xl border border-stone bg-paper-bright shadow-journal-subtle overflow-hidden relative hero-reveal-target">
           <div className="p-5 sm:p-7 md:p-8 space-y-6">
             <div className="space-y-3 max-w-xl">
               <div className="flex items-center space-x-2 text-[11px] sm:text-xs font-mono uppercase tracking-wider text-forest font-semibold">
