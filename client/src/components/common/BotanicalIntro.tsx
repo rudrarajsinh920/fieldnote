@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { BotanicalLeafSprig } from './BotanicalIllustrations.js';
 import './BotanicalIntro.css';
 
@@ -170,6 +170,23 @@ const ChestnutLeaf: React.FC<{ className?: string; color?: string }> = ({
   </svg>
 );
 
+// Sound Icons
+const SoundOnIcon: React.FC<{ className?: string }> = ({ className = 'w-3.5 h-3.5' }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+  </svg>
+);
+
+const SoundOffIcon: React.FC<{ className?: string }> = ({ className = 'w-3.5 h-3.5' }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <line x1="23" y1="9" x2="17" y2="15" />
+    <line x1="17" y1="9" x2="23" y2="15" />
+  </svg>
+);
+
 export interface BotanicalIntroProps {
   /** Optional callback triggered when animation begins unveiling homepage */
   onUnveil?: () => void;
@@ -180,7 +197,7 @@ export interface BotanicalIntroProps {
 /**
  * BotanicalIntro Component
  * "The Nature Reveal" — Premium Opening Animation for FIELDNOTE
- * 2.5s Full-Screen Botanical Leaf Reveal across Desktop, Laptop, Tablet, and Mobile.
+ * 2.5s Full-Screen Botanical Leaf Reveal with synchronized nature chimes & breeze audio.
  */
 export const BotanicalIntro: React.FC<BotanicalIntroProps> = ({
   onUnveil,
@@ -204,6 +221,46 @@ export const BotanicalIntro: React.FC<BotanicalIntroProps> = ({
   const [isUnveiling, setIsUnveiling] = useState<boolean>(false);
   const [isFinished, setIsFinished] = useState<boolean>(false);
 
+  // Audio state & reference
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isMuted, setIsMuted] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return localStorage.getItem('fieldnote_nature_sound') === 'muted';
+    } catch (_) {
+      return false;
+    }
+  });
+  const [audioBlocked, setAudioBlocked] = useState<boolean>(false);
+
+  // Sound toggle button click handler
+  const toggleSound = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isMuted) {
+      setIsMuted(false);
+      setAudioBlocked(false);
+      try {
+        localStorage.setItem('fieldnote_nature_sound', 'unmuted');
+      } catch (_) {}
+      if (!audioRef.current) {
+        const audio = new Audio('/audio/nature-reveal.wav');
+        audio.volume = 0.85;
+        audioRef.current = audio;
+      }
+      audioRef.current.currentTime = 0;
+      audioRef.current.volume = 0.85;
+      audioRef.current.play().catch(() => {});
+    } else {
+      setIsMuted(true);
+      try {
+        localStorage.setItem('fieldnote_nature_sound', 'muted');
+      } catch (_) {}
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    }
+  };
+
   // Expose developer helpers on window
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -221,6 +278,60 @@ export const BotanicalIntro: React.FC<BotanicalIntroProps> = ({
     }
   }, []);
 
+  // Audio playback lifecycle
+  useEffect(() => {
+    if (!shouldPlay || isFinished) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      return;
+    }
+
+    if (isMuted) return;
+
+    // Initialize audio instance
+    const audio = new Audio('/audio/nature-reveal.wav');
+    audio.volume = 0.85;
+    audio.preload = 'auto';
+    audioRef.current = audio;
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setAudioBlocked(false);
+        })
+        .catch(() => {
+          // Browser Autoplay Policy blocked unmuted audio before user interaction
+          setAudioBlocked(true);
+        });
+    }
+
+    // Interaction unlock: first tap/click/key anywhere unlocks audio if blocked
+    const unlockAudio = () => {
+      if (audioRef.current && !isMuted && audioRef.current.paused) {
+        audioRef.current
+          .play()
+          .then(() => {
+            setAudioBlocked(false);
+          })
+          .catch(() => {});
+      }
+    };
+
+    window.addEventListener('pointerdown', unlockAudio, { once: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, [shouldPlay, isFinished, replayKey, isMuted]);
+
   // Animation timeline lifecycle (Total: 2500ms / 2.5 seconds)
   useEffect(() => {
     if (!shouldPlay || isFinished) return;
@@ -236,6 +347,25 @@ export const BotanicalIntro: React.FC<BotanicalIntroProps> = ({
       document.documentElement.classList.add('nature-reveal-unveiling');
       document.body.style.overflow = originalBodyOverflow;
       onUnveil?.();
+
+      // Smooth audio fadeout during veil dissolve (2.0s -> 2.5s)
+      if (audioRef.current && !audioRef.current.paused) {
+        const audioToFade = audioRef.current;
+        const fadeStep = 0.15;
+        const fadeTimer = setInterval(() => {
+          if (!audioToFade) {
+            clearInterval(fadeTimer);
+            return;
+          }
+          if (audioToFade.volume > fadeStep) {
+            audioToFade.volume = Math.max(0, audioToFade.volume - fadeStep);
+          } else {
+            audioToFade.volume = 0;
+            audioToFade.pause();
+            clearInterval(fadeTimer);
+          }
+        }, 50);
+      }
     }, 2000);
 
     // 2.5 seconds: Complete animation and remove overlay completely from DOM
@@ -243,6 +373,9 @@ export const BotanicalIntro: React.FC<BotanicalIntroProps> = ({
       setIsFinished(true);
       document.documentElement.classList.remove('nature-reveal-active', 'nature-reveal-unveiling');
       document.body.style.overflow = originalBodyOverflow;
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
       onComplete?.();
     }, 2500);
 
@@ -251,6 +384,9 @@ export const BotanicalIntro: React.FC<BotanicalIntroProps> = ({
       clearTimeout(finishTimer);
       document.documentElement.classList.remove('nature-reveal-active', 'nature-reveal-unveiling');
       document.body.style.overflow = originalBodyOverflow;
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
     };
   }, [shouldPlay, isFinished, replayKey, onUnveil, onComplete]);
 
@@ -268,6 +404,21 @@ export const BotanicalIntro: React.FC<BotanicalIntroProps> = ({
         isUnveiling ? 'nature-reveal-veil-dissolve' : ''
       }`}
     >
+      {/* Sound Toggle Control (Top-Right) */}
+      <div className="nature-reveal-sound-wrapper z-30">
+        <button
+          type="button"
+          onClick={toggleSound}
+          className={`nature-reveal-sound-btn ${audioBlocked ? 'nature-reveal-sound-blocked' : ''}`}
+          aria-label={isMuted ? 'Turn on nature sound' : 'Mute nature sound'}
+          title={isMuted ? 'Turn on nature sound' : 'Mute nature sound'}
+        >
+          {isMuted ? <SoundOffIcon /> : <SoundOnIcon />}
+          <span className="nature-reveal-sound-label">
+            {isMuted ? 'SOUND OFF' : audioBlocked ? 'TAP FOR SOUND' : 'SOUND ON'}
+          </span>
+        </button>
+      </div>
       {/* Phase 1 (0.0s – 1.4s): Central Botanical Brand Mark */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 px-4">
         <div className="nature-reveal-brand flex flex-col items-center justify-center text-center">
