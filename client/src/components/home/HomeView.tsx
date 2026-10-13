@@ -66,7 +66,7 @@ export const HomeView: React.FC = () => {
     <div className="space-y-10 sm:space-y-14 animate-journal-entry relative">
       {/* ============================================================ */}
       {/* 1. DESKTOP & LAPTOP HERO ( >= 1024px )                       */}
-      {/* Two-column split: Text (Left ~58%), Artwork (Right ~42%)     */}
+      {/* Two-column split: Text (Left 50%), Artwork (Right 50%)       */}
       {/* ============================================================ */}
       <section className="hidden lg:block">
         <div className="relative rounded-3xl border border-stone bg-paper-bright overflow-hidden shadow-journal-subtle">
@@ -76,9 +76,9 @@ export const HomeView: React.FC = () => {
           </div>
 
           {/* Top Half: 12-col split with Headline & Actions (Left) and Mountain Illustration (Right) */}
-          <div className="grid grid-cols-12 items-center">
+          <div className="grid grid-cols-12 items-stretch">
             {/* Left Column: Editorial Headline & Actions */}
-            <div className="col-span-7 p-8 xl:p-14 flex flex-col justify-center z-10 relative">
+            <div className="col-span-6 p-8 xl:p-14 flex flex-col justify-center z-10 relative">
               <div className="space-y-6 lg:space-y-7 relative z-10">
                 <div className="space-y-4 xl:space-y-5">
                   <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-forest font-semibold">
@@ -137,15 +137,13 @@ export const HomeView: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Column: High-Resolution Vintage Botanical Portrait Artwork */}
-            <div className="col-span-5 p-5 lg:p-6 xl:p-8 flex items-center justify-center border-l border-stone/50 bg-[#FAF7F0] self-stretch">
+            {/* Right Column: Edge-to-Edge Mountain Lake Artwork Panel */}
+            <div className="col-span-6 relative overflow-hidden border-l border-stone/50 bg-stone/20 self-stretch min-h-[460px]">
               <img
-                src="/images/hero-vintage-luxury.jpg"
-                alt="Vintage botanical field journal illustration featuring golden alpine peaks at sunrise, reflective lake, pine forests, foreground wildflowers, an antique compass, and leather-bound notebook"
-                width={682}
-                height={1024}
-                className="w-full h-auto block select-none rounded-2xl shadow-journal-subtle border border-stone/40"
-                style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
+                src="/images/hero-mountain-lake.jpg"
+                alt="Mountain peaks, lake reflection, sunrise and forest wilderness illustration"
+                className="w-full h-full object-cover block select-none"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%' }}
               />
             </div>
           </div>
@@ -197,71 +195,69 @@ export const HomeView: React.FC = () => {
       {/* ============================================================ */}
       <section className="block lg:hidden space-y-5">
         {/* Mobile Illustrated Landscape Hero Card */}
-        <div className="rounded-3xl border border-stone bg-paper-bright shadow-journal-subtle p-5 sm:p-7 md:p-8 space-y-6 relative">
-          <div className="space-y-3 max-w-xl">
-            <div className="flex items-center space-x-2 text-[11px] sm:text-xs font-mono uppercase tracking-wider text-forest font-semibold">
-              <BotanicalLeafSprig className="w-3.5 h-3.5 text-forest" />
-              <span>Field Journal & Sensory Instrument</span>
+        <div className="rounded-3xl border border-stone bg-paper-bright shadow-journal-subtle overflow-hidden relative">
+          <div className="p-5 sm:p-7 md:p-8 space-y-6">
+            <div className="space-y-3 max-w-xl">
+              <div className="flex items-center space-x-2 text-[11px] sm:text-xs font-mono uppercase tracking-wider text-forest font-semibold">
+                <BotanicalLeafSprig className="w-3.5 h-3.5 text-forest" />
+                <span>Field Journal & Sensory Instrument</span>
+              </div>
+              <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-ink font-medium tracking-tight leading-tight">
+                Step outside.
+                <br />
+                Notice more.
+                <br />
+                Understand deeper.
+              </h2>
+              <p className="font-sans text-xs sm:text-sm text-ink-muted leading-relaxed">
+                A physical-first field journal that makes itself unnecessary. Put your phone away and explore the world around you.
+              </p>
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-ink font-medium tracking-tight leading-tight">
-              Step outside.
-              <br />
-              Notice more.
-              <br />
-              Understand deeper.
-            </h2>
-            <p className="font-sans text-xs sm:text-sm text-ink-muted leading-relaxed">
-              A physical-first field journal that makes itself unnecessary. Put your phone away and explore the world around you.
-            </p>
-          </div>
 
-          <div className="max-w-md">
-            <button
-              type="button"
-              onClick={handleBeginInvestigation}
-              className="w-full sm:w-auto sm:px-8 py-3.5 px-5 rounded-xl bg-forest hover:bg-forest-deep text-paper font-sans font-semibold text-sm flex items-center justify-center space-x-2 shadow-journal transition-transform active:scale-[0.98]"
-            >
-              <span>Begin an Investigation</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+            <div className="max-w-md">
+              <button
+                type="button"
+                onClick={handleBeginInvestigation}
+                className="w-full sm:w-auto sm:px-8 py-3.5 px-5 rounded-xl bg-forest hover:bg-forest-deep text-paper font-sans font-semibold text-sm flex items-center justify-center space-x-2 shadow-journal transition-transform active:scale-[0.98]"
+              >
+                <span>Begin an Investigation</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
 
-          {/* Three Naturalist Stat Counters on Mobile & Tablet */}
-          <div className="pt-4 border-t border-stone-light/60 max-w-xl">
-            <div className="grid grid-cols-3 divide-x divide-stone-light/60 text-center">
-              <div className="px-1.5 sm:px-3">
-                <div className="font-serif text-2xl sm:text-3xl font-medium text-ink">3</div>
-                <div className="font-mono text-[9px] sm:text-[10px] md:text-xs uppercase text-ink-muted mt-0.5 leading-tight">
-                  Disciplines
+            {/* Three Naturalist Stat Counters on Mobile & Tablet */}
+            <div className="pt-4 border-t border-stone-light/60 max-w-xl">
+              <div className="grid grid-cols-3 divide-x divide-stone-light/60 text-center">
+                <div className="px-1.5 sm:px-3">
+                  <div className="font-serif text-2xl sm:text-3xl font-medium text-ink">3</div>
+                  <div className="font-mono text-[9px] sm:text-[10px] md:text-xs uppercase text-ink-muted mt-0.5 leading-tight">
+                    Disciplines
+                  </div>
+                </div>
+                <div className="px-1.5 sm:px-3">
+                  <div className="font-serif text-2xl sm:text-3xl font-medium text-ink">10+</div>
+                  <div className="font-mono text-[9px] sm:text-[10px] md:text-xs uppercase text-ink-muted mt-0.5 leading-tight">
+                    Minutes Outdoors
+                  </div>
+                </div>
+                <div className="px-1.5 sm:px-3">
+                  <div className="font-serif text-2xl sm:text-3xl font-medium text-ink">∞</div>
+                  <div className="font-mono text-[9px] sm:text-[10px] md:text-xs uppercase text-ink-muted mt-0.5 leading-tight">
+                    Real Discoveries
+                  </div>
                 </div>
               </div>
-              <div className="px-1.5 sm:px-3">
-                <div className="font-serif text-2xl sm:text-3xl font-medium text-ink">10+</div>
-                <div className="font-mono text-[9px] sm:text-[10px] md:text-xs uppercase text-ink-muted mt-0.5 leading-tight">
-                  Minutes Outdoors
-                </div>
-              </div>
-              <div className="px-1.5 sm:px-3">
-                <div className="font-serif text-2xl sm:text-3xl font-medium text-ink">∞</div>
-                <div className="font-mono text-[9px] sm:text-[10px] md:text-xs uppercase text-ink-muted mt-0.5 leading-tight">
-                  Real Discoveries
-                </div>
-              </div>
             </div>
           </div>
 
-          {/* Vintage Botanical Portrait Artwork Stacked Below Text */}
-          <div className="w-full pt-2 flex justify-center">
-            <div className="w-full max-w-sm sm:max-w-md md:max-w-lg">
-              <img
-                src="/images/hero-vintage-luxury.jpg"
-                alt="Vintage botanical field journal illustration featuring golden alpine peaks at sunrise, reflective lake, pine forests, foreground wildflowers, an antique compass, and leather-bound notebook"
-                width={682}
-                height={1024}
-                className="w-full h-auto block select-none rounded-2xl shadow-journal-subtle border border-stone/40"
-                style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
-              />
-            </div>
+          {/* Edge-to-Edge Mountain Lake Artwork Panel Stacked Below Content */}
+          <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] md:aspect-[2/1] overflow-hidden border-t border-stone/50 bg-stone/20">
+            <img
+              src="/images/hero-mountain-lake.jpg"
+              alt="Mountain peaks, lake reflection, sunset and evergreen forest"
+              className="w-full h-full object-cover block select-none"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%' }}
+            />
           </div>
         </div>
       </section>
